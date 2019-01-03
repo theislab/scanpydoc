@@ -1,6 +1,11 @@
+import sys
 from pathlib import Path
 
 from sphinx.application import Sphinx
+
+# Allow importing scanpydoc itself
+HERE = Path(__file__).parent
+sys.path.insert(0, str(HERE.parent))
 
 
 needs_sphinx = "1.7"  # autosummary bugfix
