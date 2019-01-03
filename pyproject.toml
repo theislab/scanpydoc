@@ -1,0 +1,28 @@
+[build-system]
+requires = ['flit']
+build-backend = 'flit.buildapi'
+
+[tool.flit.metadata]
+module = 'scanpydoc'
+author = 'Philipp Angerer'
+author-email = 'phil.angerer@gmail.com'
+home-page = 'https://icb-scanpydoc.readthedocs-hosted.com/en/latest/'
+classifiers = [
+    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+]
+requires = [
+    'get_version',
+    'future-fstrings',
+]
+
+[tool.flit.metadata.requires-extra]
+test = [
+    'pytest',
+    'pytest-cov',
+    'pytest-black; python_version != "3.5"',
+]
+doc = [
+    'sphinx>=1.8',
+    'sphinx-autodoc-typehints',
+]
+
