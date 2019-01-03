@@ -1,3 +1,4 @@
+# -*- coding: future-fstrings -*-
 from pathlib import Path
 
 import pytest
@@ -18,5 +19,5 @@ def test_as_function(env):
     assert github_url("scanpydoc.rtd_github_links") == "./scanpydoc/rtd_github_links.py"
     assert (
         github_url("scanpydoc.rtd_github_links.github_url")
-        == "./scanpydoc/rtd_github_links.py#L100-L120"
+        == "./scanpydoc/rtd_github_links.py#L101-L121"
     )

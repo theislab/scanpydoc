@@ -1,3 +1,4 @@
+# -*- coding: future-fstrings -*-
 """Override some classnames in autodoc
 
 This makes sure that automatically documented links actually

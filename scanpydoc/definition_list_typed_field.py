@@ -1,3 +1,4 @@
+# -*- coding: future-fstrings -*-
 """Prettier Param docs
 
 Our DLTypedField is the same as the default PyTypedField,

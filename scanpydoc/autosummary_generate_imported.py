@@ -1,3 +1,4 @@
+# -*- coding: future-fstrings -*-
 """Generate autosummary docs for imported members
 
 Patches autosummary to generate docs for imported members
