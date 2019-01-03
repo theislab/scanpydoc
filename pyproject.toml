@@ -11,6 +11,7 @@ classifiers = [
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
 ]
 requires = [
+    'sphinx>=1.8',
     'get_version',
     'future-fstrings',
 ]
@@ -22,7 +23,6 @@ test = [
     'pytest-black; python_version != "3.5"',
 ]
 doc = [
-    'sphinx>=1.8',
     'sphinx-autodoc-typehints',
 ]
 
