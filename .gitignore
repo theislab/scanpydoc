@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+/build/
+/dist/
+
+# Docs
+/docs/_build/
+/docs/scanpydoc.*.rst
+
+# IDEs
+/.idea/
