@@ -14,6 +14,8 @@ from sphinx.application import Sphinx
 from sphinx.domains.python import PyTypedField, PyObject
 from sphinx.environment import BuildEnvironment
 
+from . import _setup_sig, metadata
+
 
 class DLTypedField(PyTypedField):
     list_type = nodes.definition_list
@@ -61,8 +63,9 @@ class DLTypedField(PyTypedField):
         return nodes.field("", fieldname, fieldbody)
 
 
+@_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
-    """replace matching field types with ours"""
+    """Replace :class:`~sphinx.domains.python.PyTypedField` with ours"""
     PyObject.doc_field_types = [
         DLTypedField(
             ft.name,
@@ -77,7 +80,5 @@ def setup(app: Sphinx) -> Dict[str, Any]:
         else ft
         for ft in PyObject.doc_field_types
     ]
-
-    from . import metadata
 
     return metadata

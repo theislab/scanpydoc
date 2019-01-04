@@ -18,6 +18,8 @@ from sphinx.application import Sphinx
 from sphinx.ext import autosummary
 from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
+from . import _setup_sig, metadata
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +59,9 @@ def process_generate_options(app: Sphinx):
     )
 
 
+@_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
+    """Patch autosummary to generate docs for imported members as well"""
     autosummary.process_generate_options = process_generate_options
-
-    from . import metadata
 
     return metadata

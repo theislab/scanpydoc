@@ -46,6 +46,8 @@ from jinja2.defaults import DEFAULT_FILTERS
 from sphinx.application import Sphinx
 from sphinx.config import Config
 
+from . import _setup_sig, metadata
+
 
 project_dir = None  # type: Path
 github_base_url = None  # type: str
@@ -135,6 +137,7 @@ def _check_html_context(config: Config):
         )
 
 
+@_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`"""
     app.add_config_value("project_dir", Path.cwd(), "")
@@ -144,7 +147,5 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # and there’s no way to insert filters into those templates
     # so we have to modify the default filters
     DEFAULT_FILTERS["github_url"] = github_url
-
-    from . import metadata
 
     return metadata

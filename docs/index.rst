@@ -2,9 +2,10 @@ Scanpydoc
 =========
 
 .. automodule:: scanpydoc
+   :members:
 
-Autosummary: generate imported
-------------------------------
+Included extensions
+-------------------
 
 .. autosummary::
    :toctree: .

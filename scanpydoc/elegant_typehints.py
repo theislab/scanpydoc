@@ -10,6 +10,9 @@ from typing import Union, Mapping, Dict, Any
 import sphinx_autodoc_typehints
 from sphinx.application import Sphinx
 
+from . import _setup_sig, metadata
+
+
 qualname_overrides = {
     "anndata.base.AnnData": "anndata.AnnData",
     "pandas.core.frame.DataFrame": "pandas.DataFrame",
@@ -43,9 +46,9 @@ def format_annotation(annotation):
     return fa_orig(annotation)
 
 
+@_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
+    """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display"""
     sphinx_autodoc_typehints.format_annotation = format_annotation
-
-    from . import metadata
 
     return metadata
