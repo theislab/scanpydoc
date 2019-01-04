@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from scanpydoc.rtd_github_links import github_url
+from scanpydoc.rtd_github_links import github_url, _get_linenos
 
 HERE = Path(__file__).parent
 
@@ -17,7 +17,8 @@ def env(monkeypatch: MonkeyPatch):
 
 def test_as_function(env):
     assert github_url("scanpydoc.rtd_github_links") == "./scanpydoc/rtd_github_links.py"
+    s, e = _get_linenos(github_url)
     assert (
         github_url("scanpydoc.rtd_github_links.github_url")
-        == "./scanpydoc/rtd_github_links.py#L101-L121"
+        == f"./scanpydoc/rtd_github_links.py#L{s}-L{e}"
     )
