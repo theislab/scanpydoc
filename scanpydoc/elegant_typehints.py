@@ -1,25 +1,49 @@
 # -*- coding: future-fstrings -*-
-"""Override some classnames in autodoc
+"""Format typehints elegantly and and fix autimatically created links.
 
-This makes sure that automatically documented links actually
-end up being links instead of pointing nowhere.
+The Sphinx extension :mod:`sphinx_autodoc_typehints` adds type annotations to functions.
+This extension modifies the created type annotations in two ways:
+
+#. It formats the annotations more simply and in line with e.g. :mod:`numpy`.
+#. It defines a configuration value ``qualname_overrides`` for ``conf.py``
+   that overrides automatically created links. It is used like this::
+
+       qualname_overrides = {
+           "pandas.core.frame.DataFrame": "pandas.DataFrame",
+           ...,
+       }
+
+   And necessary since :attr:`~definition.__qualname__` does not necessarily match
+   the documented location of the function/class.
+
+   The defaults include :class:`anndata.AnnData`, :class:`pandas.DataFrame`,
+   :class:`scipy.sparse.spmatrix` and other classes in :mod:`scipy.sparse`.
+
 """
 import inspect
+from collections import ChainMap
 from typing import Union, Mapping, Dict, Any, Type
 
 import sphinx_autodoc_typehints
 from sphinx.application import Sphinx
+from sphinx.config import Config
 
 from . import _setup_sig, metadata
 
 
-qualname_overrides = {
+qualname_overrides_default = {
     "anndata.base.AnnData": "anndata.AnnData",
     "pandas.core.frame.DataFrame": "pandas.DataFrame",
     "scipy.sparse.base.spmatrix": "scipy.sparse.spmatrix",
     "scipy.sparse.csr.csr_matrix": "scipy.sparse.csr_matrix",
     "scipy.sparse.csc.csc_matrix": "scipy.sparse.csc_matrix",
 }
+qualname_overrides = ChainMap({}, qualname_overrides_default)
+
+
+def _init_vars(app: Sphinx, config: Config):
+    qualname_overrides.update(config.qualname_overrides)
+
 
 fa_orig = sphinx_autodoc_typehints.format_annotation
 
@@ -59,7 +83,9 @@ def format_annotation(annotation: Type[Any]) -> str:
 
 @_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
-    """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display"""
+    """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
+    app.add_config_value("qualname_overrides", {}, "")
+    app.connect("config-inited", _init_vars)
     sphinx_autodoc_typehints.format_annotation = format_annotation
 
     return metadata

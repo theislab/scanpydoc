@@ -17,10 +17,10 @@ Classes
 {%- endfor -%}
 {%- endif %}
 
+{% if functions -%}
 Functions
 ---------
 
-{% if functions -%}
 {%- for function in functions -%}
 {%- if not function.startswith('_') %}
 .. autofunction:: {{ function }}
