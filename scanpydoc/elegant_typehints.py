@@ -13,11 +13,17 @@ This extension modifies the created type annotations in two ways:
            ...,
        }
 
-   And necessary since :attr:`~definition.__qualname__` does not necessarily match
-   the documented location of the function/class.
-
    The defaults include :class:`anndata.AnnData`, :class:`pandas.DataFrame`,
    :class:`scipy.sparse.spmatrix` and other classes in :mod:`scipy.sparse`.
+
+   It is necessary since :attr:`~definition.__qualname__` does not necessarily match
+   the documented location of the function/class.
+
+   Once either `sphinx issue 4826`_ or `sphinx-autodoc-typehints issue 38`_ are fixed,
+   this part of the functionality will no longer be necessary.
+
+.. _sphinx issue 4826: https://github.com/sphinx-doc/sphinx/issues/4826
+.. _sphinx-autodoc-typehints issue 38: https://github.com/agronholm/sphinx-autodoc-typehints/issues/38
 
 """
 import inspect
