@@ -30,10 +30,10 @@ intersphinx_mapping = dict(
     jinja=("http://jinja.pocoo.org/docs/2.10", None),
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
     # examples
-    numpy=('https://docs.scipy.org/doc/numpy/', None),
-    anndata=('https://anndata.readthedocs.io/en/latest/', None),
-    pandas=('http://pandas.pydata.org/pandas-docs/stable/', None),
-    scipy=('https://docs.scipy.org/doc/scipy/reference/', None),
+    numpy=("https://docs.scipy.org/doc/numpy/", None),
+    anndata=("https://anndata.readthedocs.io/en/latest/", None),
+    pandas=("http://pandas.pydata.org/pandas-docs/stable/", None),
+    scipy=("https://docs.scipy.org/doc/scipy/reference/", None),
 )
 
 # general information
