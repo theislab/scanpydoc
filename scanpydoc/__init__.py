@@ -26,7 +26,7 @@ Returns:
 
 
 def _setup_sig(fn):
-    fn.__doc__ += '\n\n' + indent(setup_sig_str, " " * 4)
+    fn.__doc__ += "\n\n" + indent(setup_sig_str, " " * 4)
     return fn
 
 

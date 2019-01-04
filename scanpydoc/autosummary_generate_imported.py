@@ -1,7 +1,8 @@
 # -*- coding: future-fstrings -*-
 """Generate autosummary docs for imported members
 
-Patches :mod:`~sphinx.ext.autosummary` to generate docs for imported members.
+This extension patches the :mod:`~sphinx.ext.autosummary` extension to generate docs for imported members.
+It needs to be loaded and :confval:`autosummary_generate` needs to be set to :obj:`True`.
 
 This will hopefully be superseded by the ability to add ``:imported-members:``
 to `autosummary templates`_ in te future. See `Sphinx issue 4372`_.

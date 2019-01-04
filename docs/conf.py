@@ -15,6 +15,7 @@ extensions = [
     "sphinx_autodoc_typehints",  # needs to be after napoleon
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "scanpydoc",
 ]
 
 intersphinx_mapping = dict(
@@ -40,6 +41,9 @@ project_dir = Path(__file__).parent.parent
 
 
 def setup(app: Sphinx):
-    from scanpydoc import setup
-
-    setup(app)
+    app.add_object_type(
+        "confval",
+        "confval",
+        objname="configuration value",
+        indextemplate="pair: %s; configuration value",
+    )
