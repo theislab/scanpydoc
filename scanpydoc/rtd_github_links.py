@@ -85,7 +85,7 @@ def _get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
 
 
 def _get_linenos(obj):
-    """Get an object’s line numbers"""
+    """Get an object’s line numbers."""
     try:
         lines, start = inspect.getsourcelines(obj)
     except TypeError:
@@ -97,10 +97,11 @@ def _get_linenos(obj):
 def github_url(qualname: str) -> str:
     """Get the full GitHub URL for some object’s qualname.
 
-    Parameters
-    ==========
-    qualname
-        The full qualified name of a function, class, method or module
+    Args:
+        qualname: The full qualified name of a function, class, method or module
+
+    Returns:
+        A GitHub URL derived from the :confval:`html_context`.
     """
     try:
         obj, module = _get_obj_module(qualname)
@@ -139,7 +140,7 @@ def _check_html_context(config: Config):
 
 @_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
-    """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`"""
+    """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`."""
     app.add_config_value("project_dir", Path.cwd(), "")
     app.connect("config-inited", _init_vars)
 

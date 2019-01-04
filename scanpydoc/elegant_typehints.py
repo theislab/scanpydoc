@@ -5,7 +5,7 @@ This makes sure that automatically documented links actually
 end up being links instead of pointing nowhere.
 """
 import inspect
-from typing import Union, Mapping, Dict, Any
+from typing import Union, Mapping, Dict, Any, Type
 
 import sphinx_autodoc_typehints
 from sphinx.application import Sphinx
@@ -24,7 +24,18 @@ qualname_overrides = {
 fa_orig = sphinx_autodoc_typehints.format_annotation
 
 
-def format_annotation(annotation):
+def format_annotation(annotation: Type[Any]) -> str:
+    """Generate reStructuredText containing links to the types.
+
+    Unlike :func:`sphinx_autodoc_typehints.format_annotation`,
+    it tries to achieve a simpler style as seen in numeric packages like numpy.
+
+    Args:
+        annotation: A type or class used as type annotation.
+
+    Returns:
+        reStructuredText describing the type
+    """
     union_params = getattr(annotation, "__union_params__", None)
     # display `Union[A, B]` as `A, B`
     if getattr(annotation, "__origin__", None) is Union or union_params:
