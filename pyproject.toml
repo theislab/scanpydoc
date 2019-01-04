@@ -10,6 +10,7 @@ home-page = 'https://icb-scanpydoc.readthedocs-hosted.com/en/latest/'
 classifiers = [
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
 ]
+requires-python = '>=3.5'
 requires = [
     'sphinx>=1.8',
     'get_version',
