@@ -20,9 +20,13 @@ extensions = [
 intersphinx_mapping = dict(
     jinja=("http://jinja.pocoo.org/docs/2.10", None),
     python=("https://docs.python.org/3", None),
+    sphinx=("https://www.sphinx-doc.org/en/master/", None),
 )
 
+# Generate .rst stubs for modules using autosummary
 autosummary_generate = True
+# Don’t add module paths to documented functions’ names
+add_module_names = False
 
 templates_path = ["_templates"]
 master_doc = "index"

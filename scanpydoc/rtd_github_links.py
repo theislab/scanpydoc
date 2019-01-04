@@ -35,12 +35,6 @@ To configure the sphinx_rtd_theme_, override the ``autosummary/base.rst`` templa
 
 .. _autosummary templates: http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
 .. _sphinx_rtd_theme: https://sphinx-rtd-theme.readthedocs.io/en/latest/
-
-.. autosummary::
-   :toctree: .
-
-   github_url
-   setup
 """
 import inspect
 import sys
@@ -57,17 +51,17 @@ project_dir = None  # type: Path
 github_base_url = None  # type: str
 
 
-def init_vars(app: Sphinx, config: Config):
+def _init_vars(app: Sphinx, config: Config):
     """Called when ``conf.py`` has been loaded"""
     global github_base_url, project_dir
-    check_html_context(config)
+    _check_html_context(config)
     github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
         config.html_context
     )
     project_dir = config.project_dir
 
 
-def get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
+def _get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
     """Get a module/class/attribute and its original module by qualname"""
     modname = qualname
     attr_path = []
@@ -88,7 +82,7 @@ def get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
     return obj, mod
 
 
-def get_linenos(obj):
+def _get_linenos(obj):
     """Get an object’s line numbers"""
     try:
         lines, start = inspect.getsourcelines(obj)
@@ -107,7 +101,7 @@ def github_url(qualname: str) -> str:
         The full qualified name of a function, class, method or module
     """
     try:
-        obj, module = get_obj_module(qualname)
+        obj, module = _get_obj_module(qualname)
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
@@ -116,12 +110,12 @@ def github_url(qualname: str) -> str:
     except ValueError:
         # trying to document something from another package
         path = "/".join(module.__file__.split("/")[-2:])
-    start, end = get_linenos(obj)
+    start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
 
 
-def check_html_context(config: Config):
+def _check_html_context(config: Config):
     try:
         html_context = config.html_context
     except AttributeError:
@@ -144,7 +138,7 @@ def check_html_context(config: Config):
 def setup(app: Sphinx) -> Dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`"""
     app.add_config_value("project_dir", Path.cwd(), "")
-    app.connect("config-inited", init_vars)
+    app.connect("config-inited", _init_vars)
 
     # html_context doesn’t apply to autosummary templates ☹
     # and there’s no way to insert filters into those templates
