@@ -9,6 +9,10 @@ HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent))
 import scanpydoc  # noqa
 
+# Clean build env
+for file in HERE.glob("scanpydoc.*.rst"):
+    file.unlink()
+
 
 needs_sphinx = "1.7"  # autosummary bugfix
 extensions = [

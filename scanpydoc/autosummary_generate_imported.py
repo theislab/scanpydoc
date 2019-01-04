@@ -25,23 +25,23 @@ from . import _setup_sig, metadata
 logger = logging.getLogger(__name__)
 
 
-def process_generate_options(app: Sphinx):
-    genfiles = app.config.autosummary_generate
+def _generate_stubs(app: Sphinx):
+    gen_files = app.config.autosummary_generate
 
-    if genfiles and not hasattr(genfiles, "__len__"):
+    if gen_files and not hasattr(gen_files, "__len__"):
         env = app.builder.env
-        genfiles = [
+        gen_files = [
             env.doc2path(x, base=None)
             for x in env.found_docs
             if Path(env.doc2path(x)).is_file()
         ]
-    if not genfiles:
+    if not gen_files:
         return
 
     ext = app.config.source_suffix
-    genfiles = [
+    gen_files = [
         genfile + ("" if genfile.endswith(tuple(ext)) else ext[0])
-        for genfile in genfiles
+        for genfile in gen_files
     ]
 
     suffix = autosummary.get_rst_suffix(app)
@@ -49,7 +49,7 @@ def process_generate_options(app: Sphinx):
         return
 
     generate_autosummary_docs(
-        genfiles,
+        gen_files,
         builder=app.builder,
         warn=logger.warning,
         info=logger.info,
@@ -63,6 +63,6 @@ def process_generate_options(app: Sphinx):
 @_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
     """Patch autosummary to generate docs for imported members as well"""
-    autosummary.process_generate_options = process_generate_options
+    autosummary.process_generate_options = _generate_stubs
 
     return metadata
