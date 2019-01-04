@@ -60,7 +60,7 @@ def _init_vars(app: Sphinx, config: Config):
     github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
         config.html_context
     )
-    project_dir = config.project_dir
+    project_dir = Path(config.project_dir)
 
 
 def _get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
