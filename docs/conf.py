@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from sphinx.application import Sphinx
@@ -6,6 +7,7 @@ from sphinx.application import Sphinx
 # Allow importing scanpydoc itself
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent))
+import scanpydoc  # noqa
 
 
 needs_sphinx = "1.7"  # autosummary bugfix
@@ -24,13 +26,19 @@ intersphinx_mapping = dict(
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
 )
 
+# general information
+project = scanpydoc.__name__
+author = "Philipp Angerer"
+copyright = f"{datetime.now():%Y}, {author}."
+version = release = scanpydoc.__version__
+
+master_doc = "index"
+templates_path = ["_templates"]
+
 # Generate .rst stubs for modules using autosummary
 autosummary_generate = True
 # Don’t add module paths to documented functions’ names
 add_module_names = False
-
-templates_path = ["_templates"]
-master_doc = "index"
 
 html_context = dict(
     github_user="theislab", github_repo="scanpydoc", github_version="master"
