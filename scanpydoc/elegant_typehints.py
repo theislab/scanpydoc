@@ -112,8 +112,8 @@ def format_annotation(annotation: Type[Any]) -> str:
     calframe = inspect.getouterframes(curframe, 2)
     if calframe[1][3] == "process_docstring":
         return (
-            fr":annotation-terse:`{_escape(_format_terse(annotation))}`\ "
-            fr":annotation-full:`{_escape(_format_full(annotation))}`"
+            f":annotation-terse:`{_escape(_format_terse(annotation))}`\\ "
+            f":annotation-full:`{_escape(_format_full(annotation))}`"
         )
     else:  # recursive use
         return _format_full(annotation)
@@ -127,7 +127,7 @@ def _role_annot(
     inliner: Inliner,
     options: Dict[str, Any] = {},
     content: Sequence[str] = (),
-    *,
+    # *,  # https://github.com/ambv/black/issues/613
     additional_class: Optional[str] = None,
 ) -> Tuple[List[Node], List[SystemMessage]]:
     options = options.copy()
