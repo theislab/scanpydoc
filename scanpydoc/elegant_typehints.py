@@ -30,7 +30,9 @@ import inspect
 from collections import abc, ChainMap
 from functools import partial
 from pathlib import Path
-from typing import Union, Dict, Any, Type, Sequence, List, Tuple, Optional
+from typing import Any, Union, Optional  # Meta
+from typing import Type, Mapping, Sequence  # ABC
+from typing import Dict, List, Tuple  # Concrete
 
 import sphinx_autodoc_typehints
 from sphinx_autodoc_typehints import format_annotation as _format_full
@@ -77,11 +79,11 @@ def _format_terse(annotation: Type[Any]) -> str:
         return ", ".join(map(_format_terse, params))
 
     # do not show the arguments of Mapping
-    if getattr(annotation, "__origin__", None) is abc.Mapping:
+    if getattr(annotation, "__origin__", None) in (abc.Mapping, Mapping):
         return ":py:class:`~typing.Mapping`"
 
     # display dict as {k: v}
-    if getattr(annotation, "__origin__", None) is dict:
+    if getattr(annotation, "__origin__", None) in (dict, Dict):
         k, v = annotation.__args__
         return f"{{{_format_terse(k)}: {_format_terse(v)}}}"
 
