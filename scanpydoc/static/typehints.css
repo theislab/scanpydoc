@@ -1,13 +1,2 @@
-*:not(:hover) > .annotation-terse {
-    display: initial;
-}
-*:not(:hover) > .annotation-full {
-    display: none;
-}
-
-*:hover > .annotation-terse {
-    display: none;
-}
-*:hover > .annotation-full {
-    display: initial;
-}
+*:not(:hover) > .annotation-full  { display: none }
+*:hover       > .annotation-terse { display: none }
