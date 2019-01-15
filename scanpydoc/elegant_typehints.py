@@ -35,7 +35,7 @@ from typing import Type, Mapping, Sequence  # ABC
 from typing import Dict, List, Tuple  # Concrete
 
 import sphinx_autodoc_typehints
-from sphinx_autodoc_typehints import format_annotation as _format_full
+from sphinx_autodoc_typehints import format_annotation as _format_orig
 from docutils import nodes
 from docutils.nodes import Node
 from docutils.parsers.rst.roles import set_classes
@@ -65,6 +65,25 @@ def _init_vars(app: Sphinx, config: Config):
     config.html_static_path.append(str(HERE / "static"))
 
 
+def _format_full(annotation: Type[Any]):
+    if inspect.isclass(annotation) and annotation.__module__ == "builtins":
+        return _format_orig(annotation)
+    annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
+    if annotation_cls.__module__ == "typing":
+        return _format_orig(annotation)
+
+    # Only if this is a real class we override sphinx_autodoc_typehints
+    if inspect.isclass(annotation) or inspect.isclass(
+        getattr(annotation, "__origin__", None)
+    ):
+        full_name = f"{annotation.__module__}.{annotation.__qualname__}"
+        override = qualname_overrides.get(full_name)
+        if override is not None:
+            return f":py:class:`~{override}`"
+
+    return _format_orig(annotation)
+
+
 def _format_terse(annotation: Type[Any]) -> str:
     union_params = getattr(annotation, "__union_params__", None)
 
@@ -87,11 +106,6 @@ def _format_terse(annotation: Type[Any]) -> str:
         k, v = annotation.__args__
         return f"{{{_format_terse(k)}: {_format_terse(v)}}}"
 
-    if inspect.isclass(annotation):
-        full_name = f"{annotation.__module__}.{annotation.__qualname__}"
-        override = qualname_overrides.get(full_name)
-        if override is not None:
-            return f":py:class:`~{override}`"
     return _format_full(annotation)
 
 
@@ -107,6 +121,11 @@ def format_annotation(annotation: Type[Any]) -> str:
     Returns:
         reStructuredText describing the type
     """
+    if sphinx_autodoc_typehints.format_annotation is not format_annotation:
+        raise RuntimeError(
+            "This function is not guaranteed to work correctly without overriding"
+            "`sphinx_autodoc_typehints.format_annotation` with it."
+        )
 
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
