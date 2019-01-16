@@ -53,6 +53,7 @@ HERE = Path(__file__).parent.resolve()
 qualname_overrides_default = {
     "anndata.base.AnnData": "anndata.AnnData",
     "pandas.core.frame.DataFrame": "pandas.DataFrame",
+    "pandas.core.indexes.base.Index": "pandas.Index",
     "scipy.sparse.base.spmatrix": "scipy.sparse.spmatrix",
     "scipy.sparse.csr.csr_matrix": "scipy.sparse.csr_matrix",
     "scipy.sparse.csc.csc_matrix": "scipy.sparse.csc_matrix",
