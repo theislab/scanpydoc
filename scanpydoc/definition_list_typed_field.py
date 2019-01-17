@@ -63,13 +63,10 @@ class DLTypedField(PyTypedField):
             return nodes.definition_list_item("", head, body)
 
         field_name = nodes.field_name("", self.label)
-        if len(items) == 1 and self.can_collapse:
-            field_arg, content = items[0]
-            body_node = handle_item(field_arg, content)
-        else:
-            body_node = self.list_type()
-            for field_arg, content in items:
-                body_node += handle_item(field_arg, content)
+        assert not self.can_collapse
+        body_node = self.list_type()
+        for field_arg, content in items:
+            body_node += handle_item(field_arg, content)
         field_body = nodes.field_body("", body_node)
         return nodes.field("", field_name, field_body)
 
@@ -77,6 +74,13 @@ class DLTypedField(PyTypedField):
 @_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
     """Replace :class:`~sphinx.domains.python.PyTypedField` with ours."""
+    napoleon_requested = "sphinx.ext.napoleon" in app.config.extensions
+    napoleon_loaded = next(
+        (True for ft in PyObject.doc_field_types if ft.name == "keyword"), False
+    )
+    if napoleon_requested and not napoleon_loaded:
+        raise RuntimeError(f"Please load sphinx.ext.napoleon before {__name__}")
+
     PyObject.doc_field_types = [
         DLTypedField(
             ft.name,
@@ -85,7 +89,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
             label=ft.label,
             rolename=ft.rolename,
             typerolename=ft.typerolename,
-            can_collapse=ft.can_collapse,
+            # Definition lists can’t collapse.
+            can_collapse=False,
         )
         if isinstance(ft, PyTypedField)
         else ft
