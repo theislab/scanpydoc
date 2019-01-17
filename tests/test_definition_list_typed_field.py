@@ -23,8 +23,16 @@ params_code = """\
    :type v: ``~typing.Optional``\\[``str``]
 """
 
+params_code_single = """\
+.. py:function:: test(a)
 
-def test_convert_params(app, parse):
+   :param a: First parameter
+   :type a: ``str``
+"""
+
+
+@pytest.mark.parametrize("code,n", [(params_code, 2), (params_code_single, 1)])
+def test_convert_params(app, parse, code, n):
     # the directive class is PyModuleLevel → PyObject → ObjectDescription
     # ObjectDescription.run uses a DocFieldTransformer to transform members
     # the signature of each Directive(
@@ -32,7 +40,7 @@ def test_convert_params(app, parse):
     #     content_offset, block_text, state, state_machine,
     # )
 
-    doc = parse(app, params_code)
+    doc = parse(app, code)
     assert doc[1]["desctype"] == "function"
     assert doc[1][1].tagname == "desc_content"
     assert doc[1][1][0].tagname == "field_list"
@@ -43,29 +51,22 @@ def test_convert_params(app, parse):
     assert doc[1][1][0][0][1][0].tagname == "definition_list"
 
     dl = doc[1][1][0][0][1][0]
-    assert len(dl) == 2
-    assert dl[0].tagname == dl[1].tagname == "definition_list_item"
-    assert dl[0][0].tagname == dl[1][0].tagname == "term"
-    assert dl[0][1].tagname == dl[1][1].tagname == "definition"
+    assert len(dl) == n, dl
+    for dli in dl:
+        assert dli.tagname == "definition_list_item"
+        assert dli[0].tagname == "term"
+        assert dli[1].tagname == "definition"
 
     # print(doc.asdom().toprettyxml())
 
 
-def test_render_params_html4(app, parse, render):
-    app.config.html_experimental_html5_writer = False
+@pytest.mark.parametrize("translator", [HTMLTranslator, HTML5Translator])
+@pytest.mark.parametrize("code", [params_code, params_code_single])
+def test_render_params_html4(app, parse, render, translator, code):
+    app.config.html_experimental_html5_writer = translator is HTML5Translator
     assert app.builder.__class__ is StandaloneHTMLBuilder
-    assert app.builder.default_translator_class is HTMLTranslator
+    assert app.builder.default_translator_class is translator
 
-    doc = parse(app, params_code)
-    html = render(app, doc)
-    assert "<dl" in html
-
-
-def test_render_params_html5(app, parse, render):
-    app.config.html_experimental_html5_writer = True
-    assert app.builder.__class__ is StandaloneHTMLBuilder
-    assert app.builder.default_translator_class is HTML5Translator
-
-    doc = parse(app, params_code)
+    doc = parse(app, code)
     html = render(app, doc)
     assert "<dl" in html
