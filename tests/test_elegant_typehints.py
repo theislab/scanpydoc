@@ -23,18 +23,18 @@ def test_alternatives(app):
         return format_annotation(a)
 
     assert process_docstring(str) == (
-        ":annotation-terse:`:py:class:\\`str\\``\\ "
-        ":annotation-full:`:py:class:\\`str\\``"
+        r":annotation-terse:`:py:class:\`str\``\ "
+        r":annotation-full:`:py:class:\`str\``"
     )
 
 
 def test_mapping(app):
     assert _format_terse(Mapping[str, Any]) == ":py:class:`~typing.Mapping`"
     assert _format_full(Mapping[str, Any]) == (
-        ":py:class:`~typing.Mapping`\\["
-        ":py:class:`str`, "
-        ":py:data:`~typing.Any`"
-        "]"
+        r":py:class:`~typing.Mapping`\["
+        r":py:class:`str`, "
+        r":py:data:`~typing.Any`"
+        r"]"
     )
 
 
@@ -53,13 +53,13 @@ def test_qualname_overrides_recursive(app):
     sparse = pytest.importorskip("scipy.sparse")
 
     assert _format_terse(Union[sparse.spmatrix, str]) == (
-        ":py:class:`~scipy.sparse.spmatrix`, " ":py:class:`str`"
+        r":py:class:`~scipy.sparse.spmatrix`, :py:class:`str`"
     )
     assert _format_full(Union[sparse.spmatrix, str]) == (
-        ":py:data:`~typing.Union`\\["
-        ":py:class:`~scipy.sparse.spmatrix`, "
-        ":py:class:`str`"
-        "]"
+        r":py:data:`~typing.Union`\["
+        r":py:class:`~scipy.sparse.spmatrix`, "
+        r":py:class:`str`"
+        r"]"
     )
 
 
