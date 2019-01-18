@@ -61,3 +61,11 @@ def test_qualname_overrides_recursive(app):
         ":py:class:`str`"
         "]"
     )
+
+
+def test_classes_get_added(app, parse):
+    doc = parse(app, r":annotation-full:`:py:class:\`str\``")
+    assert doc[0].tagname == "paragraph"
+    assert doc[0][0].tagname == "inline"
+    assert doc[0][0]["classes"] == ["annotation", "full"]
+    # print(doc.asdom().toprettyxml())

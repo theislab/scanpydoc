@@ -30,8 +30,8 @@ import inspect
 from collections import abc, ChainMap
 from functools import partial
 from pathlib import Path
-from typing import Any, Union, Optional  # Meta
-from typing import Type, Mapping, Sequence  # ABC
+from typing import Any, Union  # Meta
+from typing import Type, Mapping, Sequence, Iterable  # ABC
 from typing import Dict, List, Tuple  # Concrete
 
 import sphinx_autodoc_typehints
@@ -148,13 +148,13 @@ def _role_annot(
     options: Dict[str, Any] = {},
     content: Sequence[str] = (),
     # *,  # https://github.com/ambv/black/issues/613
-    additional_class: Optional[str] = None,
+    additional_classes: Iterable[str] = (),
 ) -> Tuple[List[Node], List[SystemMessage]]:
     options = options.copy()
     set_classes(options)
-    if additional_class is not None:
+    if additional_classes:
         options["classes"] = options.get("classes", []).copy()
-        options["classes"].append(additional_class)
+        options["classes"].extend(additional_classes)
     memo = Struct(
         document=inliner.document, reporter=inliner.reporter, language=inliner.language
     )
@@ -181,6 +181,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect("config-inited", _init_vars)
     sphinx_autodoc_typehints.format_annotation = format_annotation
     for name in ["annotation-terse", "annotation-full"]:
-        roles.register_canonical_role(name, partial(_role_annot, additional_class=name))
+        roles.register_canonical_role(
+            name, partial(_role_annot, additional_classes=name.split("-"))
+        )
 
     return metadata
