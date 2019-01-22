@@ -80,6 +80,9 @@ def _get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
             mod = thing
         else:
             obj = thing
+            mod_orig = getattr(obj, "__module__", None)
+            if mod_orig is not None:
+                mod = sys.modules[mod_orig]
 
     return obj, mod
 

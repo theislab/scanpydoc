@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from scanpydoc.rtd_github_links import github_url, _get_linenos
+from scanpydoc.rtd_github_links import github_url, _get_linenos, _get_obj_module
 
 HERE = Path(__file__).parent
 
@@ -22,3 +22,11 @@ def test_as_function(env):
         github_url("scanpydoc.rtd_github_links.github_url")
         == f"./scanpydoc/rtd_github_links.py#L{s}-L{e}"
     )
+
+
+def test_get_obj_module():
+    import get_version
+
+    obj, mod = _get_obj_module("scanpydoc.get_version")
+    assert obj is get_version.get_version
+    assert mod is get_version
