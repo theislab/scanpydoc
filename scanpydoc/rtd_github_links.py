@@ -144,7 +144,14 @@ def _check_html_context(config: Config):
 @_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`."""
-    app.add_config_value("project_dir", Path.cwd(), "")
+    # Guess default project dir
+    proj_dir = Path.cwd()
+    if proj_dir.name == "docs":
+        proj_dir = proj_dir.parent
+    elif not (proj_dir / "docs").is_dir():
+        proj_dir = proj_dir.parent
+
+    app.add_config_value("project_dir", proj_dir, "")
     app.connect("config-inited", _init_vars)
 
     # html_context doesn’t apply to autosummary templates ☹
