@@ -6,7 +6,8 @@ build-backend = 'flit.buildapi'
 module = 'scanpydoc'
 author = 'Philipp Angerer'
 author-email = 'phil.angerer@gmail.com'
-home-page = 'https://icb-scanpydoc.readthedocs-hosted.com/en/latest/'
+home-page = 'https://github.com/theislab/scanpydoc/'
+urls = { Documentation = 'https://icb-scanpydoc.readthedocs-hosted.com/' }
 description-file = 'README.rst'
 classifiers = [
     'Intended Audience :: Developers',
