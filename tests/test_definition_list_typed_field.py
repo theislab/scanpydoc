@@ -63,7 +63,7 @@ def test_convert_params(app, parse, code, n):
 @pytest.mark.parametrize("translator", [HTMLTranslator, HTML5Translator])
 @pytest.mark.parametrize("code", [params_code, params_code_single])
 def test_render_params_html4(app, parse, render, translator, code):
-    app.config.html_experimental_html5_writer = translator is HTML5Translator
+    app.config.html4_writer = translator is HTMLTranslator
     assert app.builder.__class__ is StandaloneHTMLBuilder
     assert app.builder.default_translator_class is translator
 

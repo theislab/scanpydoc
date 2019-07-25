@@ -66,12 +66,12 @@ def _init_vars(app: Sphinx, config: Config):
     config.html_static_path.append(str(HERE / "static"))
 
 
-def _format_full(annotation: Type[Any]):
+def _format_full(annotation: Type[Any], fully_qualified: bool = False):
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
-        return _format_orig(annotation)
+        return _format_orig(annotation, fully_qualified)
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ == "typing":
-        return _format_orig(annotation)
+        return _format_orig(annotation, fully_qualified)
 
     # Only if this is a real class we override sphinx_autodoc_typehints
     if inspect.isclass(annotation) or inspect.isclass(
@@ -80,12 +80,12 @@ def _format_full(annotation: Type[Any]):
         full_name = f"{annotation.__module__}.{annotation.__qualname__}"
         override = qualname_overrides.get(full_name)
         if override is not None:
-            return f":py:class:`~{override}`"
+            return f":py:class:`{'' if fully_qualified else '~'}{override}`"
 
-    return _format_orig(annotation)
+    return _format_orig(annotation, fully_qualified)
 
 
-def _format_terse(annotation: Type[Any]) -> str:
+def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
     union_params = getattr(annotation, "__union_params__", None)
 
     # display `Union[A, B]` as `A, B`
@@ -96,21 +96,21 @@ def _format_terse(annotation: Type[Any]) -> str:
         # as is the convention in the other large numerical packages
         # if len(params or []) == 2 and getattr(params[1], '__qualname__', None) == 'NoneType':
         #     return fa_orig(annotation)  # Optional[...]
-        return ", ".join(map(_format_terse, params))
+        return ", ".join(_format_terse(p, fully_qualified) for p in params)
 
     # do not show the arguments of Mapping
     if getattr(annotation, "__origin__", None) in (abc.Mapping, Mapping):
-        return ":py:class:`~typing.Mapping`"
+        return f":py:class:`{'' if fully_qualified else '~'}typing.Mapping`"
 
     # display dict as {k: v}
     if getattr(annotation, "__origin__", None) in (dict, Dict):
         k, v = annotation.__args__
-        return f"{{{_format_terse(k)}: {_format_terse(v)}}}"
+        return f"{{{_format_terse(k, fully_qualified)}: {_format_terse(v, fully_qualified)}}}"
 
-    return _format_full(annotation)
+    return _format_full(annotation, fully_qualified)
 
 
-def format_annotation(annotation: Type[Any]) -> str:
+def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> str:
     """Generate reStructuredText containing links to the types.
 
     Unlike :func:`sphinx_autodoc_typehints.format_annotation`,
@@ -132,11 +132,11 @@ def format_annotation(annotation: Type[Any]) -> str:
     calframe = inspect.getouterframes(curframe, 2)
     if calframe[1][3] == "process_docstring":
         return (
-            f":annotation-terse:`{_escape(_format_terse(annotation))}`\\ "
-            f":annotation-full:`{_escape(_format_full(annotation))}`"
+            f":annotation-terse:`{_escape(_format_terse(annotation, fully_qualified))}`\\ "
+            f":annotation-full:`{_escape(_format_full(annotation, fully_qualified))}`"
         )
     else:  # recursive use
-        return _format_full(annotation)
+        return _format_full(annotation, fully_qualified)
 
 
 def _role_annot(

@@ -63,6 +63,20 @@ def test_qualname_overrides_recursive(app):
     )
 
 
+def test_fully_qualified(app):
+    sparse = pytest.importorskip("scipy.sparse")
+
+    assert _format_terse(Union[sparse.spmatrix, str], True) == (
+        r":py:class:`scipy.sparse.spmatrix`, :py:class:`str`"
+    )
+    assert _format_full(Union[sparse.spmatrix, str], True) == (
+        r":py:data:`typing.Union`\["
+        r":py:class:`scipy.sparse.spmatrix`, "
+        r":py:class:`str`"
+        r"]"
+    )
+
+
 def test_classes_get_added(app, parse):
     doc = parse(app, r":annotation-full:`:py:class:\`str\``")
     assert doc[0].tagname == "paragraph"
