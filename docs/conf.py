@@ -27,12 +27,12 @@ extensions = [
 
 intersphinx_mapping = dict(
     python=("https://docs.python.org/3", None),
-    jinja=("http://jinja.pocoo.org/docs/2.10", None),
+    jinja=("http://jinja.pocoo.org/docs/2.10.x", None),
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
     # examples
     numpy=("https://docs.scipy.org/doc/numpy/", None),
     anndata=("https://anndata.readthedocs.io/en/latest/", None),
-    pandas=("http://pandas.pydata.org/pandas-docs/stable/", None),
+    pandas=("https://pandas.pydata.org/pandas-docs/stable/", None),
     scipy=("https://docs.scipy.org/doc/scipy/reference/", None),
 )
 
