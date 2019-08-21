@@ -118,3 +118,11 @@ def test_typing_classes(app, annotation, formatter):
         elif len(annotation.__args__) == 2 and type(None) in annotation.__args__:
             name = "Optional"
     assert formatter(annotation, True).startswith(f":py:data:`typing.{name}")
+
+
+def test_typing_class_nested(app):
+    assert _format_full(t.Optional[t.Tuple[int, str]]) == (
+        ":py:data:`~typing.Optional`\\["
+        ":py:data:`~typing.Tuple`\\[:py:class:`int`, :py:class:`str`]"
+        "]"
+    )
