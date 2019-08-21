@@ -1,4 +1,3 @@
-# -*- coding: future-fstrings -*-
 """Prettier function parameter documentation.
 
 This extension replaces the default :class:`~sphinx.domains.python.PyTypedField`

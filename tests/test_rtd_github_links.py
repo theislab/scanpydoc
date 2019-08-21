@@ -1,4 +1,3 @@
-# -*- coding: future-fstrings -*-
 from pathlib import Path
 
 import pytest

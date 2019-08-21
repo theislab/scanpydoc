@@ -108,7 +108,9 @@ def test_typing_classes(app, annotation, formatter):
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
-        or annotation.__origin__._name
+        or getattr(getattr(annotation, "__origin__", None), "_name", None)
+        # 3.6 _Any and _Union
+        or annotation.__class__.__name__[1:]
     )
     if name == "Union":
         if formatter is _format_terse:

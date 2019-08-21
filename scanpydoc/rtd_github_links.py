@@ -1,4 +1,3 @@
-# -*- coding: future-fstrings -*-
 """GitHub URLs for class and method pages
 
 This extension registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`

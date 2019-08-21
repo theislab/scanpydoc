@@ -1,4 +1,3 @@
-# -*- coding: future-fstrings -*-
 """A series of Sphinx extensions to get easy to maintain, numpydoc style documentation.
 
 This module is also an extension itself which simply sets up all included extensions.

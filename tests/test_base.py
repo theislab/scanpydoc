@@ -1,4 +1,3 @@
-# -*- coding: future-fstrings -*-
 import pkgutil
 from functools import partial
 from importlib import import_module

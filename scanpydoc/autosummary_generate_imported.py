@@ -1,4 +1,3 @@
-# -*- coding: future-fstrings -*-
 """Generate autosummary docs for imported members.
 
 This extension patches the :mod:`~sphinx.ext.autosummary` extension to generate docs for imported members.

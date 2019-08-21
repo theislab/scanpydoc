@@ -1,4 +1,3 @@
-# -*- coding: future-fstrings -*-
 """Format typehints elegantly and and fix autimatically created links.
 
 The Sphinx extension :mod:`sphinx_autodoc_typehints` adds type annotations to functions.

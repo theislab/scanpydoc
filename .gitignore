@@ -3,8 +3,10 @@ __pycache__/
 /build/
 /dist/
 
-# Venvs
-/3.5
+# Testing
+/.tox/
+/.coverage
+.pytest_cache/
 
 # Docs
 /docs/_build/
@@ -12,4 +14,3 @@ __pycache__/
 
 # IDEs
 /.idea/
-/.coverage
