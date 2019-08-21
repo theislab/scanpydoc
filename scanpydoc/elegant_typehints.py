@@ -73,7 +73,12 @@ def _format_full(annotation: Type[Any], fully_qualified: bool = False):
         return _format_orig(annotation, fully_qualified)
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ == "typing":
-        return _format_orig(annotation, fully_qualified)
+        formatted = _format_orig(annotation, fully_qualified)
+        # work around https://github.com/agronholm/sphinx-autodoc-typehints/issues/94
+        formatted = formatted.replace(
+            ":py:class:`typing.Tuple`", ":py:data:`typing.Tuple`"
+        )
+        return formatted
 
     # Only if this is a real class we override sphinx_autodoc_typehints
     if inspect.isclass(annotation) or inspect.isclass(

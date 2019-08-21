@@ -38,4 +38,3 @@ doc = [
 [tool.black]
 py36 = false
 exclude = '3.5'
-

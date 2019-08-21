@@ -1,4 +1,4 @@
-from typing import Mapping, Any, Dict, Union
+import typing as t
 
 import pytest
 from sphinx.application import Sphinx
@@ -29,8 +29,8 @@ def test_alternatives(app):
 
 
 def test_mapping(app):
-    assert _format_terse(Mapping[str, Any]) == ":py:class:`~typing.Mapping`"
-    assert _format_full(Mapping[str, Any]) == (
+    assert _format_terse(t.Mapping[str, t.Any]) == ":py:class:`~typing.Mapping`"
+    assert _format_full(t.Mapping[str, t.Any]) == (
         r":py:class:`~typing.Mapping`\["
         r":py:class:`str`, "
         r":py:data:`~typing.Any`"
@@ -39,7 +39,9 @@ def test_mapping(app):
 
 
 def test_dict(app):
-    assert _format_terse(Dict[str, Any]) == "{:py:class:`str`: :py:data:`~typing.Any`}"
+    assert _format_terse(t.Dict[str, t.Any]) == (
+        "{:py:class:`str`: :py:data:`~typing.Any`}"
+    )
 
 
 def test_qualname_overrides(app):
@@ -52,10 +54,10 @@ def test_qualname_overrides(app):
 def test_qualname_overrides_recursive(app):
     sparse = pytest.importorskip("scipy.sparse")
 
-    assert _format_terse(Union[sparse.spmatrix, str]) == (
+    assert _format_terse(t.Union[sparse.spmatrix, str]) == (
         r":py:class:`~scipy.sparse.spmatrix`, :py:class:`str`"
     )
-    assert _format_full(Union[sparse.spmatrix, str]) == (
+    assert _format_full(t.Union[sparse.spmatrix, str]) == (
         r":py:data:`~typing.Union`\["
         r":py:class:`~scipy.sparse.spmatrix`, "
         r":py:class:`str`"
@@ -66,10 +68,10 @@ def test_qualname_overrides_recursive(app):
 def test_fully_qualified(app):
     sparse = pytest.importorskip("scipy.sparse")
 
-    assert _format_terse(Union[sparse.spmatrix, str], True) == (
+    assert _format_terse(t.Union[sparse.spmatrix, str], True) == (
         r":py:class:`scipy.sparse.spmatrix`, :py:class:`str`"
     )
-    assert _format_full(Union[sparse.spmatrix, str], True) == (
+    assert _format_full(t.Union[sparse.spmatrix, str], True) == (
         r":py:data:`typing.Union`\["
         r":py:class:`scipy.sparse.spmatrix`, "
         r":py:class:`str`"
@@ -83,3 +85,34 @@ def test_classes_get_added(app, parse):
     assert doc[0][0].tagname == "inline"
     assert doc[0][0]["classes"] == ["annotation", "full"]
     # print(doc.asdom().toprettyxml())
+
+
+@pytest.mark.parametrize("formatter", [_format_terse, _format_full], ids="tf")
+# These guys aren’t listed as classes in Python’s intersphinx index:
+@pytest.mark.parametrize(
+    "annotation",
+    [
+        t.Any,
+        t.AnyStr,
+        # t.NoReturn,
+        t.Callable[[int], None],
+        # t.ClassVar[t.Any],
+        t.Optional[int],
+        t.Tuple[int, str],
+        t.Tuple[float, ...],
+        t.Union[int, str],
+    ],
+    ids=lambda p: str(p).replace("typing.", ""),
+)
+def test_typing_classes(app, annotation, formatter):
+    name = (
+        getattr(annotation, "_name", None)
+        or getattr(annotation, "__name__", None)
+        or annotation.__origin__._name
+    )
+    if name == "Union":
+        if formatter is _format_terse:
+            pytest.skip("Tested elsewhere")
+        elif len(annotation.__args__) == 2 and type(None) in annotation.__args__:
+            name = "Optional"
+    assert formatter(annotation, True).startswith(f":py:data:`typing.{name}")
