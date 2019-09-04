@@ -20,6 +20,8 @@ This extension modifies the created type annotations in two ways:
 
    Once either `sphinx issue 4826`_ or `sphinx-autodoc-typehints issue 38`_ are fixed,
    this part of the functionality will no longer be necessary.
+#. The config value ``annotate_defaults`` (default: :data:`True`) controls if rST code
+   like ``(default: `42`)`` is added after the type.
 
 .. _sphinx issue 4826: https://github.com/sphinx-doc/sphinx/issues/4826
 .. _sphinx-autodoc-typehints issue 38: https://github.com/agronholm/sphinx-autodoc-typehints/issues/38
@@ -60,10 +62,13 @@ qualname_overrides_default = {
     "scipy.sparse.csc.csc_matrix": "scipy.sparse.csc_matrix",
 }
 qualname_overrides = ChainMap({}, qualname_overrides_default)
+annotate_defaults = True
 
 
 def _init_vars(app: Sphinx, config: Config):
+    global annotate_defaults
     qualname_overrides.update(config.qualname_overrides)
+    annotate_defaults = config.annotate_defaults
     config.html_static_path.append(str(HERE / "static"))
 
 
@@ -119,13 +124,15 @@ def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
 
 
 def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> str:
-    """Generate reStructuredText containing links to the types.
+    r"""Generate reStructuredText containing links to the types.
 
     Unlike :func:`sphinx_autodoc_typehints.format_annotation`,
     it tries to achieve a simpler style as seen in numeric packages like numpy.
 
     Args:
         annotation: A type or class used as type annotation.
+        fully_qualified: If links should be formatted as fully qualified
+            (e.g. ``:py:class:`foo.Bar```) or not (e.g. ``:py:class:`~foo.Bar```).
 
     Returns:
         reStructuredText describing the type
@@ -139,10 +146,18 @@ def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> s
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
     if calframe[1][3] == "process_docstring":
-        return (
+        annot_fmt = (
             f":annotation-terse:`{_escape(_format_terse(annotation, fully_qualified))}`\\ "
             f":annotation-full:`{_escape(_format_full(annotation, fully_qualified))}`"
         )
+        if annotate_defaults:
+            variables = calframe[1].frame.f_locals
+            sig = inspect.signature(variables["obj"])
+            if variables["argname"] != "return":
+                default = sig.parameters[variables["argname"]].default
+                if default is not inspect.Parameter.empty:
+                    annot_fmt += f" (default: ``{_escape(repr(default))}``)"
+        return annot_fmt
     else:  # recursive use
         return _format_full(annotation, fully_qualified)
 
@@ -184,7 +199,10 @@ def _unescape(rst: str) -> str:
 @_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
-    app.add_config_value("qualname_overrides", {}, "")
+    # TODO: Unsure if “html” is sufficient or if we need to do “env”;
+    #       Depends on when the autodoc-process-docstring event is handled.
+    app.add_config_value("qualname_overrides", {}, "html")
+    app.add_config_value("annotate_defaults", True, "html")
     app.add_css_file("typehints.css")
     app.connect("config-inited", _init_vars)
     sphinx_autodoc_typehints.format_annotation = format_annotation

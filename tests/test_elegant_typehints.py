@@ -45,6 +45,49 @@ def test_alternatives(process_doc):
     ]
 
 
+def test_defaults_simple(process_doc):
+    def fn_test(s: str = "foo", n: None = None, i: int = 1):
+        """
+        :param s: Test S
+        :param n: Test N
+        :param i: Test I
+        """
+
+    assert process_doc(fn_test) == [
+        ":type s: "
+        r":annotation-terse:`:py:class:\`str\``\ "
+        r":annotation-full:`:py:class:\`str\`` "
+        "(default: ``'foo'``)",
+        ":param s: Test S",
+        ":type n: "
+        r":annotation-terse:`\`\`None\`\``\ "
+        r":annotation-full:`\`\`None\`\`` "
+        "(default: ``None``)",
+        ":param n: Test N",
+        ":type i: "
+        r":annotation-terse:`:py:class:\`int\``\ "
+        r":annotation-full:`:py:class:\`int\`` "
+        "(default: ``1``)",
+        ":param i: Test I",
+    ]
+
+
+def test_defaults_complex(process_doc):
+    def fn_test(m: t.Mapping[str, int] = {}):
+        """
+        :param m: Test M
+        """
+
+    assert process_doc(fn_test) == [
+        ":type m: "
+        r":annotation-terse:`:py:class:\`typing.Mapping\``\ "
+        r":annotation-full:`"
+        r":py:class:\`typing.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
+        "` (default: ``{}``)",
+        ":param m: Test M",
+    ]
+
+
 def test_mapping(app):
     assert _format_terse(t.Mapping[str, t.Any]) == ":py:class:`~typing.Mapping`"
     assert _format_full(t.Mapping[str, t.Any]) == (
