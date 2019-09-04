@@ -26,7 +26,7 @@ extensions = [
 
 intersphinx_mapping = dict(
     python=("https://docs.python.org/3", None),
-    jinja=("http://jinja.pocoo.org/docs/2.10.x", None),
+    jinja=("https://jinja.palletsprojects.com/en/2.10.x/", None),
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
     # examples
     numpy=("https://docs.scipy.org/doc/numpy/", None),
