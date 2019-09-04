@@ -32,16 +32,8 @@ def _setup_sig(fn):
 @_setup_sig
 def setup(app: Sphinx) -> Dict[str, Any]:
     """Set up all included extensions!"""
-    from . import (
-        autosummary_generate_imported,
-        definition_list_typed_field,
-        elegant_typehints,
-        rtd_github_links,
-    )
-
-    autosummary_generate_imported.setup(app)
-    definition_list_typed_field.setup(app)
-    elegant_typehints.setup(app)
-    rtd_github_links.setup(app)
-
+    app.setup_extension("scanpydoc.autosummary_generate_imported")
+    app.setup_extension("scanpydoc.definition_list_typed_field")
+    app.setup_extension("scanpydoc.elegant_typehints")
+    app.setup_extension("scanpydoc.rtd_github_links")
     return metadata

@@ -13,9 +13,12 @@ from sphinx.util.docutils import sphinx_domains
 
 
 @pytest.fixture
-def app_no_setup(make_app, tmp_path) -> Sphinx:
-    (tmp_path / "conf.py").write_text("")
-    return make_app(srcdir=STP(tmp_path))
+def make_app_no_setup(make_app, tmp_path) -> Callable[[], Sphinx]:
+    def make_app_no_setup() -> Sphinx:
+        (tmp_path / "conf.py").write_text("")
+        return make_app(srcdir=STP(tmp_path))
+
+    return make_app_no_setup
 
 
 @pytest.fixture

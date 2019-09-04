@@ -3,14 +3,14 @@ import typing as t
 import pytest
 from sphinx.application import Sphinx
 
-from scanpydoc import elegant_typehints
 from scanpydoc.elegant_typehints import format_annotation, _format_terse, _format_full
 
 
 @pytest.fixture
-def app(app_no_setup) -> Sphinx:
-    elegant_typehints.setup(app_no_setup)
-    return app_no_setup
+def app(make_app_no_setup) -> Sphinx:
+    app = make_app_no_setup()
+    app.setup_extension("scanpydoc.elegant_typehints")
+    return app
 
 
 def test_default(app):

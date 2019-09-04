@@ -1,16 +1,15 @@
 import pytest
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.writers.html import HTMLTranslator, HTMLWriter
+from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.html5 import HTML5Translator
-
-from scanpydoc import definition_list_typed_field
 
 
 @pytest.fixture
-def app(app_no_setup) -> Sphinx:
-    definition_list_typed_field.setup(app_no_setup)
-    return app_no_setup
+def app(make_app_no_setup) -> Sphinx:
+    app = make_app_no_setup()
+    app.setup_extension("scanpydoc.definition_list_typed_field")
+    return app
 
 
 # Avoid :class: to not get pending_xref. TODO: fix
@@ -31,6 +30,13 @@ params_code_single = """\
 """
 
 
+def test_apps_separate(app, make_app_no_setup):
+    app_no_setup = make_app_no_setup()
+    assert app is not make_app_no_setup
+    assert "scanpydoc.definition_list_typed_field" in app.extensions
+    assert "scanpydoc.definition_list_typed_field" not in app_no_setup.extensions
+
+
 @pytest.mark.parametrize("code,n", [(params_code, 2), (params_code_single, 1)])
 def test_convert_params(app, parse, code, n):
     # the directive class is PyModuleLevel → PyObject → ObjectDescription
@@ -41,6 +47,7 @@ def test_convert_params(app, parse, code, n):
     # )
 
     doc = parse(app, code)
+    assert doc[1].tagname == "desc"
     assert doc[1]["desctype"] == "function"
     assert doc[1][1].tagname == "desc_content"
     assert doc[1][1][0].tagname == "field_list"
