@@ -1,7 +1,9 @@
+import inspect
 import typing as t
 
 import pytest
 from sphinx.application import Sphinx
+from sphinx_autodoc_typehints import process_docstring
 
 from scanpydoc.elegant_typehints import format_annotation, _format_terse, _format_full
 
@@ -13,19 +15,34 @@ def app(make_app_no_setup) -> Sphinx:
     return app
 
 
+@pytest.fixture
+def process_doc(app):
+    app.config.typehints_fully_qualified = True
+
+    def process(fn: t.Callable) -> t.List[str]:
+        lines = inspect.getdoc(fn).split("\n")
+        process_docstring(app, "function", fn.__name__, fn, None, lines)
+        return lines
+
+    return process
+
+
 def test_default(app):
     assert format_annotation(str) == ":py:class:`str`"
 
 
-def test_alternatives(app):
-    def process_docstring(a):
-        """Caller needs to be `process_docstring` to create both formats"""
-        return format_annotation(a)
+def test_alternatives(process_doc):
+    def fn_test(s: str):
+        """
+        :param s: Test
+        """
 
-    assert process_docstring(str) == (
+    assert process_doc(fn_test) == [
+        ":type s: "
         r":annotation-terse:`:py:class:\`str\``\ "
-        r":annotation-full:`:py:class:\`str\``"
-    )
+        r":annotation-full:`:py:class:\`str\``",
+        ":param s: Test",
+    ]
 
 
 def test_mapping(app):
