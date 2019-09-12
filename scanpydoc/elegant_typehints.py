@@ -72,19 +72,12 @@ def _init_vars(app: Sphinx, config: Config):
     config.html_static_path.append(str(HERE / "static"))
 
 
-def _fixup(fmt: str) -> str:
-    # work around https://github.com/agronholm/sphinx-autodoc-typehints/issues/94
-    fmt = fmt.replace(":py:class:`typing.Tuple`", ":py:data:`typing.Tuple`")
-    fmt = fmt.replace(":py:class:`~typing.Tuple`", ":py:data:`~typing.Tuple`")
-    return fmt
-
-
 def _format_full(annotation: Type[Any], fully_qualified: bool = False):
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return _format_orig(annotation, fully_qualified)
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ == "typing":
-        return _fixup(_format_orig(annotation, fully_qualified))
+        return _format_orig(annotation, fully_qualified)
 
     # Only if this is a real class we override sphinx_autodoc_typehints
     if inspect.isclass(annotation) or inspect.isclass(
@@ -95,7 +88,7 @@ def _format_full(annotation: Type[Any], fully_qualified: bool = False):
         if override is not None:
             return f":py:class:`{'' if fully_qualified else '~'}{override}`"
 
-    return _fixup(_format_orig(annotation, fully_qualified))
+    return _format_orig(annotation, fully_qualified)
 
 
 def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
