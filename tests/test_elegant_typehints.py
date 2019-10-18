@@ -1,6 +1,11 @@
 import inspect
 import typing as t
 
+if hasattr(t, "Literal"):
+    Literal = t.Literal
+else:
+    from typing_extensions import Literal
+
 import pytest
 from sphinx.application import Sphinx
 from sphinx_autodoc_typehints import process_docstring
@@ -101,6 +106,13 @@ def test_mapping(app):
 def test_dict(app):
     assert _format_terse(t.Dict[str, t.Any]) == (
         "{:py:class:`str`: :py:data:`~typing.Any`}"
+    )
+
+
+def test_literal(app):
+    assert _format_terse(Literal["str", 1, None]) == "{``'str'``, ``1``, ``None``}"
+    assert _format_full(Literal["str", 1, None]) == (
+        r":py:data:`~typing.Literal`\[``'str'``, ``1``, ``None``]"
     )
 
 

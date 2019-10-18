@@ -4,9 +4,10 @@ cache: pip
 python:
   - '3.6'
   - '3.7'
+  - '3.8'
 
 install:
-  - pip install future-fstrings flit codecov
+  - pip install flit codecov
   - flit install --deps develop
 script:
   - PYTHONPATH=. pytest --cov=scanpydoc --black

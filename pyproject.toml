@@ -29,6 +29,7 @@ test = [
     'pytest-cov',
     'pytest-black',
     'scipy',  # to test overrides
+    'typing_extensions; python_version<"3.8"',
 ]
 doc = [
     'sphinx-autodoc-typehints>=1.8',
@@ -40,13 +41,12 @@ target-version = ['py36']
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py36,py37
+envlist = py36,py37,py38
 skipsdist = True
 
 [testenv]
 deps =
     flit
-    future-fstrings
 commands =
     flit install
     pytest
