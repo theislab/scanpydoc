@@ -35,6 +35,15 @@ from typing import Any, Union  # Meta
 from typing import Type, Mapping, Sequence, Iterable  # ABC
 from typing import Dict, List, Tuple  # Concrete
 
+try:
+    from typing import Literal
+except ImportError:
+    try:
+        from typing_extensions import Literal
+    except ImportError:
+        Literal = object()
+
+
 import sphinx_autodoc_typehints
 from sphinx_autodoc_typehints import format_annotation as _format_orig
 from docutils import nodes
@@ -72,30 +81,48 @@ def _init_vars(app: Sphinx, config: Config):
     config.html_static_path.append(str(HERE / "static"))
 
 
+def _literal_values(origin, annotation):
+    if origin is Literal:
+        values = annotation.__args__
+    elif hasattr(annotation, "__values__"):
+        values = annotation.__values__
+    else:
+        return None
+    return ", ".join(f"``{a!r}``" for a in values)
+
+
 def _format_full(annotation: Type[Any], fully_qualified: bool = False):
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return _format_orig(annotation, fully_qualified)
+
+    origin = getattr(annotation, "__origin__", None)
+    tilde = "" if fully_qualified else "~"
+
+    # Not yet supported by sphinx_autodoc_typehints
+    literal_values = _literal_values(origin, annotation)
+    if literal_values:
+        return f":py:data:`{tilde}typing.Literal`\\[{literal_values}]"
+
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ == "typing":
         return _format_orig(annotation, fully_qualified)
 
     # Only if this is a real class we override sphinx_autodoc_typehints
-    if inspect.isclass(annotation) or inspect.isclass(
-        getattr(annotation, "__origin__", None)
-    ):
+    if inspect.isclass(annotation) or inspect.isclass(origin):
         full_name = f"{annotation.__module__}.{annotation.__qualname__}"
         override = qualname_overrides.get(full_name)
         if override is not None:
-            return f":py:class:`{'' if fully_qualified else '~'}{override}`"
+            return f":py:class:`{tilde}{override}`"
 
     return _format_orig(annotation, fully_qualified)
 
 
 def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
-    union_params = getattr(annotation, "__union_params__", None)
+    origin = getattr(annotation, "__origin__", None)
 
+    union_params = getattr(annotation, "__union_params__", None)
     # display `Union[A, B]` as `A, B`
-    if getattr(annotation, "__origin__", None) is Union or union_params:
+    if origin is Union or union_params:
         params = union_params or getattr(annotation, "__args__", None)
         # Never use the `Optional` keyword in the displayed docs.
         # Use the more verbose `, None` instead,
@@ -105,13 +132,17 @@ def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
         return ", ".join(_format_terse(p, fully_qualified) for p in params)
 
     # do not show the arguments of Mapping
-    if getattr(annotation, "__origin__", None) in (abc.Mapping, Mapping):
+    if origin in (abc.Mapping, Mapping):
         return f":py:class:`{'' if fully_qualified else '~'}typing.Mapping`"
 
     # display dict as {k: v}
-    if getattr(annotation, "__origin__", None) in (dict, Dict):
+    if origin in (dict, Dict):
         k, v = annotation.__args__
         return f"{{{_format_terse(k, fully_qualified)}: {_format_terse(v, fully_qualified)}}}"
+
+    literal_values = _literal_values(origin, annotation)
+    if literal_values:
+        return f"{{{literal_values}}}"
 
     return _format_full(annotation, fully_qualified)
 
