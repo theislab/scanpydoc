@@ -212,6 +212,7 @@ def test_typing_class_nested(app):
     "docstring",
     [
         """
+        :param: x
         :return: foo
                      A foo!
                  bar
@@ -253,3 +254,21 @@ def test_return(process_doc, docstring, return_ann):
         r":annotation-full:`:py:class:\`int\``",
         "             A bar!",
     ]
+
+
+def test_return_too_many(process_doc):
+    def fn_test() -> t.Tuple[int, str]:
+        """
+        :return: foo
+                     A foo!
+                 bar
+                     A bar!
+                 baz
+                     A baz!
+        """
+
+    assert not any(
+        "annotation-terse" in l
+        for l in process_doc(fn_test)
+        if not l.startswith(":rtype:")
+    )
