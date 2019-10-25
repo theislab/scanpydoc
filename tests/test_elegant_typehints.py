@@ -26,7 +26,11 @@ TestCls.__module__ = "_testmod"
 @pytest.fixture
 def app(make_app_setup) -> Sphinx:
     return make_app_setup(
-        extensions=["sphinx.ext.napoleon", "scanpydoc.elegant_typehints"],
+        extensions=[
+            "sphinx.ext.napoleon",
+            "sphinx_autodoc_typehints",
+            "scanpydoc.elegant_typehints",
+        ],
         qualname_overrides={"_testmod.Class": "test.Class"},
     )
 
