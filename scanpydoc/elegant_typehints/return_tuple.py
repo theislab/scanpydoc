@@ -14,7 +14,7 @@ re_ret = re.compile("^:returns?: ")
 def get_tuple_annot(annotation: Optional[Type]) -> Optional[Tuple[Type, ...]]:
     if annotation is None:
         return None
-    origin = getattr(annotation, "__origin__")
+    origin = getattr(annotation, "__origin__", None)
     if not origin:
         return None
     if origin is Union:
