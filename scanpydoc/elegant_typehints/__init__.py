@@ -1,7 +1,7 @@
 """Format typehints elegantly and and fix autimatically created links.
 
 The Sphinx extension :mod:`sphinx_autodoc_typehints` adds type annotations to functions.
-This extension modifies the created type annotations in two ways:
+This extension modifies the created type annotations in four ways:
 
 #. It formats the annotations more simply and in line with e.g. :mod:`numpy`.
 #. It defines a configuration value ``qualname_overrides`` for ``conf.py``
@@ -22,6 +22,22 @@ This extension modifies the created type annotations in two ways:
    this part of the functionality will no longer be necessary.
 #. The config value ``annotate_defaults`` (default: :data:`True`) controls if rST code
    like ``(default: `42`)`` is added after the type.
+#. Type annotations for :class:`tuple` return types are added::
+
+       def x() -> Tuple[int, float]:
+           \"""
+           Returns:
+               a: An integer
+               b: A floating point number
+           \"""
+
+   will render as:
+
+       :Returns: a : :class:`int`
+                     An integer
+                 b : :class:`float`
+                     A floating point number
+
 
 .. _sphinx issue 4826: https://github.com/sphinx-doc/sphinx/issues/4826
 .. _sphinx-autodoc-typehints issue 38: https://github.com/agronholm/sphinx-autodoc-typehints/issues/38
