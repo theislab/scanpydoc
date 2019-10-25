@@ -131,9 +131,9 @@ def test_dict(app):
 
 
 def test_literal(app):
-    assert _format_terse(Literal["str", 1, None]) == "{``'str'``, ``1``, ``None``}"
+    assert _format_terse(Literal["str", 1, None]) == "{'str', 1, None}"
     assert _format_full(Literal["str", 1, None]) == (
-        r":py:data:`~typing.Literal`\[``'str'``, ``1``, ``None``]"
+        r":py:data:`~typing.Literal`\['str', 1, None]"
     )
 
 
