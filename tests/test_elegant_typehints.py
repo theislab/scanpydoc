@@ -1,4 +1,5 @@
 import inspect
+import re
 import typing as t
 
 try:
@@ -7,14 +8,16 @@ except ImportError:
     from typing_extensions import Literal
 
 import pytest
+import sphinx_autodoc_typehints as sat
 from sphinx.application import Sphinx
-from sphinx_autodoc_typehints import process_docstring
 
 from scanpydoc.elegant_typehints.formatting import (
     format_annotation,
     _format_terse,
     _format_full,
 )
+from scanpydoc.elegant_typehints.return_tuple import process_docstring
+
 
 TestCls = type("Class", (), {})
 TestCls.__module__ = "_testmod"
@@ -23,7 +26,11 @@ TestCls.__module__ = "_testmod"
 @pytest.fixture
 def app(make_app_setup) -> Sphinx:
     return make_app_setup(
-        extensions="scanpydoc.elegant_typehints",
+        extensions=[
+            "sphinx.ext.napoleon",
+            "sphinx_autodoc_typehints",
+            "scanpydoc.elegant_typehints",
+        ],
         qualname_overrides={"_testmod.Class": "test.Class"},
     )
 
@@ -34,6 +41,7 @@ def process_doc(app):
 
     def process(fn: t.Callable) -> t.List[str]:
         lines = inspect.getdoc(fn).split("\n")
+        sat.process_docstring(app, "function", fn.__name__, fn, None, lines)
         process_docstring(app, "function", fn.__name__, fn, None, lines)
         return lines
 
@@ -201,4 +209,70 @@ def test_typing_class_nested(app):
         ":py:data:`~typing.Optional`\\["
         ":py:data:`~typing.Tuple`\\[:py:class:`int`, :py:class:`str`]"
         "]"
+    )
+
+
+@pytest.mark.parametrize(
+    "docstring",
+    [
+        """
+        :param: x
+        :return: foo
+                     A foo!
+                 bar
+                     A bar!
+        """,
+        """
+        :return: foo
+                     A foo!
+                 bar
+                     A bar!
+        :param: x
+        """,
+    ],
+    ids=["Last", "First"],
+)
+@pytest.mark.parametrize(
+    "return_ann",
+    [t.Tuple[str, int], t.Optional[t.Tuple[str, int]]],
+    ids=["Tuple", "Optional[Tuple]"],
+)
+def test_return(process_doc, docstring, return_ann):
+    def fn_test():
+        pass
+
+    fn_test.__doc__ = docstring
+    fn_test.__annotations__["return"] = return_ann
+    lines = [
+        l
+        for l in process_doc(fn_test)
+        if not re.match("^:(rtype|param|annotation-(full|terse)):", l)
+    ]
+    assert lines == [
+        r":return: foo : "
+        r":annotation-terse:`:py:class:\`str\``\ "
+        r":annotation-full:`:py:class:\`str\``",
+        "             A foo!",
+        r"         bar : "
+        r":annotation-terse:`:py:class:\`int\``\ "
+        r":annotation-full:`:py:class:\`int\``",
+        "             A bar!",
+    ]
+
+
+def test_return_too_many(process_doc):
+    def fn_test() -> t.Tuple[int, str]:
+        """
+        :return: foo
+                     A foo!
+                 bar
+                     A bar!
+                 baz
+                     A baz!
+        """
+
+    assert not any(
+        "annotation-terse" in l
+        for l in process_doc(fn_test)
+        if not l.startswith(":rtype:")
     )

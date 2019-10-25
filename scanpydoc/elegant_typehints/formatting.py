@@ -112,10 +112,7 @@ def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> s
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
     if calframe[1][3] == "process_docstring":
-        annot_fmt = (
-            f":annotation-terse:`{_escape(_format_terse(annotation, fully_qualified))}`\\ "
-            f":annotation-full:`{_escape(_format_full(annotation, fully_qualified))}`"
-        )
+        annot_fmt = format_both(annotation, fully_qualified)
         if elegant_typehints.annotate_defaults:
             variables = calframe[1].frame.f_locals
             sig = inspect.signature(variables["obj"])
@@ -126,6 +123,13 @@ def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> s
         return annot_fmt
     else:  # recursive use
         return _format_full(annotation, fully_qualified)
+
+
+def format_both(annotation: Type[Any], fully_qualified: bool = False):
+    return (
+        f":annotation-terse:`{_escape(_format_terse(annotation, fully_qualified))}`\\ "
+        f":annotation-full:`{_escape(_format_full(annotation, fully_qualified))}`"
+    )
 
 
 def _role_annot(

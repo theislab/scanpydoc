@@ -82,4 +82,9 @@ def setup(app: Sphinx) -> Dict[str, Any]:
             name, partial(_role_annot, additional_classes=name.split("-"))
         )
 
+    from .return_tuple import process_docstring  # , process_signature
+
+    app.connect("autodoc-process-docstring", process_docstring)
+    # app.connect("autodoc-process-signature", process_signature)
+
     return metadata
