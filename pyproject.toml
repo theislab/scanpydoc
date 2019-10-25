@@ -31,7 +31,7 @@ test = [
     'typing_extensions; python_version<"3.8"',
 ]
 doc = [
-    'sphinx-autodoc-typehints>=1.8',
+    'sphinx-autodoc-typehints>=1.9',
 ]
 
 [tool.black]

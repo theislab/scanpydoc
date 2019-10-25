@@ -23,27 +23,12 @@ from docutils.parsers.rst.states import Inliner, Struct
 from docutils.utils import SystemMessage, unescape
 
 
-def _literal_values(origin, annotation):
-    if origin is Literal:
-        values = annotation.__args__
-    elif hasattr(annotation, "__values__"):
-        values = annotation.__values__
-    else:
-        return None
-    return ", ".join(f"``{a!r}``" for a in values)
-
-
 def _format_full(annotation: Type[Any], fully_qualified: bool = False):
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return _format_orig(annotation, fully_qualified)
 
     origin = getattr(annotation, "__origin__", None)
     tilde = "" if fully_qualified else "~"
-
-    # Not yet supported by sphinx_autodoc_typehints
-    literal_values = _literal_values(origin, annotation)
-    if literal_values:
-        return f":py:data:`{tilde}typing.Literal`\\[{literal_values}]"
 
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ == "typing":
@@ -82,9 +67,9 @@ def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
         k, v = annotation.__args__
         return f"{{{_format_terse(k, fully_qualified)}: {_format_terse(v, fully_qualified)}}}"
 
-    literal_values = _literal_values(origin, annotation)
-    if literal_values:
-        return f"{{{literal_values}}}"
+    if origin is Literal or hasattr(annotation, "__values__"):
+        values = getattr(annotation, "__args__", ()) or annotation.__values__
+        return f"{{{', '.join(map(repr, values))}}}"
 
     return _format_full(annotation, fully_qualified)
 
