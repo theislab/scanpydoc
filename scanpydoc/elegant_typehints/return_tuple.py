@@ -19,7 +19,7 @@ def get_tuple_annot(annotation: Optional[Type]) -> Optional[Tuple[Type, ...]]:
         return None
     if origin is Union:
         for annotation in annotation.__args__:
-            origin = getattr(annotation, "__origin__")
+            origin = getattr(annotation, "__origin__", None)
             if origin in (tuple, Tuple):
                 break
         else:
