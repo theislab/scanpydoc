@@ -1,9 +1,9 @@
 import inspect
 import typing as t
 
-if hasattr(t, "Literal"):
-    Literal = t.Literal
-else:
+try:
+    from typing import Literal
+except ImportError:
     from typing_extensions import Literal
 
 import pytest
@@ -12,12 +12,16 @@ from sphinx_autodoc_typehints import process_docstring
 
 from scanpydoc.elegant_typehints import format_annotation, _format_terse, _format_full
 
+TestCls = type("Class", (), {})
+TestCls.__module__ = "_testmod"
+
 
 @pytest.fixture
-def app(make_app_no_setup) -> Sphinx:
-    app = make_app_no_setup()
-    app.setup_extension("scanpydoc.elegant_typehints")
-    return app
+def app(make_app_setup) -> Sphinx:
+    return make_app_setup(
+        extensions="scanpydoc.elegant_typehints",
+        qualname_overrides={"_testmod.Class": "test.Class"},
+    )
 
 
 @pytest.fixture
@@ -30,6 +34,11 @@ def process_doc(app):
         return lines
 
     return process
+
+
+def test_app(app):
+    assert "qualname_overrides" in app.config.values
+    assert "_testmod.Class" in app.config.qualname_overrides
 
 
 def test_default(app):
@@ -117,37 +126,28 @@ def test_literal(app):
 
 
 def test_qualname_overrides(app):
-    sparse = pytest.importorskip("scipy.sparse")
-
-    assert sparse.spmatrix.__module__ == "scipy.sparse.base"
-    assert _format_terse(sparse.spmatrix) == ":py:class:`~scipy.sparse.spmatrix`"
+    assert TestCls.__module__ == "_testmod"
+    assert _format_terse(TestCls) == ":py:class:`~test.Class`"
 
 
 def test_qualname_overrides_recursive(app):
-    sparse = pytest.importorskip("scipy.sparse")
-
-    assert _format_terse(t.Union[sparse.spmatrix, str]) == (
-        r":py:class:`~scipy.sparse.spmatrix`, :py:class:`str`"
+    assert _format_terse(t.Union[TestCls, str]) == (
+        r":py:class:`~test.Class`, :py:class:`str`"
     )
-    assert _format_full(t.Union[sparse.spmatrix, str]) == (
+    assert _format_full(t.Union[TestCls, str]) == (
         r":py:data:`~typing.Union`\["
-        r":py:class:`~scipy.sparse.spmatrix`, "
+        r":py:class:`~test.Class`, "
         r":py:class:`str`"
         r"]"
     )
 
 
 def test_fully_qualified(app):
-    sparse = pytest.importorskip("scipy.sparse")
-
-    assert _format_terse(t.Union[sparse.spmatrix, str], True) == (
-        r":py:class:`scipy.sparse.spmatrix`, :py:class:`str`"
+    assert _format_terse(t.Union[TestCls, str], True) == (
+        r":py:class:`test.Class`, :py:class:`str`"
     )
-    assert _format_full(t.Union[sparse.spmatrix, str], True) == (
-        r":py:data:`typing.Union`\["
-        r":py:class:`scipy.sparse.spmatrix`, "
-        r":py:class:`str`"
-        r"]"
+    assert _format_full(t.Union[TestCls, str], True) == (
+        r":py:data:`typing.Union`\[" r":py:class:`test.Class`, " r":py:class:`str`" r"]"
     )
 
 

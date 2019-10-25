@@ -1,5 +1,5 @@
+import typing as t
 from tempfile import NamedTemporaryFile
-from typing import Callable
 
 import pytest
 from docutils.nodes import document
@@ -13,16 +13,16 @@ from sphinx.util.docutils import sphinx_domains
 
 
 @pytest.fixture
-def make_app_no_setup(make_app, tmp_path) -> Callable[[], Sphinx]:
-    def make_app_no_setup() -> Sphinx:
+def make_app_setup(make_app, tmp_path) -> t.Callable[..., Sphinx]:
+    def make_app_setup(**conf) -> Sphinx:
         (tmp_path / "conf.py").write_text("")
-        return make_app(srcdir=STP(tmp_path))
+        return make_app(srcdir=STP(tmp_path), confoverrides=conf)
 
-    return make_app_no_setup
+    return make_app_setup
 
 
 @pytest.fixture
-def parse() -> Callable[[Sphinx, str], document]:
+def parse() -> t.Callable[[Sphinx, str], document]:
     def _parse(app: Sphinx, code: str) -> document:
         with NamedTemporaryFile("w+", suffix=".rst", dir=app.env.srcdir) as f:
             f.write(code)
@@ -37,7 +37,7 @@ def parse() -> Callable[[Sphinx, str], document]:
 
 
 @pytest.fixture
-def render() -> Callable[[Sphinx, document], str]:
+def render() -> t.Callable[[Sphinx, document], str]:
     def _render(app: Sphinx, doc: document) -> str:
         # Doesn’t work as desc is an Admonition and the HTML writer doesn’t handle it
         # print(app.builder.render_partial(doc[1]))

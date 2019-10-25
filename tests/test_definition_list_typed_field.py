@@ -6,8 +6,8 @@ from sphinx.writers.html5 import HTML5Translator
 
 
 @pytest.fixture
-def app(make_app_no_setup) -> Sphinx:
-    app = make_app_no_setup()
+def app(make_app_setup) -> Sphinx:
+    app = make_app_setup()
     app.setup_extension("scanpydoc.definition_list_typed_field")
     return app
 
@@ -30,9 +30,9 @@ params_code_single = """\
 """
 
 
-def test_apps_separate(app, make_app_no_setup):
-    app_no_setup = make_app_no_setup()
-    assert app is not make_app_no_setup
+def test_apps_separate(app, make_app_setup):
+    app_no_setup = make_app_setup()
+    assert app is not make_app_setup
     assert "scanpydoc.definition_list_typed_field" in app.extensions
     assert "scanpydoc.definition_list_typed_field" not in app_no_setup.extensions
 
