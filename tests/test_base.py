@@ -12,6 +12,8 @@ def test_all_get_installed(monkeypatch, make_app_setup):
         scanpydoc.__path__, f"{scanpydoc.__name__}."
     ):
         mod = import_module(mod_name)
+        if not hasattr(mod, "setup"):
+            continue
         setups_seen.add(mod_name)
         monkeypatch.setattr(mod, "setup", partial(setups_called.__setitem__, mod_name))
 

@@ -10,7 +10,11 @@ import pytest
 from sphinx.application import Sphinx
 from sphinx_autodoc_typehints import process_docstring
 
-from scanpydoc.elegant_typehints import format_annotation, _format_terse, _format_full
+from scanpydoc.elegant_typehints.formatting import (
+    format_annotation,
+    _format_terse,
+    _format_full,
+)
 
 TestCls = type("Class", (), {})
 TestCls.__module__ = "_testmod"
