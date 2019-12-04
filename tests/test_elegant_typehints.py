@@ -1,6 +1,7 @@
 import inspect
 import re
 import typing as t
+from importlib.util import find_spec
 
 try:
     from typing import Literal
@@ -16,8 +17,10 @@ from scanpydoc.elegant_typehints.formatting import (
     _format_terse,
     _format_full,
 )
-from scanpydoc.elegant_typehints.return_tuple import process_docstring
-
+from scanpydoc.elegant_typehints.return_tuple import (
+    process_docstring,
+    get_return_type_hints,
+)
 
 TestCls = type("Class", (), {})
 TestCls.__module__ = "_testmod"
@@ -276,3 +279,35 @@ def test_return_too_many(process_doc):
         for l in process_doc(fn_test)
         if not l.startswith(":rtype:")
     )
+
+
+@pytest.mark.skipif(
+    not find_spec("multipledispatch"), reason="multipledispatch not installed"
+)
+def test_return_multipledispatch(process_doc):
+    from multipledispatch import dispatch
+
+    @dispatch(int)
+    def fn_test(x: int) -> int:
+        """Doc 1"""
+        pass
+
+    @dispatch(str)
+    def fn_test(x: str) -> t.Optional[str]:
+        """Doc 2"""
+        pass
+
+    assert get_return_type_hints(fn_test) == t.Union[int, str, None]
+
+    expected = """\
+Multiply dispatched method: fn_test
+
+Inputs: <int>
+--------------
+Doc 1
+
+Inputs: <str>
+--------------
+Doc 2\
+"""
+    assert process_doc(fn_test) == expected.split("\n")

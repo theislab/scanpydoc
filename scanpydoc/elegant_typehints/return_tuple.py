@@ -27,6 +27,20 @@ def get_tuple_annot(annotation: Optional[Type]) -> Optional[Tuple[Type, ...]]:
     return annotation.__args__
 
 
+def get_return_type_hints(callable):
+    try:
+        return get_type_hints(callable).get("return")
+    except TypeError as e:
+        try:
+            from multipledispatch import Dispatcher
+        except ImportError:
+            raise e from None
+        if isinstance(callable, Dispatcher):
+            return Union[
+                tuple(get_type_hints(f).get("return") for f in callable.funcs.values())
+            ]
+
+
 def process_docstring(
     app: Sphinx,
     what: str,
@@ -43,7 +57,7 @@ def process_docstring(
     if what in ("class", "exception"):
         obj = obj.__init__
     obj = inspect.unwrap(obj)
-    ret_types = get_tuple_annot(get_type_hints(obj).get("return"))
+    ret_types = get_tuple_annot(get_return_type_hints)
     if ret_types is None:
         return
 
