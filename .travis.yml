@@ -10,6 +10,6 @@ install:
   - pip install flit codecov
   - flit install --deps develop
 script:
-  - PYTHONPATH=. pytest --cov=scanpydoc --black
+  - PYTHONPATH=. pytest -v --cov=scanpydoc --black
   - rst2html.py --halt=2 README.rst >/dev/null
 after_success: codecov
