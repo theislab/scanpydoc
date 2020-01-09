@@ -62,6 +62,7 @@ HERE = Path(__file__).parent.resolve()
 qualname_overrides_default = {
     "anndata.base.AnnData": "anndata.AnnData",
     "anndata.core.anndata.AnnData": "anndata.AnnData",
+    "anndata._core.anndata.AnnData": "anndata.AnnData",
     "matplotlib.axes._axes.Axes": "matplotlib.axes.Axes",
     "pandas.core.frame.DataFrame": "pandas.DataFrame",
     "pandas.core.indexes.base.Index": "pandas.Index",
