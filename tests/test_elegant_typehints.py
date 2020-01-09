@@ -311,3 +311,37 @@ Inputs: <str>
 Doc 2\
 """
     assert process_doc(fn_test) == expected.split("\n")
+
+
+@pytest.mark.skipif(
+    not find_spec("multipledispatch"), reason="multipledispatch not installed"
+)
+def test_multipledispatch_indent(process_doc):
+    from multipledispatch import dispatch
+
+    @dispatch(int)
+    def fn_test(x: int):
+        """\
+        Doc 1
+        """
+        pass
+
+    @dispatch(str)
+    def fn_test(x: str):
+        """\
+        Doc 2
+        """
+        pass
+
+    expected = """\
+Multiply dispatched method: fn_test
+
+Inputs: <int>
+--------------
+Doc 1
+
+Inputs: <str>
+--------------
+Doc 2\
+"""
+    assert process_doc(fn_test) == expected.split("\n")
