@@ -1,4 +1,4 @@
-"""Format typehints elegantly and and fix autimatically created links.
+"""Format typehints elegantly and and fix automatically created links.
 
 The Sphinx extension :mod:`sphinx_autodoc_typehints` adds type annotations to functions.
 This extension modifies the created type annotations in four ways:
