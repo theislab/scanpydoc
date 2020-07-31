@@ -32,7 +32,11 @@ test = [
 ]
 doc = [
     'sphinx-autodoc-typehints>=1.9',
+    'sphinx-rtd-theme',
 ]
+
+[tool.flit.entrypoints.'sphinx.html_themes']
+scanpydoc = 'scanpydoc.theme'
 
 [tool.black]
 target-version = ['py36']

@@ -28,6 +28,7 @@ intersphinx_mapping = dict(
     python=("https://docs.python.org/3", None),
     jinja=("https://jinja.palletsprojects.com/en/2.10.x/", None),
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
+    sphinx_rtd_theme=("https://sphinx-rtd-theme.readthedocs.io/en/stable/", None),
     # examples
     numpy=("https://docs.scipy.org/doc/numpy/", None),
     anndata=("https://anndata.readthedocs.io/en/latest/", None),
@@ -49,6 +50,7 @@ autosummary_generate = True
 # Don’t add module paths to documented functions’ names
 add_module_names = False
 
+html_theme = "scanpydoc"
 html_context = dict(
     github_user="theislab", github_repo="scanpydoc", github_version="master"
 )

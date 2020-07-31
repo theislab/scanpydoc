@@ -1,0 +1,9 @@
+{% extends "sphinx_rtd_theme/layout.html" %}
+{%- block extrahead %}
+{{ super() }}
+{% if theme_accent_color %}
+<style>
+:root { --accent-color: {{ theme_accent_color }} }
+</style>
+{% endif %}
+{% endblock %}

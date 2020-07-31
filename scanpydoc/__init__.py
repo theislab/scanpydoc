@@ -36,4 +36,5 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension("scanpydoc.definition_list_typed_field")
     app.setup_extension("scanpydoc.elegant_typehints")
     app.setup_extension("scanpydoc.rtd_github_links")
+    app.setup_extension("scanpydoc.theme")
     return metadata
