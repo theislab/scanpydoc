@@ -49,7 +49,7 @@ class DLTypedField(PyTypedField):
             if field_type is not None:
                 head += nodes.Text(" : ")
                 if len(field_type) == 1 and isinstance(field_type[0], nodes.Text):
-                    text_node, = field_type  # type: nodes.Text
+                    (text_node,) = field_type  # type: nodes.Text
                     head += make_refs(
                         self.typerolename, text_node.astext(), addnodes.literal_emphasis
                     )
