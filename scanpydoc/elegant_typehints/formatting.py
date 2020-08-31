@@ -38,8 +38,9 @@ def _format_full(annotation: Type[Any], fully_qualified: bool = False):
     if inspect.isclass(annotation) or inspect.isclass(origin):
         full_name = f"{annotation.__module__}.{annotation.__qualname__}"
         override = elegant_typehints.qualname_overrides.get(full_name)
+        role = "exception" if issubclass(annotation_cls, BaseException) else "class"
         if override is not None:
-            return f":py:class:`{tilde}{override}`"
+            return f":py:{role}:`{tilde}{override}`"
 
     return _format_orig(annotation, fully_qualified)
 
