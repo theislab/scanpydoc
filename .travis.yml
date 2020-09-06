@@ -1,6 +1,9 @@
 dist: xenial
 language: python
 cache: pip
+branches:
+  only:
+  - master  # use PR builder only for other branches
 python:
   - '3.6'
   - '3.7'
