@@ -149,7 +149,7 @@ def test_qualname_overrides_class(app):
 
 def test_qualname_overrides_exception(app):
     assert TestExc.__module__ == "_testmod"
-    assert _format_terse(TestExc) == ":py:exception:`~test.Excep`"
+    assert _format_terse(TestExc) == ":py:exc:`~test.Excep`"
 
 
 def test_qualname_overrides_recursive(app):
