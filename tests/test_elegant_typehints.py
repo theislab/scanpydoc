@@ -1,6 +1,9 @@
 import inspect
 import re
+import sys
 import typing as t
+from pathlib import Path
+from types import ModuleType
 
 try:
     from typing import Literal
@@ -23,12 +26,17 @@ TestCls = type("Class", (), {})
 TestCls.__module__ = "_testmod"
 TestExc = type("Excep", (RuntimeError,), {})
 TestExc.__module__ = "_testmod"
+TestEx2 = type("Excep2", (TestExc,), {})
+TestEx2.__module__ = "_testmod"
+
+sys.modules["_testmod"] = ModuleType("_testmod")
 
 
 @pytest.fixture
 def app(make_app_setup) -> Sphinx:
     return make_app_setup(
         extensions=[
+            "sphinx.ext.autodoc",
             "sphinx.ext.napoleon",
             "sphinx_autodoc_typehints",
             "scanpydoc.elegant_typehints",
@@ -36,6 +44,7 @@ def app(make_app_setup) -> Sphinx:
         qualname_overrides={
             "_testmod.Class": "test.Class",
             "_testmod.Excep": "test.Excep",
+            "_testmod.Excep2": "test.Excep2",
         },
     )
 
@@ -220,6 +229,18 @@ def test_typing_class_nested(app):
         ":py:data:`~typing.Tuple`\\[:py:class:`int`, :py:class:`str`]"
         "]"
     )
+
+
+def test_autodoc(app):
+    Path(app.srcdir, "index.rst").write_text(
+        """\
+.. autoclass:: _testmod.Excep2
+   :show-inheritance:
+"""
+    )
+    app.builder.build_specific("index.rst")
+    out = Path(app.outdir, "index.html").read_text()
+    assert "test.Excep<" in out, out
 
 
 @pytest.mark.parametrize(
