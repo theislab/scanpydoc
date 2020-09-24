@@ -6,7 +6,7 @@ from docutils.nodes import document
 from docutils.writers import Writer
 from sphinx.application import Sphinx
 from sphinx.io import read_doc
-from sphinx.testing.fixtures import make_app, test_params
+from sphinx.testing.fixtures import make_app, test_params  # noqa
 from sphinx.testing.path import path as STP
 from sphinx.util import rst
 from sphinx.util.docutils import sphinx_domains

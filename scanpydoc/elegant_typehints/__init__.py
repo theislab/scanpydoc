@@ -53,6 +53,7 @@ import sphinx_autodoc_typehints
 from sphinx.application import Sphinx
 from sphinx.config import Config
 from docutils.parsers.rst import roles
+from sphinx.ext.autodoc import ClassDocumenter
 
 from .. import _setup_sig, metadata
 
@@ -98,6 +99,12 @@ def setup(app: Sphinx) -> Dict[str, Any]:
         roles.register_canonical_role(
             name, partial(_role_annot, additional_classes=name.split("-"))
         )
+
+    from .autodoc_patch import dir_head_adder
+
+    ClassDocumenter.add_directive_header = dir_head_adder(
+        qualname_overrides, ClassDocumenter.add_directive_header
+    )
 
     from .return_tuple import process_docstring  # , process_signature
 
