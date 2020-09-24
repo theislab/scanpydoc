@@ -22,19 +22,17 @@ from scanpydoc.elegant_typehints.formatting import (
 from scanpydoc.elegant_typehints.return_tuple import process_docstring
 
 
-TestCls = type("Class", (), {})
-TestCls.__module__ = "_testmod"
-TestExc = type("Excep", (RuntimeError,), {})
-TestExc.__module__ = "_testmod"
-TestEx2 = type("Excep2", (TestExc,), {})
-TestEx2.__module__ = "_testmod"
-
-sys.modules["_testmod"] = ModuleType("_testmod")
+_testmod = sys.modules["_testmod"] = ModuleType("_testmod")
+_testmod.Class = type("Class", (), dict(__module__="_testmod"))
+_testmod.SubCl = type("SubCl", (_testmod.Class,), dict(__module__="_testmod"))
+_testmod.Excep = type("Excep", (RuntimeError,), dict(__module__="_testmod"))
+_testmod.Excep2 = type("Excep2", (_testmod.Excep,), dict(__module__="_testmod"))
 
 
 @pytest.fixture
 def app(make_app_setup) -> Sphinx:
     return make_app_setup(
+        master_doc="index",
         extensions=[
             "sphinx.ext.autodoc",
             "sphinx.ext.napoleon",
@@ -43,6 +41,7 @@ def app(make_app_setup) -> Sphinx:
         ],
         qualname_overrides={
             "_testmod.Class": "test.Class",
+            "_testmod.SubCl": "test.SubCl",
             "_testmod.Excep": "test.Excep",
             "_testmod.Excep2": "test.Excep2",
         },
@@ -152,20 +151,20 @@ def test_literal(app):
 
 
 def test_qualname_overrides_class(app):
-    assert TestCls.__module__ == "_testmod"
-    assert _format_terse(TestCls) == ":py:class:`~test.Class`"
+    assert _testmod.Class.__module__ == "_testmod"
+    assert _format_terse(_testmod.Class) == ":py:class:`~test.Class`"
 
 
 def test_qualname_overrides_exception(app):
-    assert TestExc.__module__ == "_testmod"
-    assert _format_terse(TestExc) == ":py:exc:`~test.Excep`"
+    assert _testmod.Excep.__module__ == "_testmod"
+    assert _format_terse(_testmod.Excep) == ":py:exc:`~test.Excep`"
 
 
 def test_qualname_overrides_recursive(app):
-    assert _format_terse(t.Union[TestCls, str]) == (
+    assert _format_terse(t.Union[_testmod.Class, str]) == (
         r":py:class:`~test.Class`, :py:class:`str`"
     )
-    assert _format_full(t.Union[TestCls, str]) == (
+    assert _format_full(t.Union[_testmod.Class, str]) == (
         r":py:data:`~typing.Union`\["
         r":py:class:`~test.Class`, "
         r":py:class:`str`"
@@ -174,10 +173,10 @@ def test_qualname_overrides_recursive(app):
 
 
 def test_fully_qualified(app):
-    assert _format_terse(t.Union[TestCls, str], True) == (
+    assert _format_terse(t.Union[_testmod.Class, str], True) == (
         r":py:class:`test.Class`, :py:class:`str`"
     )
-    assert _format_full(t.Union[TestCls, str], True) == (
+    assert _format_full(t.Union[_testmod.Class, str], True) == (
         r":py:data:`typing.Union`\[" r":py:class:`test.Class`, " r":py:class:`str`" r"]"
     )
 
@@ -231,16 +230,26 @@ def test_typing_class_nested(app):
     )
 
 
-def test_autodoc(app):
+@pytest.mark.parametrize(
+    "direc,base,sub",
+    [
+        ("autoclass", "Class", "SubCl"),
+        ("autoexception", "Excep", "Excep2"),
+    ],
+)
+def test_autodoc(app, direc, base, sub):
     Path(app.srcdir, "index.rst").write_text(
-        """\
-.. autoclass:: _testmod.Excep2
+        f"""\
+.. {direc}:: _testmod.{sub}
    :show-inheritance:
 """
     )
-    app.builder.build_specific("index.rst")
+    app.build()
     out = Path(app.outdir, "index.html").read_text()
-    assert "test.Excep<" in out, out
+    assert not app._warning.getvalue(), app._warning.getvalue()
+    assert re.search(rf"<code[^>]*>test\.</code><code[^>]*>{sub}</code>", out), out
+    assert f'<a class="headerlink" href="#test.{sub}"' in out, out
+    assert re.search(rf"Bases: <code[^>]*><span[^>]*>test\.{base}", out), out
 
 
 @pytest.mark.parametrize(
