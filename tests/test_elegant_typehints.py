@@ -30,6 +30,23 @@ _testmod.Excep2 = type("Excep2", (_testmod.Excep,), dict(__module__="_testmod"))
 
 
 @pytest.fixture
+def fwd_mod(make_module):
+    mod = make_module(
+        "fwd_mod",
+        """\
+        class A: 
+           b: 'B'
+        
+        class B:
+            a: A
+        """,
+    )
+    sys.modules["fwd_mod"] = mod
+    yield mod
+    del sys.modules["fwd_mod"]
+
+
+@pytest.fixture
 def app(make_app_setup) -> Sphinx:
     return make_app_setup(
         master_doc="index",
@@ -250,6 +267,19 @@ def test_autodoc(app, direc, base, sub):
     assert re.search(rf"<code[^>]*>test\.</code><code[^>]*>{sub}</code>", out), out
     assert f'<a class="headerlink" href="#test.{sub}"' in out, out
     assert re.search(rf"Bases: <code[^>]*><span[^>]*>test\.{base}", out), out
+
+
+def test_fwd_ref(app, fwd_mod):
+    Path(app.srcdir, "index.rst").write_text(
+        f"""\
+.. autoclass:: fwd_mod.A
+.. autoclass:: fwd_mod.B
+"""
+    )
+    app.build()
+    out = Path(app.outdir, "index.html").read_text()
+    assert not app._warning.getvalue(), app._warning.getvalue()
+    assert "fwd_mod.A" in out, out
 
 
 @pytest.mark.parametrize(
