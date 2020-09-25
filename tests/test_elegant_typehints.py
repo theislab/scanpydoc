@@ -292,6 +292,7 @@ def test_fwd_ref(app, make_module):
         if "Cannot treat a function defined as a local function" not in w
     ]
     assert not warnings, warnings
+    # TODO: actually reproduce #14
     assert "fwd_mod.A" in out, out
 
 

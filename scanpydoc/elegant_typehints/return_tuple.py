@@ -43,7 +43,12 @@ def process_docstring(
     if what in ("class", "exception"):
         obj = obj.__init__
     obj = inspect.unwrap(obj)
-    ret_types = get_tuple_annot(get_type_hints(obj).get("return"))
+    try:
+        hints = get_type_hints(obj)
+    except (AttributeError, TypeError):
+        # Introspecting a slot wrapper will raise TypeError
+        return
+    ret_types = get_tuple_annot(hints.get("return"))
     if ret_types is None:
         return
 
