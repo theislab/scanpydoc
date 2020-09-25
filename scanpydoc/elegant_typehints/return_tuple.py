@@ -1,5 +1,6 @@
 import inspect
 import re
+from logging import getLogger
 from typing import get_type_hints, Any, Union, Optional, Type, Tuple, List
 
 from sphinx.application import Sphinx
@@ -8,6 +9,7 @@ from sphinx.ext.autodoc import Options
 from .formatting import format_both
 
 
+logger = getLogger(__name__)
 re_ret = re.compile("^:returns?: ")
 
 
@@ -47,6 +49,9 @@ def process_docstring(
         hints = get_type_hints(obj)
     except (AttributeError, TypeError):
         # Introspecting a slot wrapper will raise TypeError
+        return
+    except NameError as e:
+        check_bpo_34776(obj, e)
         return
     ret_types = get_tuple_annot(hints.get("return"))
     if ret_types is None:
@@ -92,3 +97,20 @@ def process_docstring(
 #     return_annotation: str,
 # ) -> Optional[Tuple[Optional[str], Optional[str]]]:
 #     return signature, return_annotation
+
+
+def check_bpo_34776(obj: Any, e: NameError):
+    import sys
+
+    ancient = sys.version_info < (3, 7)
+    old_3_7 = (3, 7) < sys.version_info < (3, 7, 6)
+    old_3_8 = (3, 8) < sys.version_info < (3, 8, 1)
+    if ancient or old_3_7 or old_3_8:
+        v = ".".join(map(str, sys.version_info[:3]))
+        logger.warning(
+            f"Error documenting {obj!r}: To avoid this, "
+            f"your Python version {v} must be at least 3.7.6 or 3.8.1. "
+            "For more information see https://bugs.python.org/issue34776"
+        )
+    else:
+        raise e  # No idea what happened

@@ -5,14 +5,18 @@ branches:
   only:
   - master  # use PR builder only for other branches
 python:
-  - '3.6'
-  - '3.7'
-  - '3.8'
+- '3.6'
+# Travis uses old versions if you specify 3.x,
+# and elegant_typehints trigger a Python bug in those.
+# There seems to be no way to specify the newest patch version,
+# so I’ll just use the newest at the time of writing I guess.
+- '3.7.9'
+- '3.8.6'
 
 install:
-  - pip install flit codecov
-  - flit install --deps develop
+- pip install flit codecov
+- flit install --deps develop
 script:
-  - PYTHONPATH=. pytest --cov=scanpydoc --black
-  - rst2html.py --halt=2 README.rst >/dev/null
+- PYTHONPATH=. pytest --cov=scanpydoc --black
+- rst2html.py --halt=2 README.rst >/dev/null
 after_success: codecov

@@ -258,6 +258,7 @@ def test_autodoc(app, _testmod, direc, base, sub):
     assert re.search(rf"Bases: <code[^>]*><span[^>]*>test\.{base}", out), out
 
 
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="bpo-34776 only fixed on 3.7+")
 def test_fwd_ref(app, make_module):
     make_module(
         "fwd_mod",
