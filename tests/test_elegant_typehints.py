@@ -22,28 +22,17 @@ from scanpydoc.elegant_typehints.formatting import (
 from scanpydoc.elegant_typehints.return_tuple import process_docstring
 
 
-_testmod = sys.modules["_testmod"] = ModuleType("_testmod")
-_testmod.Class = type("Class", (), dict(__module__="_testmod"))
-_testmod.SubCl = type("SubCl", (_testmod.Class,), dict(__module__="_testmod"))
-_testmod.Excep = type("Excep", (RuntimeError,), dict(__module__="_testmod"))
-_testmod.Excep2 = type("Excep2", (_testmod.Excep,), dict(__module__="_testmod"))
-
-
 @pytest.fixture
-def fwd_mod(make_module):
-    mod = make_module(
-        "fwd_mod",
+def _testmod(make_module):
+    return make_module(
+        "_testmod",
         """\
-        class A: 
-           b: 'B'
-        
-        class B:
-            a: A
+        class Class: pass
+        class SubCl(Class): pass
+        class Excep(RuntimeError): pass
+        class Excep2(Excep): pass
         """,
     )
-    sys.modules["fwd_mod"] = mod
-    yield mod
-    del sys.modules["fwd_mod"]
 
 
 @pytest.fixture
@@ -167,17 +156,17 @@ def test_literal(app):
     )
 
 
-def test_qualname_overrides_class(app):
+def test_qualname_overrides_class(app, _testmod):
     assert _testmod.Class.__module__ == "_testmod"
     assert _format_terse(_testmod.Class) == ":py:class:`~test.Class`"
 
 
-def test_qualname_overrides_exception(app):
+def test_qualname_overrides_exception(app, _testmod):
     assert _testmod.Excep.__module__ == "_testmod"
     assert _format_terse(_testmod.Excep) == ":py:exc:`~test.Excep`"
 
 
-def test_qualname_overrides_recursive(app):
+def test_qualname_overrides_recursive(app, _testmod):
     assert _format_terse(t.Union[_testmod.Class, str]) == (
         r":py:class:`~test.Class`, :py:class:`str`"
     )
@@ -189,7 +178,7 @@ def test_qualname_overrides_recursive(app):
     )
 
 
-def test_fully_qualified(app):
+def test_fully_qualified(app, _testmod):
     assert _format_terse(t.Union[_testmod.Class, str], True) == (
         r":py:class:`test.Class`, :py:class:`str`"
     )
@@ -254,7 +243,7 @@ def test_typing_class_nested(app):
         ("autoexception", "Excep", "Excep2"),
     ],
 )
-def test_autodoc(app, direc, base, sub):
+def test_autodoc(app, _testmod, direc, base, sub):
     Path(app.srcdir, "index.rst").write_text(
         f"""\
 .. {direc}:: _testmod.{sub}
@@ -269,16 +258,40 @@ def test_autodoc(app, direc, base, sub):
     assert re.search(rf"Bases: <code[^>]*><span[^>]*>test\.{base}", out), out
 
 
-def test_fwd_ref(app, fwd_mod):
+def test_fwd_ref(app, make_module):
+    make_module(
+        "fwd_mod",
+        """\
+        from dataclasses import dataclass
+
+        @dataclass
+        class A:
+           b: 'B'
+
+        @dataclass
+        class B:
+            a: A
+        """,
+    )
     Path(app.srcdir, "index.rst").write_text(
         f"""\
-.. autoclass:: fwd_mod.A
-.. autoclass:: fwd_mod.B
+.. autosummary::
+
+   fwd_mod.A
+   fwd_mod.B
 """
     )
+    app.setup_extension("sphinx.ext.autosummary")
+
     app.build()
+
     out = Path(app.outdir, "index.html").read_text()
-    assert not app._warning.getvalue(), app._warning.getvalue()
+    warnings = [
+        w
+        for w in app._warning.getvalue().splitlines()
+        if "Cannot treat a function defined as a local function" not in w
+    ]
+    assert not warnings, warnings
     assert "fwd_mod.A" in out, out
 
 

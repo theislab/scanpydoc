@@ -1,4 +1,5 @@
 import importlib.util
+import sys
 import typing as t
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
@@ -55,10 +56,17 @@ def render() -> t.Callable[[Sphinx, document], str]:
 
 @pytest.fixture
 def make_module():
+    added_modules = []
+
     def make_module(name, code):
+        assert name not in sys.modules
         spec = importlib.util.spec_from_loader(name, loader=None)
-        mod = importlib.util.module_from_spec(spec)
+        mod = sys.modules[name] = importlib.util.module_from_spec(spec)
         exec(dedent(code), mod.__dict__)
+        added_modules.append(name)
         return mod
 
-    return make_module
+    yield make_module
+
+    for name in added_modules:
+        del sys.modules[name]
