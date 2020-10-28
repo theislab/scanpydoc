@@ -102,8 +102,9 @@ def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> s
         if elegant_typehints.annotate_defaults:
             variables = calframe[1].frame.f_locals
             sig = inspect.signature(variables["obj"])
-            if variables["argname"] != "return":
-                default = sig.parameters[variables["argname"]].default
+            arg_name = variables["argname"].replace(r"\_", "_")
+            if arg_name != "return":
+                default = sig.parameters[arg_name].default
                 if default is not inspect.Parameter.empty:
                     annot_fmt += f" (default: ``{_escape(repr(default))}``)"
         return annot_fmt

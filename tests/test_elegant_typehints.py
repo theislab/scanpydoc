@@ -3,7 +3,6 @@ import re
 import sys
 import typing as t
 from pathlib import Path
-from types import ModuleType
 
 try:
     from typing import Literal
@@ -91,11 +90,11 @@ def test_alternatives(process_doc):
 
 
 def test_defaults_simple(process_doc):
-    def fn_test(s: str = "foo", n: None = None, i: int = 1):
-        """
+    def fn_test(s: str = "foo", n: None = None, i_: int = 1):
+        r"""
         :param s: Test S
         :param n: Test N
-        :param i: Test I
+        :param i\_: Test I
         """
 
     assert process_doc(fn_test) == [
@@ -109,11 +108,11 @@ def test_defaults_simple(process_doc):
         r":annotation-full:`\`\`None\`\`` "
         "(default: ``None``)",
         ":param n: Test N",
-        ":type i: "
+        r":type i\_: "
         r":annotation-terse:`:py:class:\`int\``\ "
         r":annotation-full:`:py:class:\`int\`` "
         "(default: ``1``)",
-        ":param i: Test I",
+        r":param i\_: Test I",
     ]
 
 
