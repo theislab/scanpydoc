@@ -15,7 +15,7 @@ def dir_head_adder(
         lines: StringList = self.directive.result
         role, direc = (
             ("exc", "exception")
-            if issubclass(self.object, BaseException)
+            if isinstance(self.object, type) and issubclass(self.object, BaseException)
             else ("class", "class")
         )
         for old, new in qualname_overrides.items():
