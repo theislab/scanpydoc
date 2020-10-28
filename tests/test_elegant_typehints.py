@@ -104,8 +104,8 @@ def test_defaults_simple(process_doc):
         "(default: ``'foo'``)",
         ":param s: Test S",
         ":type n: "
-        r":annotation-terse:`\`\`None\`\``\ "
-        r":annotation-full:`\`\`None\`\`` "
+        r":annotation-terse:`:py:obj:\`None\``\ "
+        r":annotation-full:`:py:obj:\`None\`` "
         "(default: ``None``)",
         ":param n: Test N",
         r":type i\_: "
