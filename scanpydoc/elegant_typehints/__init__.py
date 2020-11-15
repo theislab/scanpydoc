@@ -56,6 +56,7 @@ from docutils.parsers.rst import roles
 from sphinx.ext.autodoc import ClassDocumenter
 
 from .. import _setup_sig, metadata
+from .example import example_func
 
 
 HERE = Path(__file__).parent.resolve()
@@ -80,6 +81,9 @@ def _init_vars(app: Sphinx, config: Config):
     qualname_overrides.update(config.qualname_overrides)
     annotate_defaults = config.annotate_defaults
     config.html_static_path.append(str(HERE / "static"))
+
+
+example_func.__module__ = "scanpydoc.elegant_typehints"  # Make it show up here
 
 
 @_setup_sig
