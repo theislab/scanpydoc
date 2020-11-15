@@ -49,15 +49,12 @@ def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
     origin = getattr(annotation, "__origin__", None)
 
     union_params = getattr(annotation, "__union_params__", None)
-    # display `Union[A, B]` as `A, B`
+    # display `Union[A, B]` as `A | B`
     if origin is Union or union_params:
         params = union_params or getattr(annotation, "__args__", None)
         # Never use the `Optional` keyword in the displayed docs.
-        # Use the more verbose `, None` instead,
-        # as is the convention in the other large numerical packages
-        # if len(params or []) == 2 and getattr(params[1], '__qualname__', None) == 'NoneType':
-        #     return fa_orig(annotation)  # Optional[...]
-        return ", ".join(_format_terse(p, fully_qualified) for p in params)
+        # Use `| None` instead, similar to other large numerical packages.
+        return " | ".join(_format_terse(p, fully_qualified) for p in params)
 
     # do not show the arguments of Mapping
     if origin in (abc.Mapping, Mapping):
@@ -66,7 +63,10 @@ def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
     # display dict as {k: v}
     if origin in (dict, Dict):
         k, v = annotation.__args__
-        return f"{{{_format_terse(k, fully_qualified)}: {_format_terse(v, fully_qualified)}}}"
+        return (
+            f"{{{_format_terse(k, fully_qualified)}: "
+            f"{_format_terse(v, fully_qualified)}}}"
+        )
 
     if origin is Literal or hasattr(annotation, "__values__"):
         values = getattr(annotation, "__args__", ()) or annotation.__values__

@@ -167,7 +167,7 @@ def test_qualname_overrides_exception(app, _testmod):
 
 def test_qualname_overrides_recursive(app, _testmod):
     assert _format_terse(t.Union[_testmod.Class, str]) == (
-        r":py:class:`~test.Class`, :py:class:`str`"
+        r":py:class:`~test.Class` | :py:class:`str`"
     )
     assert _format_full(t.Union[_testmod.Class, str]) == (
         r":py:data:`~typing.Union`\["
@@ -179,7 +179,7 @@ def test_qualname_overrides_recursive(app, _testmod):
 
 def test_fully_qualified(app, _testmod):
     assert _format_terse(t.Union[_testmod.Class, str], True) == (
-        r":py:class:`test.Class`, :py:class:`str`"
+        r":py:class:`test.Class` | :py:class:`str`"
     )
     assert _format_full(t.Union[_testmod.Class, str], True) == (
         r":py:data:`typing.Union`\[" r":py:class:`test.Class`, " r":py:class:`str`" r"]"
