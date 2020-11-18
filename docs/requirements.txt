@@ -1,5 +1,0 @@
-get_version
-
-sphinx>=3.0
-sphinx-autodoc-typehints
-sphinx-rtd-theme
