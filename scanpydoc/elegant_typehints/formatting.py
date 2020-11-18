@@ -1,18 +1,14 @@
 import inspect
-from collections import abc
+import collections.abc as cabc
+from functools import partial
 from typing import Any, Union  # Meta
-from typing import Type, Mapping, Sequence, Iterable  # ABC
+from typing import Type, Sequence, Iterable  # ABC
 from typing import Dict, List, Tuple  # Concrete
 
-from scanpydoc import elegant_typehints
-
-try:
-    from typing import Literal
+try:  # 3.8 additions
+    from typing import Literal, get_args, get_origin
 except ImportError:
-    try:
-        from typing_extensions import Literal
-    except ImportError:
-        Literal = object()
+    from typing_extensions import Literal, get_args, get_origin
 
 import sphinx_autodoc_typehints
 from sphinx_autodoc_typehints import format_annotation as _format_orig
@@ -22,12 +18,14 @@ from docutils.parsers.rst.roles import set_classes
 from docutils.parsers.rst.states import Inliner, Struct
 from docutils.utils import SystemMessage, unescape
 
+from scanpydoc import elegant_typehints
+
 
 def _format_full(annotation: Type[Any], fully_qualified: bool = False):
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return _format_orig(annotation, fully_qualified)
 
-    origin = getattr(annotation, "__origin__", None)
+    origin = get_origin(annotation)
     tilde = "" if fully_qualified else "~"
 
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
@@ -46,31 +44,35 @@ def _format_full(annotation: Type[Any], fully_qualified: bool = False):
 
 
 def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
-    origin = getattr(annotation, "__origin__", None)
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    tilde = "" if fully_qualified else "~"
+    fmt = partial(_format_terse, fully_qualified=fully_qualified)
 
-    union_params = getattr(annotation, "__union_params__", None)
     # display `Union[A, B]` as `A | B`
-    if origin is Union or union_params:
-        params = union_params or getattr(annotation, "__args__", None)
+    if origin is Union:
         # Never use the `Optional` keyword in the displayed docs.
         # Use `| None` instead, similar to other large numerical packages.
-        return " | ".join(_format_terse(p, fully_qualified) for p in params)
+        return " | ".join(map(fmt, args))
 
     # do not show the arguments of Mapping
-    if origin in (abc.Mapping, Mapping):
-        return f":py:class:`{'' if fully_qualified else '~'}typing.Mapping`"
+    if origin is cabc.Mapping:
+        return f":py:class:`{tilde}typing.Mapping`"
 
     # display dict as {k: v}
-    if origin in (dict, Dict):
-        k, v = annotation.__args__
-        return (
-            f"{{{_format_terse(k, fully_qualified)}: "
-            f"{_format_terse(v, fully_qualified)}}}"
-        )
+    if origin is dict:
+        k, v = get_args(annotation)
+        return f"{{{fmt(k)}: {fmt(v)}}}"
 
-    if origin is Literal or hasattr(annotation, "__values__"):
-        values = getattr(annotation, "__args__", ()) or annotation.__values__
-        return f"{{{', '.join(map(repr, values))}}}"
+    # display Callable[[a1, a2], r] as (a1, a2) -> r
+    if origin is cabc.Callable and len(args) == 2:
+        params, ret = args
+        params = ["…"] if params is Ellipsis else map(fmt, params)
+        return f"({', '.join(params)}) → {fmt(ret)}"
+
+    # display Literal as {'a', 'b', ...}
+    if origin is Literal:
+        return f"{{{', '.join(map(repr, args))}}}"
 
     return _format_full(annotation, fully_qualified)
 
