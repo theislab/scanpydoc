@@ -3,6 +3,11 @@ import re
 from logging import getLogger
 from typing import get_type_hints, Any, Union, Optional, Type, Tuple, List
 
+try:  # 3.8 additions
+    from typing import get_args, get_origin
+except ImportError:
+    from typing_extensions import get_args, get_origin
+
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import Options
 
@@ -16,17 +21,17 @@ re_ret = re.compile("^:returns?: ")
 def get_tuple_annot(annotation: Optional[Type]) -> Optional[Tuple[Type, ...]]:
     if annotation is None:
         return None
-    origin = getattr(annotation, "__origin__", None)
+    origin = get_origin(annotation)
     if not origin:
         return None
     if origin is Union:
-        for annotation in annotation.__args__:
-            origin = getattr(annotation, "__origin__", None)
+        for annotation in get_args(annotation):
+            origin = get_origin(annotation)
             if origin in (tuple, Tuple):
                 break
         else:
             return None
-    return annotation.__args__
+    return get_args(annotation)
 
 
 def process_docstring(

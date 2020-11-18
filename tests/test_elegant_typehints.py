@@ -4,10 +4,10 @@ import sys
 import typing as t
 from pathlib import Path
 
-try:
-    from typing import Literal
+try:  # 3.8 additions
+    from typing import Literal, get_args, get_origin
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, get_args, get_origin
 
 import pytest
 import sphinx_autodoc_typehints as sat
@@ -148,6 +148,20 @@ def test_dict(app):
     )
 
 
+@pytest.mark.parametrize(
+    "annotation,expected",
+    [
+        (t.Callable[..., t.Any], "(…) → :py:data:`~typing.Any`"),
+        (
+            t.Callable[[str, int], None],
+            "(:py:class:`str`, :py:class:`int`) → :py:obj:`None`",
+        ),
+    ],
+)
+def test_callable_terse(app, annotation, expected):
+    assert _format_terse(annotation) == expected
+
+
 def test_literal(app):
     assert _format_terse(Literal["str", 1, None]) == "{'str', 1, None}"
     assert _format_full(Literal["str", 1, None]) == (
@@ -208,6 +222,7 @@ def test_classes_get_added(app, parse):
         t.Tuple[int, str],
         t.Tuple[float, ...],
         t.Union[int, str],
+        t.Union[int, str, None],
     ],
     ids=lambda p: str(p).replace("typing.", ""),
 )
@@ -215,15 +230,15 @@ def test_typing_classes(app, annotation, formatter):
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
-        or getattr(getattr(annotation, "__origin__", None), "_name", None)
+        or getattr(get_origin(annotation), "_name", None)
         # 3.6 _Any and _Union
         or annotation.__class__.__name__[1:]
     )
-    if name == "Union":
-        if formatter is _format_terse:
-            pytest.skip("Tested elsewhere")
-        elif len(annotation.__args__) == 2 and type(None) in annotation.__args__:
-            name = "Optional"
+    if formatter is _format_terse and name in {"Union", "Callable"}:
+        pytest.skip("Tested elsewhere")
+    args = get_args(annotation)
+    if name == "Union" and len(args) == 2 and type(None) in args:
+        name = "Optional"
     assert formatter(annotation, True).startswith(f":py:data:`typing.{name}")
 
 
