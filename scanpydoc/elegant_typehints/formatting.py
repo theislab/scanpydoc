@@ -49,11 +49,11 @@ def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
     tilde = "" if fully_qualified else "~"
     fmt = partial(_format_terse, fully_qualified=fully_qualified)
 
-    # display `Union[A, B]` as `A, B`
+    # display `Union[A, B]` as `A | B`
     if origin is Union:
         # Never use the `Optional` keyword in the displayed docs.
-        # Use the more verbose `, None` instead, like other numerical packages.
-        return ", ".join(map(fmt, args))
+        # Use `| None` instead, similar to other large numerical packages.
+        return " | ".join(map(fmt, args))
 
     # do not show the arguments of Mapping
     if origin is cabc.Mapping:
