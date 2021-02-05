@@ -30,7 +30,7 @@ intersphinx_mapping = dict(
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
     sphinx_rtd_theme=("https://sphinx-rtd-theme.readthedocs.io/en/stable/", None),
     # examples
-    numpy=("https://docs.scipy.org/doc/numpy/", None),
+    numpy=("https://numpy.org/doc/stable/", None),
     anndata=("https://anndata.readthedocs.io/en/latest/", None),
     pandas=("https://pandas.pydata.org/pandas-docs/stable/", None),
     scipy=("https://docs.scipy.org/doc/scipy/reference/", None),
