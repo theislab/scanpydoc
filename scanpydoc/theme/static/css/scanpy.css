@@ -41,12 +41,6 @@
 
 /* Formatting of RTD markup: rubrics and sidebars and admonitions */
 
-/* rubric */
-.rst-content p.rubric {
-    margin-bottom: 6px;
-    font-weight: normal;
-}
-
 /* sidebar */
 .rst-content .sidebar {
     /* margin: 0px 0px 0px 12px; */
