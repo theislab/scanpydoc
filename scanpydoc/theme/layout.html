@@ -1,9 +1,29 @@
 {% extends "sphinx_rtd_theme/layout.html" %}
+
 {%- block extrahead %}
 {{ super() }}
 {% if theme_accent_color %}
 <style>
 :root { --accent-color: {{ theme_accent_color }} }
 </style>
+{% endif %}
+{% if theme_docsearch_key %}
+<link rel=stylesheet href="https://cdn.jsdelivr.net/npm/docsearch.js@{{ theme_docsearch_js_version }}/dist/cdn/docsearch.min.css"/>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% if theme_docsearch_key %}
+<script src="https://cdn.jsdelivr.net/npm/docsearch.js@{{ theme_docsearch_js_version }}/dist/cdn/docsearch.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => docsearch({
+    apiKey: '{{ theme_docsearch_key }}',
+    indexName: '{{ theme_docsearch_project }}',
+    inputSelector: '#rtd-search-form > input[name="q"]',
+    algoliaOptions: { facetFilters: ['version:{{ version }}'] },
+    debug: false,
+  }))
+</script>
 {% endif %}
 {% endblock %}

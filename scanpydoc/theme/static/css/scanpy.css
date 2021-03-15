@@ -10,6 +10,14 @@
 .wy-side-nav-search a.icon-home { font-size: 2em; color: var(--accent-color) }
 .wy-side-nav-search a.icon-home::before { content: none }
 
+/* DocSearch adaptations */
+
+.wy-nav-side { overflow: visible; }
+.wy-side-scroll { overflow: inherit; }
+.algolia-autocomplete .ds-dropdown-menu {
+    max-width: 1000px;
+    min-width: 80vw;
+}
 
 /* Custom classes */
 
