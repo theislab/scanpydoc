@@ -9,14 +9,19 @@
 .wy-side-nav-search input[type="text"] { border-width: 0 }
 .wy-side-nav-search a.icon-home { font-size: 2em; color: var(--accent-color) }
 .wy-side-nav-search a.icon-home::before { content: none }
+.wy-menu li a { overflow: hidden; text-overflow: ellipsis; }  /* display ellipsis in long items */
 
 /* DocSearch adaptations */
 
-.wy-nav-side { overflow: visible; }
-.wy-side-scroll { overflow: inherit; }
-.algolia-autocomplete .ds-dropdown-menu {
-    max-width: 1000px;
-    min-width: 80vw;
+.wy-nav-side, .wy-side-scroll { overflow-x: visible; }  /* make popup window visible */
+.wy-side-scroll { width: 100%; scrollbar-width: none; }  /* hide scrollbar without hack */
+.wy-side-scroll::-webkit-scrollbar { display: none; }  /* … or with less hackery that is */
+.algolia-autocomplete { display: block !important; }  /* make searchbar fill the entire width */
+.algolia-autocomplete .ds-dropdown-menu *[class^="ds-dataset-"] {
+    position: fixed !important;
+    max-width: 1000px !important;
+    width: 80vw !important;
+    box-shadow: 0 1px 0 0 rgba(0,0,0,.2),0 2px 3px 0 rgba(0,0,0,.1);
 }
 
 /* Custom classes */
