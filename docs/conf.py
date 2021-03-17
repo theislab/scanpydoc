@@ -52,7 +52,7 @@ add_module_names = False
 
 html_theme = "scanpydoc"
 html_theme_options = dict(
-    docsearch_project="scanpy",
+    docsearch_index="scanpy",
     docsearch_key="fa4304eb95d2134997e3729553a674b2",
 )
 html_context = dict(

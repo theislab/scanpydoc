@@ -9,7 +9,7 @@ Add to ``conf.py``:
 Theme options
 =============
 
-This theme only adds one configuration value:
+This theme adds the following configuration value, and the ones under docsearch_:
 
 .. confval:: accent_color
 
@@ -27,6 +27,39 @@ See ``sphinx_rtd_theme``’s :doc:`sphinx_rtd_theme:configuring`, e.g.:
        accent_color='rebeccapurple',
        display_version=False,
    )
+
+Docsearch
+---------
+
+These two configuration values are required to use docsearch:
+
+.. confval:: docsearch_key
+
+   :type: str
+
+   The API key provided by docsearch.
+
+.. confval:: docsearch_index
+
+   :type: str
+
+   The index name used by docsearch.
+
+.. confval:: docsearch_doc_version
+
+   :type: str
+   :default: ``'latest'`` or ``'stable'``
+
+   The documentation version searched.
+   The default is ``'stable'`` if ``READTHEDOCS_VERSION=stable`` is set,
+   and ``'latest'`` otherwise.
+
+.. confval:: docsearch_js_version
+
+   :type: str
+   :default: ``'2.6'``
+
+   The docsearch library version used.
 
 """
 
