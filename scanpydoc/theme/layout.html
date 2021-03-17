@@ -1,14 +1,20 @@
 {% extends "sphinx_rtd_theme/layout.html" %}
 
+<!-- Have to use htmltitle to include this earlier as our style -->
+{%- block htmltitle %}
+{{ super() }}
+{% if theme_docsearch_key and theme_docsearch_index %}
+<link rel=stylesheet href="https://cdn.jsdelivr.net/npm/docsearch.js@{{ theme_docsearch_js_version }}/dist/cdn/docsearch.min.css"/>
+{% endif %}
+{%- endblock -%}
+
+<!-- Styles that come last -->
 {%- block extrahead %}
 {{ super() }}
 {% if theme_accent_color %}
 <style>
 :root { --accent-color: {{ theme_accent_color }} }
 </style>
-{% endif %}
-{% if theme_docsearch_key and theme_docsearch_index %}
-<link rel=stylesheet href="https://cdn.jsdelivr.net/npm/docsearch.js@{{ theme_docsearch_js_version }}/dist/cdn/docsearch.min.css"/>
 {% endif %}
 {% endblock %}
 
