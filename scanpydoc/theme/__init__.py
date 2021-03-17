@@ -9,7 +9,8 @@ Add to ``conf.py``:
 Theme options
 =============
 
-This theme adds the following configuration value, and the ones under docsearch_:
+This theme adds the following configuration option,
+and the ones under `docsearch options`_:
 
 .. confval:: accent_color
 
@@ -28,10 +29,12 @@ See ``sphinx_rtd_theme``’s :doc:`sphinx_rtd_theme:configuring`, e.g.:
        display_version=False,
    )
 
-Docsearch
----------
+Docsearch options
+-----------------
 
-These two configuration values are required to use docsearch:
+These two configuration values are required to use docsearch_:
+
+.. _docsearch: https://docsearch.algolia.com/
 
 .. confval:: docsearch_key
 
@@ -44,6 +47,8 @@ These two configuration values are required to use docsearch:
    :type: str
 
    The index name used by docsearch.
+
+The following configuration values are optional:
 
 .. confval:: docsearch_doc_version
 
