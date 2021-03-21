@@ -30,7 +30,7 @@
     indexName: '{{ theme_docsearch_index }}',
     inputSelector: '#rtd-search-form > input[name="q"]',
     algoliaOptions: { facetFilters: ['version:{{ theme_docsearch_doc_version or safe_version }}'] },
-    debug: true,
+    debug: false,
   }))
 </script>
 {% endif %}
