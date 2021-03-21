@@ -9,7 +9,18 @@
 .wy-side-nav-search input[type="text"] { border-width: 0 }
 .wy-side-nav-search a.icon-home { font-size: 2em; color: var(--accent-color) }
 .wy-side-nav-search a.icon-home::before { content: none }
+.wy-menu li a { overflow: hidden; text-overflow: ellipsis; }  /* display ellipsis in long items */
 
+/* DocSearch adaptations */
+
+.wy-nav-side { overflow: visible; }
+.wy-side-scroll { overflow: inherit; }
+
+/* Making it a bit wider */
+.algolia-autocomplete .ds-dropdown-menu {
+  max-width: 1000px;
+  min-width: 80vw;
+}
 
 /* Custom classes */
 
