@@ -21,16 +21,20 @@ from docutils.utils import SystemMessage, unescape
 from scanpydoc import elegant_typehints
 
 
-def _format_full(annotation: Type[Any], fully_qualified: bool = False):
+def _format_full(
+    annotation: Type[Any],
+    fully_qualified: bool = False,
+    simplify_optional_unions: bool = True,
+):
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
-        return _format_orig(annotation, fully_qualified)
+        return _format_orig(annotation, fully_qualified, simplify_optional_unions)
 
     origin = get_origin(annotation)
     tilde = "" if fully_qualified else "~"
 
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ == "typing":
-        return _format_orig(annotation, fully_qualified)
+        return _format_orig(annotation, fully_qualified, simplify_optional_unions)
 
     # Only if this is a real class we override sphinx_autodoc_typehints
     if inspect.isclass(annotation) or inspect.isclass(origin):
@@ -40,14 +44,22 @@ def _format_full(annotation: Type[Any], fully_qualified: bool = False):
         if override is not None:
             return f":py:{role}:`{tilde}{override}`"
 
-    return _format_orig(annotation, fully_qualified)
+    return _format_orig(annotation, fully_qualified, simplify_optional_unions)
 
 
-def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
+def _format_terse(
+    annotation: Type[Any],
+    fully_qualified: bool = False,
+    simplify_optional_unions: bool = True,
+) -> str:
     origin = get_origin(annotation)
     args = get_args(annotation)
     tilde = "" if fully_qualified else "~"
-    fmt = partial(_format_terse, fully_qualified=fully_qualified)
+    fmt = partial(
+        _format_terse,
+        fully_qualified=fully_qualified,
+        simplify_optional_unions=simplify_optional_unions,
+    )
 
     # display `Union[A, B]` as `A | B`
     if origin is Union:
@@ -74,10 +86,14 @@ def _format_terse(annotation: Type[Any], fully_qualified: bool = False) -> str:
     if origin is Literal:
         return f"{{{', '.join(map(repr, args))}}}"
 
-    return _format_full(annotation, fully_qualified)
+    return _format_full(annotation, fully_qualified, simplify_optional_unions)
 
 
-def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> str:
+def format_annotation(
+    annotation: Type[Any],
+    fully_qualified: bool = False,
+    simplify_optional_unions: bool = True,
+) -> str:
     r"""Generate reStructuredText containing links to the types.
 
     Unlike :func:`sphinx_autodoc_typehints.format_annotation`,
@@ -87,6 +103,9 @@ def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> s
         annotation: A type or class used as type annotation.
         fully_qualified: If links should be formatted as fully qualified
             (e.g. ``:py:class:`foo.Bar```) or not (e.g. ``:py:class:`~foo.Bar```).
+        simplify_optional_unions: If Unions should be minimized if they contain
+            3 or more elements one of which is ``None``. (If ``True``, e.g.
+            ``Optional[Union[str, int]]`` becomes ``Union[str, int, None]``)
 
     Returns:
         reStructuredText describing the type
@@ -100,7 +119,7 @@ def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> s
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
     if calframe[1][3] == "process_docstring":
-        annot_fmt = format_both(annotation, fully_qualified)
+        annot_fmt = format_both(annotation, fully_qualified, simplify_optional_unions)
         if elegant_typehints.annotate_defaults:
             variables = calframe[1].frame.f_locals
             sig = inspect.signature(variables["obj"])
@@ -111,14 +130,17 @@ def format_annotation(annotation: Type[Any], fully_qualified: bool = False) -> s
                     annot_fmt += f" (default: ``{_escape(repr(default))}``)"
         return annot_fmt
     else:  # recursive use
-        return _format_full(annotation, fully_qualified)
+        return _format_full(annotation, fully_qualified, simplify_optional_unions)
 
 
-def format_both(annotation: Type[Any], fully_qualified: bool = False):
-    return (
-        f":annotation-terse:`{_escape(_format_terse(annotation, fully_qualified))}`\\ "
-        f":annotation-full:`{_escape(_format_full(annotation, fully_qualified))}`"
-    )
+def format_both(
+    annotation: Type[Any],
+    fully_qualified: bool = False,
+    simplify_optional_unions: bool = True,
+) -> str:
+    terse = _format_terse(annotation, fully_qualified, simplify_optional_unions)
+    full = _format_full(annotation, fully_qualified, simplify_optional_unions)
+    return f":annotation-terse:`{_escape(terse)}`\\ :annotation-full:`{_escape(full)}`"
 
 
 def _role_annot(
