@@ -5,11 +5,11 @@ This module is also an extension itself which simply sets up all included extens
 from textwrap import indent
 from typing import Any, Dict
 
-from get_version import get_version
+from setuptools_scm import get_version
 from sphinx.application import Sphinx
 
 
-__version__ = get_version(__file__)
+__version__ = get_version(root='..', relative_to=__file__)
 
 metadata = dict(version=__version__, env_version=1, parallel_read_safe=True)
 
