@@ -20,7 +20,8 @@ classifiers = [
 requires-python = '>=3.7'
 requires = [
     'sphinx>=3.0',
-    'get_version',
+    # 'get_version',
+    'setuptools_scm',
 ]
 
 [tool.flit.metadata.requires-extra]
