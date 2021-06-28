@@ -24,8 +24,8 @@ def test_as_function(env):
 
 
 def test_get_obj_module():
-    import get_version
+    import sphinx.application
 
-    obj, mod = _get_obj_module("scanpydoc.get_version")
-    assert obj is get_version.get_version
-    assert mod is get_version
+    obj, mod = _get_obj_module("sphinx.application.Sphinx")
+    assert obj is sphinx.application.Sphinx
+    assert mod is sphinx.application

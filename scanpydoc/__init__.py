@@ -8,7 +8,7 @@ from typing import Any, Dict
 from sphinx.application import Sphinx
 
 
-__version__ = "0.7.1"
+__version__ = "0.7.2"
 
 metadata = dict(version=__version__, env_version=1, parallel_read_safe=True)
 
