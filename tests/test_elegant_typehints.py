@@ -268,8 +268,8 @@ def test_autodoc(app, _testmod, direc, base, sub):
     out = Path(app.outdir, "index.html").read_text()
     assert not app._warning.getvalue(), app._warning.getvalue()
     assert re.search(
-        r'<code[^>]*><span class="pre">test\.</span></code>'
-        f'<code[^>]*><span class="pre">{sub}</span></code>',
+        r'<(code|span)?[^>]*><span class="pre">test\.</span></(code|span)>'
+        f'<(code|span)?[^>]*><span class="pre">{sub}</span></(code|span)>',
         out,
     ), out
     assert f'<a class="headerlink" href="#test.{sub}"' in out, out
