@@ -3,7 +3,8 @@ from pathlib import Path
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from scanpydoc.rtd_github_links import github_url, _get_linenos, _get_obj_module
+from scanpydoc.rtd_github_links import _get_linenos, _get_obj_module, github_url
+
 
 HERE = Path(__file__).parent
 

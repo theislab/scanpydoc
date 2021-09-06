@@ -5,12 +5,12 @@ with a derivative :class:`DLTypedField`, which renders item items
 (e.g. function parameters) as definition lists instead of simple paragraphs.
 """
 
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
 
 from docutils import nodes
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.domains.python import PyTypedField, PyObject
+from sphinx.domains.python import PyObject, PyTypedField
 from sphinx.environment import BuildEnvironment
 
 from . import _setup_sig, metadata

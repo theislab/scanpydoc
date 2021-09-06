@@ -1,4 +1,4 @@
-from typing import Dict, Union, Optional
+from typing import Dict, Optional, Union
 
 
 def example_func(a: Optional[str], b: Union[str, int, None] = None) -> Dict[str, int]:

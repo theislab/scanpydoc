@@ -12,7 +12,7 @@ to `autosummary templates`_ in the future. See `Sphinx issue 4372`_.
 
 import logging
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
 from sphinx.ext import autosummary
