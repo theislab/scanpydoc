@@ -39,7 +39,7 @@ import inspect
 import sys
 from pathlib import Path, PurePosixPath
 from types import ModuleType
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
 
 from jinja2.defaults import DEFAULT_FILTERS
 from sphinx.application import Sphinx

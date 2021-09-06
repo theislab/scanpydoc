@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Mapping, Callable, Tuple
+from typing import Callable, Mapping, Tuple
 
 from docutils.statemachine import StringList
 from sphinx.ext.autodoc import ClassDocumenter

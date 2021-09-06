@@ -1,7 +1,8 @@
 import inspect
 import re
 from logging import getLogger
-from typing import get_type_hints, Any, Union, Optional, Type, Tuple, List
+from typing import Any, List, Optional, Tuple, Type, Union, get_type_hints
+
 
 try:  # 3.8 additions
     from typing import get_args, get_origin

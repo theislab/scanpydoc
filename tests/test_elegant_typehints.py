@@ -4,6 +4,7 @@ import sys
 import typing as t
 from pathlib import Path
 
+
 try:  # 3.8 additions
     from typing import Literal, get_args, get_origin
 except ImportError:
@@ -14,9 +15,9 @@ import sphinx_autodoc_typehints as sat
 from sphinx.application import Sphinx
 
 from scanpydoc.elegant_typehints.formatting import (
-    format_annotation,
-    _format_terse,
     _format_full,
+    _format_terse,
+    format_annotation,
 )
 from scanpydoc.elegant_typehints.return_tuple import process_docstring
 

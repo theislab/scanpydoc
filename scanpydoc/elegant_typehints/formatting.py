@@ -1,9 +1,8 @@
-import inspect
 import collections.abc as cabc
+import inspect
 from functools import partial
-from typing import Any, Union  # Meta
-from typing import Type, Sequence, Iterable  # ABC
-from typing import Dict, List, Tuple  # Concrete
+from typing import Any, Dict, Iterable, List, Sequence, Tuple, Type, Union
+
 
 try:  # 3.8 additions
     from typing import Literal, get_args, get_origin
@@ -11,12 +10,12 @@ except ImportError:
     from typing_extensions import Literal, get_args, get_origin
 
 import sphinx_autodoc_typehints
-from sphinx_autodoc_typehints import format_annotation as _format_orig
 from docutils import nodes
 from docutils.nodes import Node
 from docutils.parsers.rst.roles import set_classes
 from docutils.parsers.rst.states import Inliner, Struct
 from docutils.utils import SystemMessage, unescape
+from sphinx_autodoc_typehints import format_annotation as _format_orig
 
 from scanpydoc import elegant_typehints
 

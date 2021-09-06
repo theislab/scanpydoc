@@ -4,10 +4,12 @@ from pathlib import Path
 
 from sphinx.application import Sphinx
 
+
 # Allow importing scanpydoc itself
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent))
 import scanpydoc  # noqa
+
 
 # Clean build env
 for file in HERE.glob("scanpydoc.*.rst"):

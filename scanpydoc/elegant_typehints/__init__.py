@@ -48,11 +48,10 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Dict
 
-
 import sphinx_autodoc_typehints
+from docutils.parsers.rst import roles
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from docutils.parsers.rst import roles
 from sphinx.ext.autodoc import ClassDocumenter
 
 from .. import _setup_sig, metadata
@@ -96,7 +95,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_css_file("typehints.css")
     app.connect("config-inited", _init_vars)
 
-    from .formatting import format_annotation, _role_annot
+    from .formatting import _role_annot, format_annotation
 
     sphinx_autodoc_typehints.format_annotation = format_annotation
     for name in ["annotation-terse", "annotation-full"]:
