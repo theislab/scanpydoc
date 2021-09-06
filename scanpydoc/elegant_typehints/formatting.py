@@ -72,8 +72,8 @@ def _format_terse(
         return f":py:class:`{tilde}typing.Mapping`"
 
     # display dict as {k: v}
-    if origin is dict:
-        k, v = get_args(annotation)
+    if origin is dict and len(args) == 2:
+        k, v = args
         return f"{{{fmt(k)}: {fmt(v)}}}"
 
     # display Callable[[a1, a2], r] as (a1, a2) -> r
