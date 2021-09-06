@@ -14,7 +14,9 @@
 /* DocSearch adaptations */
 
 .wy-nav-side { overflow: visible; }
-.wy-side-scroll { overflow: inherit; }
+.wy-side-scroll { overflow-x: inherit; overflow-y: auto; width: 300px; }
+.wy-side-nav-search { width: auto }
+.wy-menu-vertical { width: auto }
 
 /* Making it a bit wider */
 .algolia-autocomplete .ds-dropdown-menu {
