@@ -24,10 +24,12 @@ requires = [
 ]
 
 [tool.flit.metadata.requires-extra]
+dev = [
+    'pre-commit',
+]
 test = [
     'pytest',
     'pytest-cov',
-    'pytest-black',
     'typing_extensions>=3.10; python_version<"3.8"',
 ]
 doc = [
