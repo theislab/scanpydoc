@@ -36,6 +36,8 @@ doc = [
     'sphinx-autodoc-typehints>=1.12',
     'sphinx-rtd-theme',
 ]
+typehints = ['sphinx-autodoc-typehints>=1.12']
+theme = ['sphinx-rtd-theme']
 
 [tool.flit.entrypoints.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
