@@ -16,20 +16,18 @@ jobs:
         python-version: ['3.7', '3.8', '3.9']
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Restore pip and pre-commit caches
-      uses: actions/cache@v2
+    - uses: actions/cache@v2
       with:
         path: |
           ~/.cache/pip
           ~/.cache/pre-commit
         key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
-    - name: Install dependencies
+    - name: dependencies
       run: |
         pip install --upgrade pip wheel
         pip install .[test,typehints]
-    - name: Tests
+    - name: tests
       run: pytest --color=yes
