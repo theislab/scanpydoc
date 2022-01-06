@@ -118,16 +118,7 @@ def format_annotation(
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
     if calframe[1][3] == "process_docstring":
-        annot_fmt = format_both(annotation, fully_qualified, simplify_optional_unions)
-        if elegant_typehints.annotate_defaults:
-            variables = calframe[1].frame.f_locals
-            sig = inspect.signature(variables["obj"])
-            arg_name = variables["argname"].replace(r"\_", "_")
-            if arg_name != "return":
-                default = sig.parameters[arg_name].default
-                if default is not inspect.Parameter.empty:
-                    annot_fmt += f" (default: ``{_escape(repr(default))}``)"
-        return annot_fmt
+        return format_both(annotation, fully_qualified, simplify_optional_unions)
     else:  # recursive use
         return _format_full(annotation, fully_qualified, simplify_optional_unions)
 

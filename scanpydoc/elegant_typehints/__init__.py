@@ -22,6 +22,7 @@ This extension modifies the created type annotations in four ways:
    this part of the functionality will no longer be necessary.
 #. The config value ``annotate_defaults`` (default: :data:`True`) controls if rST code
    like ``(default: `42`)`` is added after the type.
+   It sets sphinx-autodoc-typehints’s option ``typehints_defaults`` to ``'braces'``
 #. Type annotations for :class:`tuple` return types are added::
 
        def x() -> Tuple[int, float]:
@@ -72,13 +73,17 @@ qualname_overrides_default = {
     "scipy.sparse.csc.csc_matrix": "scipy.sparse.csc_matrix",
 }
 qualname_overrides = ChainMap({}, qualname_overrides_default)
-annotate_defaults = True
 
 
 def _init_vars(app: Sphinx, config: Config):
-    global annotate_defaults
     qualname_overrides.update(config.qualname_overrides)
-    annotate_defaults = config.annotate_defaults
+    if "sphinx_autodoc_typehints" not in config.extensions and config.annotate_defaults:
+        raise ValueError(
+            "Can only use annotate_defaults option when using sphinx-autodoc-typehints"
+        )
+    if config.typehints_defaults is None and config.annotate_defaults:
+        # override default for “typehints_defaults”
+        config.typehints_defaults = "braces"
     config.html_static_path.append(str(HERE / "static"))
 
 

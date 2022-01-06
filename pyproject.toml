@@ -33,10 +33,10 @@ test = [
     'typing_extensions>=3.10; python_version<"3.8"',
 ]
 doc = [
-    'sphinx-autodoc-typehints>=1.12',
+    'scanpydoc[typehints]',
     'sphinx-rtd-theme',
 ]
-typehints = ['sphinx-autodoc-typehints>=1.12']
+typehints = ['sphinx-autodoc-typehints>=1.14']
 theme = ['sphinx-rtd-theme']
 
 [tool.flit.entrypoints.'sphinx.html_themes']
