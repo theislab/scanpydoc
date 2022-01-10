@@ -49,7 +49,6 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Dict
 
-import sphinx_autodoc_typehints
 from docutils.parsers.rst import roles
 from sphinx.application import Sphinx
 from sphinx.config import Config
@@ -102,7 +101,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     from .formatting import _role_annot, format_annotation
 
-    sphinx_autodoc_typehints.format_annotation = format_annotation
+    app.config.typehints_formatter = format_annotation
     for name in ["annotation-terse", "annotation-full"]:
         roles.register_canonical_role(
             name, partial(_role_annot, additional_classes=name.split("-"))

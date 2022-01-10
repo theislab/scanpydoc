@@ -1,7 +1,7 @@
 import collections.abc as cabc
 import inspect
 from functools import partial
-from typing import Any, Dict, Iterable, List, Sequence, Tuple, Type, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Type, Union
 
 from sphinx.config import Config
 
@@ -21,17 +21,16 @@ from sphinx_autodoc_typehints import format_annotation as _format_orig
 from scanpydoc import elegant_typehints
 
 
-def _format_full(annotation: Type[Any], config: Config):
+def _format_full(annotation: Type[Any], config: Config) -> Optional[str]:
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
-        return _format_orig(annotation, config)
+        return None
 
-    fully_qualified: bool = config.typehints_fully_qualified
     origin = get_origin(annotation)
-    tilde = "" if fully_qualified else "~"
+    tilde = "" if config.typehints_fully_qualified else "~"
 
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ == "typing":
-        return _format_orig(annotation, config)
+        return None
 
     # Only if this is a real class we override sphinx_autodoc_typehints
     if inspect.isclass(annotation) or inspect.isclass(origin):
@@ -41,14 +40,13 @@ def _format_full(annotation: Type[Any], config: Config):
         if override is not None:
             return f":py:{role}:`{tilde}{override}`"
 
-    return _format_orig(annotation, config)
+    return None
 
 
 def _format_terse(annotation: Type[Any], config: Config) -> str:
-    fully_qualified: bool = config.typehints_fully_qualified
     origin = get_origin(annotation)
     args = get_args(annotation)
-    tilde = "" if fully_qualified else "~"
+    tilde = "" if config.typehints_fully_qualified else "~"
     fmt = partial(_format_terse, config=config)
 
     # display `Union[A, B]` as `A | B`
@@ -76,10 +74,10 @@ def _format_terse(annotation: Type[Any], config: Config) -> str:
     if origin is Literal:
         return f"{{{', '.join(map(repr, args))}}}"
 
-    return _format_full(annotation, config)
+    return _format_full(annotation, config) or _format_orig(annotation, config)
 
 
-def format_annotation(annotation: Type[Any], config: Config) -> str:
+def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
     r"""Generate reStructuredText containing links to the types.
 
     Unlike :func:`sphinx_autodoc_typehints.format_annotation`,
@@ -95,7 +93,7 @@ def format_annotation(annotation: Type[Any], config: Config) -> str:
 
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
-    if calframe[1][3] == "process_docstring":
+    if calframe[2].function == "process_docstring":
         return format_both(annotation, config)
     else:  # recursive use
         return _format_full(annotation, config)
@@ -103,7 +101,7 @@ def format_annotation(annotation: Type[Any], config: Config) -> str:
 
 def format_both(annotation: Type[Any], config: Config) -> str:
     terse = _format_terse(annotation, config)
-    full = _format_full(annotation, config)
+    full = _format_full(annotation, config) or _format_orig(annotation, config)
     return f":annotation-terse:`{_escape(terse)}`\\ :annotation-full:`{_escape(full)}`"
 
 
