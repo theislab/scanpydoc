@@ -1,8 +1,10 @@
 import importlib.util
+import linecache
 import sys
 import typing as t
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
+from uuid import uuid4
 
 import pytest
 from docutils.nodes import document
@@ -55,14 +57,19 @@ def render() -> t.Callable[[Sphinx, document], str]:
 
 
 @pytest.fixture
-def make_module():
+def make_module(tmp_path):
     added_modules = []
 
     def make_module(name, code):
+        code = dedent(code)
         assert name not in sys.modules
         spec = importlib.util.spec_from_loader(name, loader=None)
         mod = sys.modules[name] = importlib.util.module_from_spec(spec)
-        exec(dedent(code), mod.__dict__)
+        path = tmp_path / f"{name}_{str(uuid4()).replace('-', '_')}.py"
+        path.write_text(code)
+        mod.__file__ = str(path)
+        exec(code, mod.__dict__)
+        linecache.updatecache(str(path), mod.__dict__)
         added_modules.append(name)
         return mod
 
