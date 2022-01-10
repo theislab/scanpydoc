@@ -89,7 +89,7 @@ def process_docstring(
 
     if len(idxs_ret_names) == len(ret_types):
         for l, rt in zip(idxs_ret_names, ret_types):
-            typ = format_both(rt, app.config.typehints_fully_qualified)
+            typ = format_both(rt, app.config)
             lines[l : l + 1] = [f"{lines[l]} : {typ}"]
 
 

@@ -56,8 +56,6 @@ def app(make_app_setup) -> Sphinx:
 
 @pytest.fixture
 def process_doc(app):
-    app.config.typehints_fully_qualified = True
-
     def process(fn: t.Callable) -> t.List[str]:
         lines = inspect.getdoc(fn).split("\n")
         sat.process_docstring(app, "function", fn.__name__, fn, None, lines)
@@ -73,7 +71,7 @@ def test_app(app):
 
 
 def test_default(app):
-    assert format_annotation(str) == ":py:class:`str`"
+    assert format_annotation(str, app.config) is None
 
 
 def test_alternatives(process_doc):
@@ -125,26 +123,24 @@ def test_defaults_complex(process_doc):
 
     assert process_doc(fn_test) == [
         ":type m: "
-        r":annotation-terse:`:py:class:\`typing.Mapping\``\ "
+        r":annotation-terse:`:py:class:\`~typing.Mapping\``\ "
         r":annotation-full:`"
-        r":py:class:\`typing.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
+        r":py:class:\`~typing.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
         "` (default: ``{}``)",
         ":param m: Test M",
     ]
 
 
 def test_mapping(app):
-    assert _format_terse(t.Mapping[str, t.Any]) == ":py:class:`~typing.Mapping`"
-    assert _format_full(t.Mapping[str, t.Any]) == (
-        r":py:class:`~typing.Mapping`\["
-        r":py:class:`str`, "
-        r":py:data:`~typing.Any`"
-        r"]"
+    assert (
+        _format_terse(t.Mapping[str, t.Any], app.config)
+        == ":py:class:`~typing.Mapping`"
     )
+    assert _format_full(t.Mapping[str, t.Any], app.config) is None
 
 
 def test_dict(app):
-    assert _format_terse(t.Dict[str, t.Any]) == (
+    assert _format_terse(t.Dict[str, t.Any], app.config) == (
         "{:py:class:`str`: :py:data:`~typing.Any`}"
     )
 
@@ -160,45 +156,37 @@ def test_dict(app):
     ],
 )
 def test_callable_terse(app, annotation, expected):
-    assert _format_terse(annotation) == expected
+    assert _format_terse(annotation, app.config) == expected
 
 
 def test_literal(app):
-    assert _format_terse(Literal["str", 1, None]) == "{'str', 1, None}"
-    assert _format_full(Literal["str", 1, None]) == (
-        r":py:data:`~typing.Literal`\['str', 1, None]"
-    )
+    assert _format_terse(Literal["str", 1, None], app.config) == "{'str', 1, None}"
+    assert _format_full(Literal["str", 1, None], app.config) is None
 
 
 def test_qualname_overrides_class(app, _testmod):
     assert _testmod.Class.__module__ == "_testmod"
-    assert _format_terse(_testmod.Class) == ":py:class:`~test.Class`"
+    assert _format_terse(_testmod.Class, app.config) == ":py:class:`~test.Class`"
 
 
 def test_qualname_overrides_exception(app, _testmod):
     assert _testmod.Excep.__module__ == "_testmod"
-    assert _format_terse(_testmod.Excep) == ":py:exc:`~test.Excep`"
+    assert _format_terse(_testmod.Excep, app.config) == ":py:exc:`~test.Excep`"
 
 
 def test_qualname_overrides_recursive(app, _testmod):
-    assert _format_terse(t.Union[_testmod.Class, str]) == (
+    assert _format_terse(t.Union[_testmod.Class, str], app.config) == (
         r":py:class:`~test.Class` | :py:class:`str`"
     )
-    assert _format_full(t.Union[_testmod.Class, str]) == (
-        r":py:data:`~typing.Union`\["
-        r":py:class:`~test.Class`, "
-        r":py:class:`str`"
-        r"]"
-    )
+    assert _format_full(t.Union[_testmod.Class, str], app.config) is None
 
 
 def test_fully_qualified(app, _testmod):
-    assert _format_terse(t.Union[_testmod.Class, str], True) == (
+    app.config.typehints_fully_qualified = True
+    assert _format_terse(t.Union[_testmod.Class, str], app.config) == (
         r":py:class:`test.Class` | :py:class:`str`"
     )
-    assert _format_full(t.Union[_testmod.Class, str], True) == (
-        r":py:data:`typing.Union`\[" r":py:class:`test.Class`, " r":py:class:`str`" r"]"
-    )
+    assert _format_full(t.Union[_testmod.Class, str], app.config) is None
 
 
 def test_classes_get_added(app, parse):
@@ -228,6 +216,7 @@ def test_classes_get_added(app, parse):
     ids=lambda p: str(p).replace("typing.", ""),
 )
 def test_typing_classes(app, annotation, formatter):
+    app.config.typehints_fully_qualified = True
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
@@ -240,15 +229,8 @@ def test_typing_classes(app, annotation, formatter):
     args = get_args(annotation)
     if name == "Union" and len(args) == 2 and type(None) in args:
         name = "Optional"
-    assert formatter(annotation, True).startswith(f":py:data:`typing.{name}")
-
-
-def test_typing_class_nested(app):
-    assert _format_full(t.Optional[t.Tuple[int, str]]) == (
-        ":py:data:`~typing.Optional`\\["
-        ":py:data:`~typing.Tuple`\\[:py:class:`int`, :py:class:`str`]"
-        "]"
-    )
+    output = formatter(annotation, app.config)
+    assert output is None or output.startswith(f":py:data:`typing.{name}")
 
 
 @pytest.mark.parametrize(
