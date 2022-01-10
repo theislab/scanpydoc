@@ -56,8 +56,6 @@ def app(make_app_setup) -> Sphinx:
 
 @pytest.fixture
 def process_doc(app):
-    app.config.typehints_fully_qualified = True
-
     def process(fn: t.Callable) -> t.List[str]:
         lines = inspect.getdoc(fn).split("\n")
         sat.process_docstring(app, "function", fn.__name__, fn, None, lines)
@@ -125,7 +123,7 @@ def test_defaults_complex(process_doc):
 
     assert process_doc(fn_test) == [
         ":type m: "
-        r":annotation-terse:`:py:class:\`typing.Mapping\``\ "
+        r":annotation-terse:`:py:class:\`~typing.Mapping\``\ "
         r":annotation-full:`"
         r":py:class:\`~typing.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
         "` (default: ``{}``)",
