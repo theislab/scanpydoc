@@ -1,3 +1,5 @@
+import dataclasses
+from dataclasses import dataclass, field, Field
 from pathlib import Path
 
 import pytest
@@ -30,3 +32,8 @@ def test_get_obj_module():
     obj, mod = _get_obj_module("scanpydoc.get_version")
     assert obj is get_version.get_version
     assert mod is get_version
+
+
+def test_get_obj_module_anntation():
+    obj, mod = _get_obj_module("scanpydoc.rtd_github_links._TestCls.test_attr")
+    assert isinstance(obj, Field)

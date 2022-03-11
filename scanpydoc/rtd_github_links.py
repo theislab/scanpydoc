@@ -74,7 +74,13 @@ def _get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
     mod = sys.modules[modname]
     obj = None
     for attr_name in attr_path:
-        thing = getattr(mod if obj is None else obj, attr_name)
+        try:
+            thing = getattr(mod if obj is None else obj, attr_name)
+        except AttributeError:
+            if is_dataclass(obj):
+                thing = next(f for f in fields(obj) if f.name == attr_name)
+            else:
+                raise
         if isinstance(thing, ModuleType):
             mod = thing
         else:
@@ -159,3 +165,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     DEFAULT_FILTERS["github_url"] = github_url
 
     return metadata
+
+
+if True:  # test data
+    from dataclasses import dataclass, field, is_dataclass, fields
+
+    @dataclass
+    class _TestCls:
+        test_attr: dict[str, str] = field(default_factory=dict)
