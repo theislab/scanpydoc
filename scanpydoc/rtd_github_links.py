@@ -168,7 +168,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
 
 if True:  # test data
-    from dataclasses import dataclass, field, is_dataclass, fields
+    from dataclasses import dataclass, field, fields, is_dataclass
 
     @dataclass
     class _TestCls:

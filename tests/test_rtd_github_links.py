@@ -1,5 +1,5 @@
 import dataclasses
-from dataclasses import dataclass, field, Field
+from dataclasses import Field, dataclass, field
 from pathlib import Path
 
 import pytest
