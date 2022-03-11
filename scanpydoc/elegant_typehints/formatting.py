@@ -93,7 +93,7 @@ def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
 
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
-    if calframe[2].function == "process_docstring":
+    if "process_docstring" in {calframe[2].function, calframe[3].function}:
         return format_both(annotation, config)
     else:  # recursive use
         return _format_full(annotation, config)
@@ -102,6 +102,8 @@ def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
 def format_both(annotation: Type[Any], config: Config) -> str:
     terse = _format_terse(annotation, config)
     full = _format_full(annotation, config) or _format_orig(annotation, config)
+    if terse == full:
+        return terse
     return f":annotation-terse:`{_escape(terse)}`\\ :annotation-full:`{_escape(full)}`"
 
 

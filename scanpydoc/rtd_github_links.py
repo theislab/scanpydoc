@@ -24,7 +24,8 @@ Usage
 -----
 
 You can use the filter e.g. in `autosummary templates`_.
-To configure the sphinx_rtd_theme_, override the ``autosummary/base.rst`` template like this:
+To configure the sphinx_rtd_theme_,
+override the ``autosummary/base.rst`` template like this:
 
 .. code:: restructuredtext
 
@@ -32,9 +33,12 @@ To configure the sphinx_rtd_theme_, override the ``autosummary/base.rst`` templa
 
     {% extends "!autosummary/base.rst" %}
 
-.. _autosummary templates: http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
+.. _autosummary templates: \
+   http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
 .. _sphinx_rtd_theme: https://sphinx-rtd-theme.readthedocs.io/en/latest/
 """
+from __future__ import annotations
+
 import inspect
 import sys
 from pathlib import Path, PurePosixPath

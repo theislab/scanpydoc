@@ -80,12 +80,7 @@ def test_alternatives(process_doc):
         :param s: Test
         """
 
-    assert process_doc(fn_test) == [
-        ":type s: "
-        r":annotation-terse:`:py:class:\`str\``\ "
-        r":annotation-full:`:py:class:\`str\``",
-        ":param s: Test",
-    ]
+    assert process_doc(fn_test) == [":type s: :py:class:`str`", ":param s: Test"]
 
 
 def test_defaults_simple(process_doc):
@@ -97,20 +92,11 @@ def test_defaults_simple(process_doc):
         """
 
     assert process_doc(fn_test) == [
-        ":type s: "
-        r":annotation-terse:`:py:class:\`str\``\ "
-        r":annotation-full:`:py:class:\`str\`` "
-        "(default: ``'foo'``)",
+        ":type s: :py:class:`str` (default: ``'foo'``)",
         ":param s: Test S",
-        ":type n: "
-        r":annotation-terse:`:py:obj:\`None\``\ "
-        r":annotation-full:`:py:obj:\`None\`` "
-        "(default: ``None``)",
+        ":type n: :py:obj:`None` (default: ``None``)",
         ":param n: Test N",
-        r":type i\_: "
-        r":annotation-terse:`:py:class:\`int\``\ "
-        r":annotation-full:`:py:class:\`int\`` "
-        "(default: ``1``)",
+        r":type i\_: :py:class:`int` (default: ``1``)",
         r":param i\_: Test I",
     ]
 
@@ -335,13 +321,9 @@ def test_return(process_doc, docstring, return_ann):
         if not re.match("^:(rtype|param|annotation-(full|terse)):", l)
     ]
     assert lines == [
-        r":return: foo : "
-        r":annotation-terse:`:py:class:\`str\``\ "
-        r":annotation-full:`:py:class:\`str\``",
+        r":return: foo : :py:class:`str`",
         "             A foo!",
-        r"         bar : "
-        r":annotation-terse:`:py:class:\`int\``\ "
-        r":annotation-full:`:py:class:\`int\``",
+        r"         bar : :py:class:`int`",
         "             A bar!",
     ]
 
