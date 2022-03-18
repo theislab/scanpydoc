@@ -93,7 +93,10 @@ def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
 
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
-    if "process_docstring" in {calframe[2].function, calframe[3].function}:
+    if calframe[2].function == "process_docstring" or (
+        calframe[2].function == "_inject_types_to_docstring"
+        and calframe[3].function == "process_docstring"
+    ):
         return format_both(annotation, config)
     else:  # recursive use
         return _format_full(annotation, config)
