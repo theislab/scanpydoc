@@ -35,7 +35,7 @@ intersphinx_mapping = dict(
     numpy=("https://numpy.org/doc/stable/", None),
     anndata=("https://anndata.readthedocs.io/en/latest/", None),
     pandas=("https://pandas.pydata.org/pandas-docs/stable/", None),
-    scipy=("https://docs.scipy.org/doc/scipy/reference/", None),
+    scipy=("https://docs.scipy.org/doc/scipy/", None),
 )
 
 # general information

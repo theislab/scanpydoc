@@ -9,7 +9,7 @@ from get_version import get_version
 from sphinx.application import Sphinx
 
 
-__version__ = get_version(__file__)
+__version__ = get_version(__file__, vcs="git")
 
 metadata = dict(version=__version__, env_version=1, parallel_read_safe=True)
 
