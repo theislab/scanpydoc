@@ -305,11 +305,21 @@ def test_fwd_ref(app, make_module):
     ids=["Last", "First"],
 )
 @pytest.mark.parametrize(
-    "return_ann",
-    [t.Tuple[str, int], t.Optional[t.Tuple[str, int]]],
-    ids=["Tuple", "Optional[Tuple]"],
+    "return_ann, foo_rendered",
+    [
+        (t.Tuple[str, int], ":py:class:`str`"),
+        (t.Optional[t.Tuple[str, int]], ":py:class:`str`"),
+        (
+            t.Tuple[t.Mapping[str, float], int],
+            r":annotation-terse:`:py:class:\`~typing.Mapping\``\ "
+            r":annotation-full:`:py:class:\`~typing.Mapping\`\["
+            r":py:class:\`str\`, :py:class:\`float\`"
+            r"]`",
+        ),
+    ],
+    ids=["Tuple", "Optional[Tuple]", "Complex"],
 )
-def test_return(process_doc, docstring, return_ann):
+def test_return(process_doc, docstring, return_ann, foo_rendered):
     def fn_test():
         pass
 
@@ -321,7 +331,7 @@ def test_return(process_doc, docstring, return_ann):
         if not re.match("^:(rtype|param|annotation-(full|terse)):", l)
     ]
     assert lines == [
-        r":return: foo : :py:class:`str`",
+        rf":return: foo : {foo_rendered}",
         "             A foo!",
         r"         bar : :py:class:`int`",
         "             A bar!",

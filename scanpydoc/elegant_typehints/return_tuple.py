@@ -66,7 +66,6 @@ def process_docstring(
     # Get return section
     i_prefix = None
     l_start = None
-    l_end = None
     for l, line in enumerate(lines):
         if i_prefix is None:
             m = re_ret.match(line)
