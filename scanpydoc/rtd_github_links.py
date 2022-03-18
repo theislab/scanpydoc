@@ -24,7 +24,8 @@ Usage
 -----
 
 You can use the filter e.g. in `autosummary templates`_.
-To configure the sphinx_rtd_theme_, override the ``autosummary/base.rst`` template like this:
+To configure the sphinx_rtd_theme_,
+override the ``autosummary/base.rst`` template like this:
 
 .. code:: restructuredtext
 
@@ -32,9 +33,12 @@ To configure the sphinx_rtd_theme_, override the ``autosummary/base.rst`` templa
 
     {% extends "!autosummary/base.rst" %}
 
-.. _autosummary templates: http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
+.. _autosummary templates: \
+   http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
 .. _sphinx_rtd_theme: https://sphinx-rtd-theme.readthedocs.io/en/latest/
 """
+from __future__ import annotations
+
 import inspect
 import sys
 from pathlib import Path, PurePosixPath
@@ -74,7 +78,13 @@ def _get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
     mod = sys.modules[modname]
     obj = None
     for attr_name in attr_path:
-        thing = getattr(mod if obj is None else obj, attr_name)
+        try:
+            thing = getattr(mod if obj is None else obj, attr_name)
+        except AttributeError:
+            if is_dataclass(obj):
+                thing = next(f for f in fields(obj) if f.name == attr_name)
+            else:
+                raise
         if isinstance(thing, ModuleType):
             mod = thing
         else:
@@ -159,3 +169,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     DEFAULT_FILTERS["github_url"] = github_url
 
     return metadata
+
+
+if True:  # test data
+    from dataclasses import dataclass, field, fields, is_dataclass
+
+    @dataclass
+    class _TestCls:
+        test_attr: dict[str, str] = field(default_factory=dict)
