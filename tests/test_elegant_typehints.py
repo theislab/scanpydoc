@@ -242,7 +242,7 @@ def test_autodoc(app, _testmod, direc, base, sub):
         out,
     ), out
     assert f'<a class="headerlink" href="#test.{sub}"' in out, out
-    assert re.search(rf"Bases: <code[^>]*><span[^>]*>test\.{base}", out), out
+    assert re.search(rf"Bases: <code[^>]*><span[^>]*>(?:test\.)?{base}", out), out
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason="bpo-34776 only fixed on 3.7+")
