@@ -193,7 +193,6 @@ def test_classes_get_added(app, parse):
         # t.NoReturn,
         t.Callable[[int], None],
         # t.ClassVar[t.Any],
-        t.Optional[int],
         t.Tuple[int, str],
         t.Tuple[float, ...],
         t.Union[int, str],
@@ -212,9 +211,6 @@ def test_typing_classes(app, annotation, formatter):
     )
     if formatter is _format_terse and name in {"Union", "Callable"}:
         pytest.skip("Tested elsewhere")
-    args = get_args(annotation)
-    if name == "Union" and len(args) == 2 and type(None) in args:
-        name = "Optional"
     output = formatter(annotation, app.config)
     assert output is None or output.startswith(f":py:data:`typing.{name}")
 
@@ -331,9 +327,9 @@ def test_return(process_doc, docstring, return_ann, foo_rendered):
         if not re.match("^:(rtype|param|annotation-(full|terse)):", l)
     ]
     assert lines == [
-        rf":return: foo : {foo_rendered}",
+        f":return: foo : {foo_rendered}",
         "             A foo!",
-        r"         bar : :py:class:`int`",
+        "         bar : :py:class:`int`",
         "             A bar!",
     ]
 
