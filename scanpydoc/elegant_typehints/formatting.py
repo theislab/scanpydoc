@@ -78,7 +78,7 @@ def _format_terse(annotation: Type[Any], config: Config) -> str:
 
 
 def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
-    r"""Generate reStructuredText containing links to the types.
+    """Generate reStructuredText containing links to the types.
 
     Unlike :func:`sphinx_autodoc_typehints.format_annotation`,
     it tries to achieve a simpler style as seen in numeric packages like numpy.
@@ -93,7 +93,7 @@ def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
 
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
-    if calframe[2].function == "process_docstring" or (
+    if calframe[2].function in {"process_docstring", "_inject_signature"} or (
         calframe[2].function == "_inject_types_to_docstring"
         and calframe[3].function == "process_docstring"
     ):
