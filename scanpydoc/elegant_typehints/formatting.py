@@ -99,7 +99,6 @@ def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
     ):
         return format_both(annotation, config)
     else:  # recursive use
-        print(repr(calframe[2].function), repr(calframe[3].function))
         return _format_full(annotation, config)
 
 
