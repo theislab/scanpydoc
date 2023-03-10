@@ -150,6 +150,13 @@ def test_literal(app):
     assert _format_full(Literal["str", 1, None], app.config) is None
 
 
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="Syntax only available on 3.10+")
+def test_syntax_vs_typing(app):
+    u = eval("int | str")
+    assert _format_terse(u, app.config) == ":py:class:`int` | :py:class:`str`"
+    assert _format_full(u, app.config) is None  # this used to crash
+
+
 def test_qualname_overrides_class(app, _testmod):
     assert _testmod.Class.__module__ == "_testmod"
     assert _format_terse(_testmod.Class, app.config) == ":py:class:`~test.Class`"

@@ -34,7 +34,10 @@ def _format_full(annotation: Type[Any], config: Config) -> Optional[str]:
 
     # Only if this is a real class we override sphinx_autodoc_typehints
     if inspect.isclass(annotation) or inspect.isclass(origin):
-        full_name = f"{annotation.__module__}.{annotation.__qualname__}"
+        try:
+            full_name = f"{annotation.__module__}.{annotation.__qualname__}"
+        except AttributeError:
+            full_name = f"{origin.__module__}.{origin.__qualname__}"
         override = elegant_typehints.qualname_overrides.get(full_name)
         role = "exc" if issubclass(annotation_cls, BaseException) else "class"
         if override is not None:
