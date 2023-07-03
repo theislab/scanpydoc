@@ -54,7 +54,7 @@ add_module_names = False
 
 html_theme = "scanpydoc"
 html_context = dict(
-    github_user="theislab", github_repo="scanpydoc", github_version="master"
+    github_user="theislab", github_repo="scanpydoc", github_version="main"
 )
 
 # proj/doc/conf.py/../.. → proj
