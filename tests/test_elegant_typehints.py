@@ -108,9 +108,9 @@ def test_defaults_complex(process_doc):
 
     assert process_doc(fn_test) == [
         ":type m: "
-        r":annotation-terse:`:py:class:\`~typing.Mapping\``\ "
+        r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
         r":annotation-full:`"
-        r":py:class:\`~typing.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
+        r":py:class:\`~collections.abc.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
         "` (default: ``{}``)",
         ":param m: Test M",
     ]
@@ -118,7 +118,8 @@ def test_defaults_complex(process_doc):
 
 def test_mapping(app):
     assert (
-        _format_terse(t.Mapping[str, Any], app.config) == ":py:class:`~typing.Mapping`"
+        _format_terse(t.Mapping[str, Any], app.config)
+        == ":py:class:`~collections.abc.Mapping`"
     )
     assert _format_full(t.Mapping[str, Any], app.config) is None
 
@@ -312,7 +313,7 @@ def test_fwd_ref(app, make_module):
         (t.Optional[t.Tuple[str, int]], ":py:class:`str`"),
         (
             t.Tuple[t.Mapping[str, float], int],
-            r":annotation-terse:`:py:class:\`~typing.Mapping\``\ "
+            r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
             r":annotation-full:`:py:class:\`~typing.Mapping\`\["
             r":py:class:\`str\`, :py:class:\`float\`"
             r"]`",
