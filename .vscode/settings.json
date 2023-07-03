@@ -1,12 +1,12 @@
 {
-  "python.testing.pytestArgs": ["-v"],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true,
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll": true
-    }
-  }
+    "python.testing.pytestArgs": ["-v"],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true,
+        },
+    },
 }

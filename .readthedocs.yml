@@ -6,7 +6,7 @@ sphinx:
 python:
   version: 3.11
   install:
-  - method: pip
-    path: .
-    extra_requirements:
-    - doc
+    - method: pip
+      path: .
+      extra_requirements:
+        - doc
