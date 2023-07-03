@@ -1,6 +1,7 @@
 import pytest
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.testing.restructuredtext import parse
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.html5 import HTML5Translator
 
@@ -38,7 +39,7 @@ def test_apps_separate(app, make_app_setup):
 
 
 @pytest.mark.parametrize("code,n", [(params_code, 2), (params_code_single, 1)])
-def test_convert_params(app, parse, code, n):
+def test_convert_params(app, code, n):
     # the directive class is PyModuleLevel → PyObject → ObjectDescription
     # ObjectDescription.run uses a DocFieldTransformer to transform members
     # the signature of each Directive(
@@ -69,7 +70,7 @@ def test_convert_params(app, parse, code, n):
 
 @pytest.mark.parametrize("translator", [HTMLTranslator, HTML5Translator])
 @pytest.mark.parametrize("code", [params_code, params_code_single])
-def test_render_params_html4(app, parse, render, translator, code):
+def test_render_params_html4(app, render, translator, code):
     app.config.html4_writer = translator is HTMLTranslator
     assert app.builder.__class__ is StandaloneHTMLBuilder
     assert app.builder.default_translator_class is translator

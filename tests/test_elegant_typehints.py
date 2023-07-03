@@ -6,13 +6,14 @@ from pathlib import Path
 
 
 try:  # 3.8 additions
-    from typing import Literal, get_args, get_origin
+    from typing import Literal, get_origin
 except ImportError:
-    from typing_extensions import Literal, get_args, get_origin
+    from typing_extensions import Literal, get_origin
 
 import pytest
 import sphinx_autodoc_typehints as sat
 from sphinx.application import Sphinx
+from sphinx.testing.restructuredtext import parse
 
 from scanpydoc.elegant_typehints.formatting import (
     _format_full,
@@ -182,7 +183,7 @@ def test_fully_qualified(app, _testmod):
     assert _format_full(t.Union[_testmod.Class, str], app.config) is None
 
 
-def test_classes_get_added(app, parse):
+def test_classes_get_added(app):
     doc = parse(app, r":annotation-full:`:py:class:\`str\``")
     assert doc[0].tagname == "paragraph"
     assert doc[0][0].tagname == "inline"
