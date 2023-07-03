@@ -44,10 +44,12 @@ This extension modifies the created type annotations in four ways:
 .. _sphinx-autodoc-typehints issue 38: https://github.com/agronholm/sphinx-autodoc-typehints/issues/38
 
 """
+from __future__ import annotations
+
 from collections import ChainMap
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from docutils.parsers.rst import roles
 from sphinx.application import Sphinx
@@ -90,7 +92,7 @@ example_func.__module__ = "scanpydoc.elegant_typehints"  # Make it show up here
 
 
 @_setup_sig
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
     # TODO: Unsure if “html” is sufficient or if we need to do “env”;
     #       Depends on when the autodoc-process-docstring event is handled.

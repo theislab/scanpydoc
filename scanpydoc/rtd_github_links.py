@@ -43,7 +43,7 @@ import inspect
 import sys
 from pathlib import Path, PurePosixPath
 from types import ModuleType
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from jinja2.defaults import DEFAULT_FILTERS
 from sphinx.application import Sphinx
@@ -66,7 +66,7 @@ def _init_vars(app: Sphinx, config: Config):
     project_dir = Path(config.project_dir)
 
 
-def _get_obj_module(qualname: str) -> Tuple[Any, ModuleType]:
+def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
     """Get a module/class/attribute and its original module by qualname"""
     modname = qualname
     attr_path = []
@@ -151,7 +151,7 @@ def _check_html_context(config: Config):
 
 
 @_setup_sig
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`."""
     # Guess default project dir
     proj_dir = Path.cwd()

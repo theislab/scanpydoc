@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 import inspect
 import re
 import sys
 import typing as t
+from collections.abc import Callable, Mapping
 from pathlib import Path
+from typing import Any
 
 import pytest
 import sphinx_autodoc_typehints as sat
@@ -51,7 +55,7 @@ def app(make_app_setup) -> Sphinx:
 
 @pytest.fixture
 def process_doc(app):
-    def process(fn: t.Callable) -> t.List[str]:
+    def process(fn: Callable) -> list[str]:
         lines = inspect.getdoc(fn).split("\n")
         sat.process_docstring(app, "function", fn.__name__, fn, None, lines)
         process_docstring(app, "function", fn.__name__, fn, None, lines)
@@ -97,7 +101,7 @@ def test_defaults_simple(process_doc):
 
 
 def test_defaults_complex(process_doc):
-    def fn_test(m: t.Mapping[str, int] = {}):
+    def fn_test(m: Mapping[str, int] = {}):
         """
         :param m: Test M
         """
@@ -114,14 +118,13 @@ def test_defaults_complex(process_doc):
 
 def test_mapping(app):
     assert (
-        _format_terse(t.Mapping[str, t.Any], app.config)
-        == ":py:class:`~typing.Mapping`"
+        _format_terse(t.Mapping[str, Any], app.config) == ":py:class:`~typing.Mapping`"
     )
-    assert _format_full(t.Mapping[str, t.Any], app.config) is None
+    assert _format_full(t.Mapping[str, Any], app.config) is None
 
 
 def test_dict(app):
-    assert _format_terse(t.Dict[str, t.Any], app.config) == (
+    assert _format_terse(t.Dict[str, Any], app.config) == (
         "{:py:class:`str`: :py:data:`~typing.Any`}"
     )
 
@@ -260,7 +263,7 @@ def test_fwd_ref(app, make_module):
         """,
     )
     Path(app.srcdir, "index.rst").write_text(
-        f"""\
+        """\
 .. autosummary::
 
    fwd_mod.A

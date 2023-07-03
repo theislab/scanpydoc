@@ -2,8 +2,10 @@
 
 This module is also an extension itself which simply sets up all included extensions.
 """
+from __future__ import annotations
+
 from textwrap import indent
-from typing import Any, Dict
+from typing import Any
 
 from get_version import get_version
 from sphinx.application import Sphinx
@@ -30,7 +32,7 @@ def _setup_sig(fn):
 
 
 @_setup_sig
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Set up all included extensions!"""
     app.setup_extension("scanpydoc.autosummary_generate_imported")
     app.setup_extension("scanpydoc.definition_list_typed_field")

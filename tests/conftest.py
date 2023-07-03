@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import importlib.util
 import linecache
 import sys
-import typing as t
+from collections.abc import Callable
 from textwrap import dedent
 from uuid import uuid4
 
@@ -13,7 +15,7 @@ from sphinx.testing.path import path as STP
 
 
 @pytest.fixture
-def make_app_setup(make_app, tmp_path) -> t.Callable[..., Sphinx]:
+def make_app_setup(make_app, tmp_path) -> Callable[..., Sphinx]:
     def make_app_setup(**conf) -> Sphinx:
         (tmp_path / "conf.py").write_text("")
         return make_app(srcdir=STP(tmp_path), confoverrides=conf)
@@ -22,7 +24,7 @@ def make_app_setup(make_app, tmp_path) -> t.Callable[..., Sphinx]:
 
 
 @pytest.fixture
-def render() -> t.Callable[[Sphinx, document], str]:
+def render() -> Callable[[Sphinx, document], str]:
     def _render(app: Sphinx, doc: document) -> str:
         # Doesn’t work as desc is an Admonition and the HTML writer doesn’t handle it
         # print(app.builder.render_partial(doc[1]))

@@ -1,17 +1,9 @@
+from __future__ import annotations
+
 import inspect
 import re
 from logging import getLogger
-from typing import (
-    Any,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    get_args,
-    get_origin,
-    get_type_hints,
-)
+from typing import Any, get_args, get_origin, get_type_hints
 
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import Options
@@ -23,7 +15,9 @@ logger = getLogger(__name__)
 re_ret = re.compile("^:returns?: ")
 
 
-def get_tuple_annot(annotation: Optional[Type]) -> Optional[Tuple[Type, ...]]:
+def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
+    from typing import Tuple, Union
+
     if annotation is None:
         return None
     origin = get_origin(annotation)
@@ -44,8 +38,8 @@ def process_docstring(
     what: str,
     name: str,
     obj: Any,
-    options: Optional[Options],
-    lines: List[str],
+    options: Options | None,
+    lines: list[str],
 ) -> None:
     # Handle complex objects
     if isinstance(obj, property):
