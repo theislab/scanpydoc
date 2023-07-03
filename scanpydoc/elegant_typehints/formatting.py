@@ -1,21 +1,27 @@
 import collections.abc as cabc
 import inspect
 from functools import partial
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Type, Union
-
-from sphinx.config import Config
-
-
-try:  # 3.8 additions
-    from typing import Literal, get_args, get_origin
-except ImportError:
-    from typing_extensions import Literal, get_args, get_origin
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 
 from docutils import nodes
 from docutils.nodes import Node
 from docutils.parsers.rst.roles import set_classes
 from docutils.parsers.rst.states import Inliner, Struct
 from docutils.utils import SystemMessage, unescape
+from sphinx.config import Config
 from sphinx_autodoc_typehints import format_annotation as _format_orig
 
 from scanpydoc import elegant_typehints

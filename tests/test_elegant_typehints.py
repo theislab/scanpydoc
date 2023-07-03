@@ -4,12 +4,6 @@ import sys
 import typing as t
 from pathlib import Path
 
-
-try:  # 3.8 additions
-    from typing import Literal, get_origin
-except ImportError:
-    from typing_extensions import Literal, get_origin
-
 import pytest
 import sphinx_autodoc_typehints as sat
 from sphinx.application import Sphinx
@@ -147,8 +141,8 @@ def test_callable_terse(app, annotation, expected):
 
 
 def test_literal(app):
-    assert _format_terse(Literal["str", 1, None], app.config) == "{'str', 1, None}"
-    assert _format_full(Literal["str", 1, None], app.config) is None
+    assert _format_terse(t.Literal["str", 1, None], app.config) == "{'str', 1, None}"
+    assert _format_full(t.Literal["str", 1, None], app.config) is None
 
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="Syntax only available on 3.10+")
@@ -213,7 +207,7 @@ def test_typing_classes(app, annotation, formatter):
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
-        or getattr(get_origin(annotation), "_name", None)
+        or getattr(t.get_origin(annotation), "_name", None)
         # 3.6 _Any and _Union
         or annotation.__class__.__name__[1:]
     )

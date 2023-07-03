@@ -1,13 +1,17 @@
 import inspect
 import re
 from logging import getLogger
-from typing import Any, List, Optional, Tuple, Type, Union, get_type_hints
-
-
-try:  # 3.8 additions
-    from typing import get_args, get_origin
-except ImportError:
-    from typing_extensions import get_args, get_origin
+from typing import (
+    Any,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import Options
@@ -56,9 +60,6 @@ def process_docstring(
     except (AttributeError, TypeError):
         # Introspecting a slot wrapper will raise TypeError
         return
-    except NameError as e:
-        check_bpo_34776(obj, e)
-        return
     ret_types = get_tuple_annot(hints.get("return"))
     if ret_types is None:
         return
@@ -90,32 +91,3 @@ def process_docstring(
         for l, rt in zip(idxs_ret_names, ret_types):
             typ = format_both(rt, app.config)
             lines[l : l + 1] = [f"{lines[l]} : {typ}"]
-
-
-# def process_signature(
-#     app: Sphinx,
-#     what: str,
-#     name: str,
-#     obj: Any,
-#     options: Options,
-#     signature: Optional[str],
-#     return_annotation: str,
-# ) -> Optional[Tuple[Optional[str], Optional[str]]]:
-#     return signature, return_annotation
-
-
-def check_bpo_34776(obj: Any, e: NameError):
-    import sys
-
-    ancient = sys.version_info < (3, 7)
-    old_3_7 = (3, 7) < sys.version_info < (3, 7, 6)
-    old_3_8 = (3, 8) < sys.version_info < (3, 8, 1)
-    if ancient or old_3_7 or old_3_8:
-        v = ".".join(map(str, sys.version_info[:3]))
-        logger.warning(
-            f"Error documenting {obj!r}: To avoid this, "
-            f"your Python version {v} must be at least 3.7.6 or 3.8.1. "
-            "For more information see https://bugs.python.org/issue34776"
-        )
-    else:
-        raise e  # No idea what happened

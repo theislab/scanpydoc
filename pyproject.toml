@@ -17,7 +17,7 @@ classifiers = [
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Framework :: Sphinx :: Extension',
 ]
-requires-python = '>=3.7'
+requires-python = '>=3.8.1'
 requires = [
     'sphinx>=3.0',
     'get_version',
@@ -30,7 +30,6 @@ dev = [
 test = [
     'pytest',
     'pytest-cov',
-    'typing_extensions>=3.10; python_version<"3.8"',
 ]
 doc = [
     'scanpydoc[typehints]',
