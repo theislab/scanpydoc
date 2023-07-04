@@ -7,7 +7,6 @@ with a derivative :class:`DLTypedField`, which renders item items
 
 from __future__ import annotations
 
-from collections.abc import Generator
 from typing import Any
 
 from docutils import nodes
@@ -48,7 +47,7 @@ class DLTypedField(PyTypedField):
 
         def handle_item(
             fieldarg: str, content: list[nodes.inline]
-        ) -> Generator[nodes.Node, None, None]:
+        ) -> nodes.definition_list_item:
             term = nodes.term()
             term += make_refs(self.rolename, fieldarg, addnodes.literal_strong)
 
