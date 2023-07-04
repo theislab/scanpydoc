@@ -32,7 +32,7 @@ def _setup_sig(fn):
 
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
-    """Set up all included extensions!"""
+    """Set up all included extensions!."""
     app.setup_extension("scanpydoc.autosummary_generate_imported")
     app.setup_extension("scanpydoc.definition_list_typed_field")
     app.setup_extension("scanpydoc.elegant_typehints")

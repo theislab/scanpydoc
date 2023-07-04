@@ -35,10 +35,12 @@ class DLTypedField(PyTypedField):
         types: dict[str, list[nodes.Node]],
         domain: str,
         items: tuple[str, list[nodes.inline]],
-        env: BuildEnvironment = None,
+        env: BuildEnvironment | None = None,
         **kw,
     ) -> nodes.field:
-        """Render a field to a document-tree node representing a definition list item."""
+        """
+        Render a field to a document-tree node representing a definition list item.
+        """
 
         def make_refs(role_name, name, node):
             return self.make_xrefs(role_name, domain, name, node, env=env, **kw)

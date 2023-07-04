@@ -10,7 +10,6 @@ from uuid import uuid4
 import pytest
 from docutils.nodes import document
 from sphinx.application import Sphinx
-from sphinx.testing.fixtures import make_app, test_params  # noqa
 from sphinx.testing.path import path as STP
 
 

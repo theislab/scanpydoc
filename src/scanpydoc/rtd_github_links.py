@@ -1,4 +1,4 @@
-"""GitHub URLs for class and method pages
+"""GitHub URLs for class and method pages.
 
 This extension registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`
 that you can use to convert a module path into a GitHub URL
@@ -57,7 +57,7 @@ github_base_url = None  # type: str
 
 
 def _init_vars(app: Sphinx, config: Config):
-    """Called when ``conf.py`` has been loaded"""
+    """Called when ``conf.py`` has been loaded."""
     global github_base_url, project_dir
     _check_html_context(config)
     github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
@@ -67,7 +67,7 @@ def _init_vars(app: Sphinx, config: Config):
 
 
 def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
-    """Get a module/class/attribute and its original module by qualname"""
+    """Get a module/class/attribute and its original module by qualname."""
     modname = qualname
     attr_path = []
     while modname not in sys.modules:
@@ -110,9 +110,11 @@ def github_url(qualname: str) -> str:
     """Get the full GitHub URL for some object’s qualname.
 
     Args:
+    ----
         qualname: The full qualified name of a function, class, method or module
 
     Returns:
+    -------
         A GitHub URL derived from the :confval:`html_context`.
     """
     try:

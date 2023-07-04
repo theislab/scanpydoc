@@ -1,5 +1,4 @@
-import dataclasses
-from dataclasses import Field, dataclass, field
+from dataclasses import Field
 from pathlib import Path
 
 import pytest
@@ -27,11 +26,11 @@ def test_as_function(env):
 
 
 def test_get_obj_module():
-    import get_version
+    import sphinx.application as sa
 
-    obj, mod = _get_obj_module("scanpydoc.get_version")
-    assert obj is get_version.get_version
-    assert mod is get_version
+    obj, mod = _get_obj_module("scanpydoc.Sphinx")
+    assert obj is sa.Sphinx
+    assert mod is sa
 
 
 def test_get_obj_module_anntation():

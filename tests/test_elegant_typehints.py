@@ -75,17 +75,14 @@ def test_default(app):
 
 def test_alternatives(process_doc):
     def fn_test(s: str):
-        """
-        :param s: Test
-        """
+        """:param s: Test"""
 
     assert process_doc(fn_test) == [":type s: :py:class:`str`", ":param s: Test"]
 
 
 def test_defaults_simple(process_doc):
     def fn_test(s: str = "foo", n: None = None, i_: int = 1):
-        r"""
-        :param s: Test S
+        r""":param s: Test S
         :param n: Test N
         :param i\_: Test I
         """
@@ -102,9 +99,7 @@ def test_defaults_simple(process_doc):
 
 def test_defaults_complex(process_doc):
     def fn_test(m: Mapping[str, int] = {}):
-        """
-        :param m: Test M
-        """
+        """:param m: Test M"""
 
     assert process_doc(fn_test) == [
         ":type m: "
@@ -341,14 +336,13 @@ def test_return(process_doc, docstring, return_ann, foo_rendered):
 
 
 def test_return_too_many(process_doc):
-    def fn_test() -> t.Tuple[int, str]:
-        """
-        :return: foo
-                     A foo!
-                 bar
-                     A bar!
-                 baz
-                     A baz!
+    def fn_test() -> tuple[int, str]:
+        """:return: foo
+        A foo!
+        bar
+        A bar!
+        baz
+        A baz!
         """
 
     assert not any(

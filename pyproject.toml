@@ -19,7 +19,6 @@ classifiers = [
 requires-python = '>=3.8.1'
 dependencies = [
     'sphinx>=3.0',
-    'get_version',
 ]
 
 [project.optional-dependencies]
@@ -40,10 +39,22 @@ theme = ['sphinx-rtd-theme']
 [project.entry-points.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
 
-[tool.isort]
-profile = 'black'
-lines_after_imports = 2
-multi_line_output = 3
+[tool.ruff]
+select = [
+    'E', 'W', # Pycodestyle
+    'F', # Pyflakes
+    'I', # isort
+    'UP', # Pyupgrade
+    'RUF', # Ruff’s own rules
+]
+allowed-confusables = ['’', '×', 'l']
+ignore = [
+    'E741', # Ambiguous variable name
+]
+
+[tool.ruff.isort]
+lines-after-imports = 2
+known-first-party = ['scanpydoc']
 
 [tool.hatch.version]
 source = 'vcs'
@@ -56,6 +67,12 @@ python = ['3.8', '3.9', '3.10', '3.11']
 features = ['test', 'typehints']
 [tool.hatch.envs.test.scripts]
 test = 'pytest -vv'
+
+[tool.pytest.ini_options]
+addopts = [
+    '--import-mode=importlib',
+    '-psphinx.testing.fixtures',
+]
 
 [build-system]
 requires = ['hatchling', 'hatch-vcs']
