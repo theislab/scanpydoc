@@ -97,7 +97,7 @@ def test_defaults_simple(process_doc):
     ]
 
 
-@pytest.skipif(sys.version_info < (3, 9), reason="s-a-t bug in Python 3.8")
+@pytest.mark.skipif(sys.version_info < (3, 9), reason="s-a-t bug in Python 3.8")
 def test_defaults_complex(process_doc):
     def fn_test(m: Mapping[str, int] = {}):
         """:param m: Test M"""
