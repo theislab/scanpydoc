@@ -31,6 +31,7 @@ test = [
 ]
 doc = [
     'scanpydoc[typehints]',
+    'sphinx<7', # https://github.com/readthedocs/sphinx_rtd_theme/issues/1463
     'sphinx-rtd-theme',
 ]
 typehints = ['sphinx-autodoc-typehints>=1.15.2']
