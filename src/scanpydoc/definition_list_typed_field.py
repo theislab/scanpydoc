@@ -68,8 +68,8 @@ class DLTypedField(PyTypedField):
 
         field_name = nodes.field_name("", self.label)
         assert not self.can_collapse
-        # “simple” for pydata sphinx theme
-        body_node = self.list_type(classes=["simple"])
+        # “field-list” for pydata sphinx theme
+        body_node = self.list_type(classes=["field-list"])
         for field_arg, content in items:
             body_node += handle_item(field_arg, content)
         field_body = nodes.field_body("", body_node)

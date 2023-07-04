@@ -85,12 +85,10 @@ def format_annotation(annotation: type[Any], config: Config) -> str | None:
     it tries to achieve a simpler style as seen in numeric packages like numpy.
 
     Args:
-    ----
         annotation: A type or class used as type annotation.
         config: Sphinx config containing ``sphinx-autodoc-typehints``’s options.
 
     Returns:
-    -------
         reStructuredText describing the type
     """
     curframe = inspect.currentframe()

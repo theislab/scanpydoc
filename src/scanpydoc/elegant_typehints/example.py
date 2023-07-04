@@ -7,7 +7,6 @@ def example_func(a: str | None, b: str | int | None = None) -> dict[str, int]:
     Hover over the parameter and return type annotations to see the long versions.
 
     Args:
-    ----
         a: An example parameter
         b: Another, with a default
     Returns:
