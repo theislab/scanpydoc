@@ -64,6 +64,8 @@ class DLTypedField(PyTypedField):
                 term += [
                     # https://github.com/sphinx-doc/sphinx/issues/10815
                     nodes.Text(" "),
+                    # Sphinx tries to fixup classifiers without rawsource,
+                    # but for this expects attributes we don’t have. Thus “×”.
                     nodes.classifier("×", "", *classifier_content),
                 ]
 
