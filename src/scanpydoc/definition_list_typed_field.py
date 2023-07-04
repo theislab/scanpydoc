@@ -5,7 +5,9 @@ with a derivative :class:`DLTypedField`, which renders item items
 (e.g. function parameters) as definition lists instead of simple paragraphs.
 """
 
-from typing import Any, Dict, List, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 from docutils import nodes
 from sphinx import addnodes
@@ -30,19 +32,21 @@ class DLTypedField(PyTypedField):
 
     def make_field(
         self,
-        types: Dict[str, List[nodes.Node]],
+        types: dict[str, list[nodes.Node]],
         domain: str,
-        items: Tuple[str, List[nodes.inline]],
-        env: BuildEnvironment = None,
+        items: tuple[str, list[nodes.inline]],
+        env: BuildEnvironment | None = None,
         **kw,
     ) -> nodes.field:
-        """Render a field to a document-tree node representing a definition list item."""
+        """
+        Render a field to a document-tree node representing a definition list item.
+        """
 
         def make_refs(role_name, name, node):
             return self.make_xrefs(role_name, domain, name, node, env=env, **kw)
 
         def handle_item(
-            fieldarg: str, content: List[nodes.inline]
+            fieldarg: str, content: list[nodes.inline]
         ) -> nodes.definition_list_item:
             head = nodes.term()
             head += make_refs(self.rolename, fieldarg, addnodes.literal_strong)
@@ -73,7 +77,7 @@ class DLTypedField(PyTypedField):
 
 
 @_setup_sig
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Replace :class:`~sphinx.domains.python.PyTypedField` with ours."""
     napoleon_requested = "sphinx.ext.napoleon" in app.config.extensions
     napoleon_loaded = next(

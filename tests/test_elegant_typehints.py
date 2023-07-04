@@ -1,14 +1,12 @@
+from __future__ import annotations
+
 import inspect
 import re
 import sys
 import typing as t
+from collections.abc import Callable, Mapping
 from pathlib import Path
-
-
-try:  # 3.8 additions
-    from typing import Literal, get_origin
-except ImportError:
-    from typing_extensions import Literal, get_origin
+from typing import Any
 
 import pytest
 import sphinx_autodoc_typehints as sat
@@ -57,7 +55,7 @@ def app(make_app_setup) -> Sphinx:
 
 @pytest.fixture
 def process_doc(app):
-    def process(fn: t.Callable) -> t.List[str]:
+    def process(fn: Callable) -> list[str]:
         lines = inspect.getdoc(fn).split("\n")
         sat.process_docstring(app, "function", fn.__name__, fn, None, lines)
         process_docstring(app, "function", fn.__name__, fn, None, lines)
@@ -77,17 +75,14 @@ def test_default(app):
 
 def test_alternatives(process_doc):
     def fn_test(s: str):
-        """
-        :param s: Test
-        """
+        """:param s: Test"""
 
     assert process_doc(fn_test) == [":type s: :py:class:`str`", ":param s: Test"]
 
 
 def test_defaults_simple(process_doc):
     def fn_test(s: str = "foo", n: None = None, i_: int = 1):
-        r"""
-        :param s: Test S
+        r""":param s: Test S
         :param n: Test N
         :param i\_: Test I
         """
@@ -102,17 +97,16 @@ def test_defaults_simple(process_doc):
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 9), reason="s-a-t bug in Python 3.8")
 def test_defaults_complex(process_doc):
-    def fn_test(m: t.Mapping[str, int] = {}):
-        """
-        :param m: Test M
-        """
+    def fn_test(m: Mapping[str, int] = {}):
+        """:param m: Test M"""
 
     assert process_doc(fn_test) == [
         ":type m: "
-        r":annotation-terse:`:py:class:\`~typing.Mapping\``\ "
+        r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
         r":annotation-full:`"
-        r":py:class:\`~typing.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
+        r":py:class:\`~collections.abc.Mapping\`\[:py:class:\`str\`, :py:class:\`int\`]"
         "` (default: ``{}``)",
         ":param m: Test M",
     ]
@@ -120,14 +114,14 @@ def test_defaults_complex(process_doc):
 
 def test_mapping(app):
     assert (
-        _format_terse(t.Mapping[str, t.Any], app.config)
-        == ":py:class:`~typing.Mapping`"
+        _format_terse(t.Mapping[str, Any], app.config)
+        == ":py:class:`~collections.abc.Mapping`"
     )
-    assert _format_full(t.Mapping[str, t.Any], app.config) is None
+    assert _format_full(t.Mapping[str, Any], app.config) is None
 
 
 def test_dict(app):
-    assert _format_terse(t.Dict[str, t.Any], app.config) == (
+    assert _format_terse(t.Dict[str, Any], app.config) == (
         "{:py:class:`str`: :py:data:`~typing.Any`}"
     )
 
@@ -147,8 +141,8 @@ def test_callable_terse(app, annotation, expected):
 
 
 def test_literal(app):
-    assert _format_terse(Literal["str", 1, None], app.config) == "{'str', 1, None}"
-    assert _format_full(Literal["str", 1, None], app.config) is None
+    assert _format_terse(t.Literal["str", 1, None], app.config) == "{'str', 1, None}"
+    assert _format_full(t.Literal["str", 1, None], app.config) is None
 
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="Syntax only available on 3.10+")
@@ -213,7 +207,7 @@ def test_typing_classes(app, annotation, formatter):
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
-        or getattr(get_origin(annotation), "_name", None)
+        or getattr(t.get_origin(annotation), "_name", None)
         # 3.6 _Any and _Union
         or annotation.__class__.__name__[1:]
     )
@@ -249,7 +243,6 @@ def test_autodoc(app, _testmod, direc, base, sub):
     assert re.search(rf"Bases: <code[^>]*><span[^>]*>(?:test\.)?{base}", out), out
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason="bpo-34776 only fixed on 3.7+")
 def test_fwd_ref(app, make_module):
     make_module(
         "fwd_mod",
@@ -266,7 +259,7 @@ def test_fwd_ref(app, make_module):
         """,
     )
     Path(app.srcdir, "index.rst").write_text(
-        f"""\
+        """\
 .. autosummary::
 
    fwd_mod.A
@@ -315,7 +308,7 @@ def test_fwd_ref(app, make_module):
         (t.Optional[t.Tuple[str, int]], ":py:class:`str`"),
         (
             t.Tuple[t.Mapping[str, float], int],
-            r":annotation-terse:`:py:class:\`~typing.Mapping\``\ "
+            r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
             r":annotation-full:`:py:class:\`~typing.Mapping\`\["
             r":py:class:\`str\`, :py:class:\`float\`"
             r"]`",
@@ -343,14 +336,13 @@ def test_return(process_doc, docstring, return_ann, foo_rendered):
 
 
 def test_return_too_many(process_doc):
-    def fn_test() -> t.Tuple[int, str]:
-        """
-        :return: foo
-                     A foo!
-                 bar
-                     A bar!
-                 baz
-                     A baz!
+    def fn_test() -> tuple[int, str]:
+        """:return: foo
+        A foo!
+        bar
+        A bar!
+        baz
+        A baz!
         """
 
     assert not any(

@@ -1,0 +1,13 @@
+{
+    "overrides": [
+        {
+            "files": ["settings.json", ".prettierrc"],
+            "options": {
+                "parser": "json5",
+                "quoteProps": "preserve",
+                "singleQuote": false,
+                "trailingComma": "all",
+            },
+        },
+    ],
+}

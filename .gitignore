@@ -1,10 +1,10 @@
 # Python
 __pycache__/
+_version.py
 /build/
 /dist/
 
 # Testing
-/.tox/
 /.coverage
 .pytest_cache/
 

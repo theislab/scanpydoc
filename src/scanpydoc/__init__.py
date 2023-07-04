@@ -1,15 +1,16 @@
-"""A series of Sphinx extensions to get easy to maintain, numpydoc style documentation.
+"""A series of Sphinx extensions to get maintainable numpydoc style documentation.
 
 This module is also an extension itself which simply sets up all included extensions.
 """
-from textwrap import indent
-from typing import Any, Dict
+from __future__ import annotations
 
-from get_version import get_version
+from textwrap import indent
+from typing import Any
+
 from sphinx.application import Sphinx
 
+from ._version import __version__
 
-__version__ = get_version(__file__, vcs="git")
 
 metadata = dict(version=__version__, env_version=1, parallel_read_safe=True)
 
@@ -30,8 +31,8 @@ def _setup_sig(fn):
 
 
 @_setup_sig
-def setup(app: Sphinx) -> Dict[str, Any]:
-    """Set up all included extensions!"""
+def setup(app: Sphinx) -> dict[str, Any]:
+    """Set up all included extensions!."""
     app.setup_extension("scanpydoc.autosummary_generate_imported")
     app.setup_extension("scanpydoc.definition_list_typed_field")
     app.setup_extension("scanpydoc.elegant_typehints")

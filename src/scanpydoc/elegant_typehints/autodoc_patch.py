@@ -1,5 +1,7 @@
+from __future__ import annotations
+
+from collections.abc import Callable, Mapping
 from functools import wraps
-from typing import Callable, Mapping, Tuple
 
 from docutils.statemachine import StringList
 from sphinx.ext.autodoc import ClassDocumenter
@@ -34,7 +36,7 @@ def dir_head_adder(
     return add_directive_header
 
 
-def replace_multi_suffix(lines: StringList, old: Tuple[str, str], new: Tuple[str, str]):
+def replace_multi_suffix(lines: StringList, old: tuple[str, str], new: tuple[str, str]):
     if len(old) != len(new) != 2:
         raise NotImplementedError("Only supports replacing 2 lines")
     for l, line in enumerate(lines):

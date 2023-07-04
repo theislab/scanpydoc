@@ -1,7 +1,8 @@
 """Generate autosummary docs for imported members.
 
-This extension patches the :mod:`~sphinx.ext.autosummary` extension to generate docs for imported members.
-It needs to be loaded and :confval:`autosummary_generate` needs to be set to :obj:`True`.
+This extension patches the :mod:`~sphinx.ext.autosummary` extension
+to generate docs for imported members.
+It needs to be loaded and :confval:`autosummary_generate` needs to be set to ``True``.
 
 This will hopefully be superseded by the ability to add ``:imported-members:``
 to `autosummary templates`_ in the future. See `Sphinx issue 4372`_.
@@ -9,10 +10,11 @@ to `autosummary templates`_ in the future. See `Sphinx issue 4372`_.
 .. _autosummary templates: http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
 .. _Sphinx issue 4372: https://github.com/sphinx-doc/sphinx/issues/4372
 """
+from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from sphinx.application import Sphinx
 from sphinx.ext import autosummary
@@ -60,7 +62,7 @@ def _generate_stubs(app: Sphinx):
 
 
 @_setup_sig
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Patch autosummary to generate docs for imported members as well."""
     autosummary.process_generate_options = _generate_stubs
 

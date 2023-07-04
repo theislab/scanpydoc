@@ -1,27 +1,22 @@
-import collections.abc as cabc
+from __future__ import annotations
+
 import inspect
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import partial
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Type, Union
-
-from sphinx.config import Config
-
-
-try:  # 3.8 additions
-    from typing import Literal, get_args, get_origin
-except ImportError:
-    from typing_extensions import Literal, get_args, get_origin
+from typing import Any, Literal, get_args, get_origin
 
 from docutils import nodes
 from docutils.nodes import Node
 from docutils.parsers.rst.roles import set_classes
 from docutils.parsers.rst.states import Inliner, Struct
 from docutils.utils import SystemMessage, unescape
+from sphinx.config import Config
 from sphinx_autodoc_typehints import format_annotation as _format_orig
 
 from scanpydoc import elegant_typehints
 
 
-def _format_full(annotation: Type[Any], config: Config) -> Optional[str]:
+def _format_full(annotation: type[Any], config: Config) -> str | None:
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return None
 
@@ -46,7 +41,10 @@ def _format_full(annotation: Type[Any], config: Config) -> Optional[str]:
     return None
 
 
-def _format_terse(annotation: Type[Any], config: Config) -> str:
+def _format_terse(annotation: type[Any], config: Config) -> str:
+    from typing import Mapping as t_Mapping
+    from typing import Union
+
     origin = get_origin(annotation)
     args = get_args(annotation)
     tilde = "" if config.typehints_fully_qualified else "~"
@@ -59,8 +57,8 @@ def _format_terse(annotation: Type[Any], config: Config) -> str:
         return " | ".join(map(fmt, args))
 
     # do not show the arguments of Mapping
-    if origin is cabc.Mapping:
-        return f":py:class:`{tilde}typing.Mapping`"
+    if origin is Mapping or origin is t_Mapping:
+        return f":py:class:`{tilde}collections.abc.Mapping`"
 
     # display dict as {k: v}
     if origin is dict and len(args) == 2:
@@ -68,7 +66,7 @@ def _format_terse(annotation: Type[Any], config: Config) -> str:
         return f"{{{fmt(k)}: {fmt(v)}}}"
 
     # display Callable[[a1, a2], r] as (a1, a2) -> r
-    if origin is cabc.Callable and len(args) == 2:
+    if origin is Callable and len(args) == 2:
         params, ret = args
         params = ["…"] if params is Ellipsis else map(fmt, params)
         return f"({', '.join(params)}) → {fmt(ret)}"
@@ -80,20 +78,21 @@ def _format_terse(annotation: Type[Any], config: Config) -> str:
     return _format_full(annotation, config) or _format_orig(annotation, config)
 
 
-def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
+def format_annotation(annotation: type[Any], config: Config) -> str | None:
     """Generate reStructuredText containing links to the types.
 
     Unlike :func:`sphinx_autodoc_typehints.format_annotation`,
     it tries to achieve a simpler style as seen in numeric packages like numpy.
 
     Args:
+    ----
         annotation: A type or class used as type annotation.
         config: Sphinx config containing ``sphinx-autodoc-typehints``’s options.
 
     Returns:
+    -------
         reStructuredText describing the type
     """
-
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
     if calframe[2].function in {"process_docstring", "_inject_signature"} or (
@@ -105,7 +104,7 @@ def format_annotation(annotation: Type[Any], config: Config) -> Optional[str]:
         return _format_full(annotation, config)
 
 
-def format_both(annotation: Type[Any], config: Config) -> str:
+def format_both(annotation: type[Any], config: Config) -> str:
     terse = _format_terse(annotation, config)
     full = _format_full(annotation, config) or _format_orig(annotation, config)
     if terse == full:
@@ -119,11 +118,11 @@ def _role_annot(
     text: str,
     lineno: int,
     inliner: Inliner,
-    options: Dict[str, Any] = {},
+    options: dict[str, Any] = {},
     content: Sequence[str] = (),
     # *,  # https://github.com/ambv/black/issues/613
     additional_classes: Iterable[str] = (),
-) -> Tuple[List[Node], List[SystemMessage]]:
+) -> tuple[list[Node], list[SystemMessage]]:
     options = options.copy()
     set_classes(options)
     if additional_classes:

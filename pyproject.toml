@@ -1,36 +1,33 @@
-[build-system]
-requires = ['flit_core >=2,<4']
-build-backend = 'flit_core.buildapi'
-
-[tool.flit.metadata]
-module = 'scanpydoc'
-author = 'Philipp Angerer'
-author-email = 'phil.angerer@gmail.com'
-home-page = 'https://github.com/theislab/scanpydoc/'
-urls = { Documentation = 'https://icb-scanpydoc.readthedocs-hosted.com/' }
-description-file = 'README.rst'
+[project]
+name = 'scanpydoc'
+dynamic = ['version']
+description = 'A series of Sphinx extensions to get maintainable numpydoc style documentation.'
+authors = [
+    { name = 'Philipp Angerer', email = 'phil.angerer@gmail.com' },
+]
+urls.Source = 'https://github.com/theislab/scanpydoc/'
+urls.Documentation = 'https://icb-scanpydoc.readthedocs-hosted.com/'
+readme = 'README.rst'
+license = 'GPL-3.0-or-later'
 classifiers = [
     'Intended Audience :: Developers',
-    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     'Programming Language :: Python :: 3',
     'Topic :: Documentation :: Sphinx',
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Framework :: Sphinx :: Extension',
 ]
-requires-python = '>=3.7'
-requires = [
+requires-python = '>=3.8.1'
+dependencies = [
     'sphinx>=3.0',
-    'get_version',
 ]
 
-[tool.flit.metadata.requires-extra]
+[project.optional-dependencies]
 dev = [
     'pre-commit',
 ]
 test = [
     'pytest',
     'pytest-cov',
-    'typing_extensions>=3.10; python_version<"3.8"',
 ]
 doc = [
     'scanpydoc[typehints]',
@@ -39,27 +36,44 @@ doc = [
 typehints = ['sphinx-autodoc-typehints>=1.15.2']
 theme = ['sphinx-rtd-theme']
 
-[tool.flit.entrypoints.'sphinx.html_themes']
+[project.entry-points.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
 
-[tool.black]
-target-version = ['py37']
+[tool.ruff]
+select = [
+    'E', 'W', # Pycodestyle
+    'F', # Pyflakes
+    'I', # isort
+    'UP', # Pyupgrade
+    'RUF', # Ruff’s own rules
+]
+allowed-confusables = ['’', '×', 'l']
+ignore = [
+    'E741', # Ambiguous variable name
+]
 
-[tool.isort]
-profile = 'black'
-lines_after_imports = 2
-multi_line_output = 3
+[tool.ruff.isort]
+lines-after-imports = 2
+known-first-party = ['scanpydoc']
 
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-envlist = py37,py38,py39
-skipsdist = True
+[tool.hatch.version]
+source = 'vcs'
+[tool.hatch.build.hooks.vcs]
+version-file = 'src/scanpydoc/_version.py'
 
-[testenv]
-deps =
-    flit
-commands =
-    flit install
-    pytest
-"""
+[[tool.hatch.envs.test.matrix]]
+python = ['3.8', '3.9', '3.10', '3.11']
+[tool.hatch.envs.test]
+features = ['test', 'typehints']
+[tool.hatch.envs.test.scripts]
+test = 'pytest -vv'
+
+[tool.pytest.ini_options]
+addopts = [
+    '--import-mode=importlib',
+    '-psphinx.testing.fixtures',
+]
+
+[build-system]
+requires = ['hatchling', 'hatch-vcs']
+build-backend = 'hatchling.build'
