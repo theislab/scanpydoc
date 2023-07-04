@@ -97,6 +97,7 @@ def test_defaults_simple(process_doc):
     ]
 
 
+@pytest.skipif(sys.version_info < (3, 9), reason="s-a-t bug in Python 3.8")
 def test_defaults_complex(process_doc):
     def fn_test(m: Mapping[str, int] = {}):
         """:param m: Test M"""
@@ -242,7 +243,6 @@ def test_autodoc(app, _testmod, direc, base, sub):
     assert re.search(rf"Bases: <code[^>]*><span[^>]*>(?:test\.)?{base}", out), out
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason="bpo-34776 only fixed on 3.7+")
 def test_fwd_ref(app, make_module):
     make_module(
         "fwd_mod",
