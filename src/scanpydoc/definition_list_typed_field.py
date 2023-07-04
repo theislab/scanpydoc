@@ -48,7 +48,7 @@ class DLTypedField(PyTypedField):
         def handle_item(
             fieldarg: str, content: list[nodes.inline]
         ) -> nodes.definition_list_item:
-            head = nodes.term()
+            head = nodes.inline()
             head += make_refs(self.rolename, fieldarg, addnodes.literal_strong)
             field_type = types.pop(fieldarg, None)
             if field_type is not None:
@@ -61,15 +61,16 @@ class DLTypedField(PyTypedField):
                 else:
                     head += field_type
 
+            # Contents are wrapped into a span for pydata sphinx theme
+            head_wrap = nodes.term("", "", head)
             body_content = nodes.paragraph("", "", *content)
             body = nodes.definition("", body_content)
 
-            return nodes.definition_list_item("", head, body)
+            return nodes.definition_list_item("", head_wrap, body)
 
         field_name = nodes.field_name("", self.label)
         assert not self.can_collapse
-        # “field-list” for pydata sphinx theme
-        body_node = self.list_type(classes=["field-list"])
+        body_node = self.list_type(classes=["simple"])
         for field_arg, content in items:
             body_node += handle_item(field_arg, content)
         field_body = nodes.field_body("", body_node)
