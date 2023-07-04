@@ -42,6 +42,7 @@ def _format_full(annotation: type[Any], config: Config) -> str | None:
 
 
 def _format_terse(annotation: type[Any], config: Config) -> str:
+    from typing import Mapping as t_Mapping
     from typing import Union
 
     origin = get_origin(annotation)
@@ -56,7 +57,7 @@ def _format_terse(annotation: type[Any], config: Config) -> str:
         return " | ".join(map(fmt, args))
 
     # do not show the arguments of Mapping
-    if origin is Mapping:
+    if origin is Mapping or origin is t_Mapping:
         return f":py:class:`{tilde}collections.abc.Mapping`"
 
     # display dict as {k: v}

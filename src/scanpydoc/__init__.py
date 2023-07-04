@@ -1,4 +1,4 @@
-"""A series of Sphinx extensions to get easy to maintain, numpydoc style documentation.
+"""A series of Sphinx extensions to get maintainable numpydoc style documentation.
 
 This module is also an extension itself which simply sets up all included extensions.
 """
@@ -7,11 +7,10 @@ from __future__ import annotations
 from textwrap import indent
 from typing import Any
 
-from get_version import get_version
 from sphinx.application import Sphinx
 
+from ._version import __version__
 
-__version__ = get_version(__file__, vcs="git")
 
 metadata = dict(version=__version__, env_version=1, parallel_read_safe=True)
 
