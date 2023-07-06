@@ -48,25 +48,30 @@ class DLTypedField(PyTypedField):
         def handle_item(
             fieldarg: str, content: list[nodes.inline]
         ) -> nodes.definition_list_item:
-            head = nodes.inline()
-            head += make_refs(self.rolename, fieldarg, addnodes.literal_strong)
+            term = nodes.term()
+            term += make_refs(self.rolename, fieldarg, addnodes.literal_strong)
+
             field_type = types.pop(fieldarg, None)
             if field_type is not None:
-                head += nodes.Text(" : ")
                 if len(field_type) == 1 and isinstance(field_type[0], nodes.Text):
                     (text_node,) = field_type  # type: nodes.Text
-                    head += make_refs(
+                    classifier_content = make_refs(
                         self.typerolename, text_node.astext(), addnodes.literal_emphasis
                     )
                 else:
-                    head += field_type
+                    classifier_content = field_type
+                term += [
+                    # https://github.com/sphinx-doc/sphinx/issues/10815
+                    nodes.Text(" "),
+                    # Sphinx tries to fixup classifiers without rawsource,
+                    # but for this expects attributes we don’t have. Thus “×”.
+                    nodes.classifier("×", "", *classifier_content),
+                ]
 
-            # Contents are wrapped into a span for pydata sphinx theme
-            head_wrap = nodes.term("", "", head)
-            body_content = nodes.paragraph("", "", *content)
-            body = nodes.definition("", body_content)
+            def_content = nodes.paragraph("", "", *content)
+            definition = nodes.definition("", def_content)
 
-            return nodes.definition_list_item("", head_wrap, body)
+            return nodes.definition_list_item("", term, definition)
 
         field_name = nodes.field_name("", self.label)
         assert not self.can_collapse
