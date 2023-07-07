@@ -1,4 +1,4 @@
-"""A widescreen extension for :doc:`sphinx_rtd_theme:index`.
+"""A widescreen extension for :doc:`sphinx_book_theme:index`.
 
 Add to ``conf.py``:
 
@@ -19,14 +19,14 @@ and the ones under `docsearch options`_:
 
    The CSS color used for the mobile header background and the project name text.
 
-See ``sphinx_rtd_theme``’s :doc:`sphinx_rtd_theme:configuring`, e.g.:
+See ``sphinx_book_theme``’s :doc:`sphinx_book_theme:reference`, e.g.:
 
 .. code:: python
 
    html_theme_options = dict(
-       logo_only=False,
-       accent_color='rebeccapurple',
-       display_version=False,
+       repository_url="https://github.com/theislab/scanpydoc",
+       repository_branch="main",
+       use_download_button=False,
    )
 
 Docsearch options

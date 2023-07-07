@@ -1,4 +1,5 @@
 {
+    "plugins": ["prettier-plugin-jinja-template"],
     "overrides": [
         {
             "files": ["settings.json", ".prettierrc"],
@@ -7,6 +8,12 @@
                 "quoteProps": "preserve",
                 "singleQuote": false,
                 "trailingComma": "all",
+            },
+        },
+        {
+            "files": ["*.html"],
+            "options": {
+                "parser": "jinja-template",
             },
         },
     ],

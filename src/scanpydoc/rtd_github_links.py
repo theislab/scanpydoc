@@ -18,13 +18,13 @@ Uses the following config values in ``conf.py``::
 The ``project_dir`` is used to figure out the .py file path relative to the git root,
 that is to construct the path in the github URL.
 
-The ``html_context`` is e.g. also used like this in the sphinx_rtd_theme_.
+The ``html_context`` is e.g. also used like this in the :doc:`sphinx_book_theme:index`.
 
 Usage
 -----
 
 You can use the filter e.g. in `autosummary templates`_.
-To configure the sphinx_rtd_theme_,
+To configure the :doc:`sphinx_book_theme:index`,
 override the ``autosummary/base.rst`` template like this:
 
 .. code:: restructuredtext
@@ -35,7 +35,6 @@ override the ``autosummary/base.rst`` template like this:
 
 .. _autosummary templates: \
    http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
-.. _sphinx_rtd_theme: https://sphinx-rtd-theme.readthedocs.io/en/latest/
 """
 from __future__ import annotations
 
@@ -60,9 +59,14 @@ def _init_vars(app: Sphinx, config: Config):
     """Called when ``conf.py`` has been loaded."""
     global github_base_url, project_dir
     _check_html_context(config)
-    github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
-        config.html_context
-    )
+    try:
+        github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
+            config.html_context
+        )
+    except KeyError:
+        github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
+            config.html_context
+        )
     project_dir = Path(config.project_dir)
 
 
@@ -132,20 +136,22 @@ def github_url(qualname: str) -> str:
 
 def _check_html_context(config: Config):
     try:
-        html_context = config.html_context
+        html_context: dict[str, Any] = config.html_context
     except AttributeError:
         raise ValueError(
             f"Extension {__name__} needs “html_context” to be defined in conf.py"
         )
-    missing_values = {
-        "github_user",
-        "github_repo",
-        "github_version",
-    } - html_context.keys()
-    if missing_values:
-        mvs = ", ".join([f"html_context[{mv!r}]" for mv in missing_values])
+    options = [
+        {"github_user", "github_repo", "github_version"},
+        {"repository_url", "repository_branch"},
+    ]
+    missing_value_sets = [opt - html_context.keys() for opt in options]
+    if all(missing_value_sets):
+        mvs = " or ".join(
+            ", ".join(repr(mv) for mv in mvs) for mvs in missing_value_sets
+        )
         raise ValueError(
-            f"Extension {__name__} needs “{mvs}” to be defined in conf.py.\n"
+            f"Extension {__name__} needs html_context {mvs} to be defined in conf.py.\n"
             f"html_context = {html_context!r}"
         )
 
