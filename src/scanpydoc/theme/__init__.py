@@ -26,7 +26,7 @@ See ``sphinx_book_theme``’s :doc:`sphinx_book_theme:reference`, e.g.:
    html_theme_options = dict(
        repository_url="https://github.com/theislab/scanpydoc",
        repository_branch="main",
-       use_download_button=False,
+       use_repository_button=True,
    )
 
 Docsearch options

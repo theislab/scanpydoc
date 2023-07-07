@@ -1,3 +1,5 @@
+@import "sphinx-book-theme.css";
+
 /* for the sphinx design cards */
 body {
     --sd-color-shadow: dimgrey;

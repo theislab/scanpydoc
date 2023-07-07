@@ -51,10 +51,11 @@ html_theme = "scanpydoc"
 html_context = dict(
     repository_url="https://github.com/theislab/scanpydoc",
     repository_branch="main",
+    use_repository_button=True,
 )
 
-# proj/doc/conf.py/../.. → proj
-project_dir = Path(__file__).parent.parent
+# proj/doc/.. → proj
+project_dir = HERE.parent
 
 
 def setup(app: Sphinx):
