@@ -10,21 +10,21 @@ Uses the following config values in ``conf.py``::
 
     project_dir: Path = ...  # default: Path.cwd()
     html_context = dict(
-        github_user=...,
-        github_repo=...,
-        github_version=...,
+        repository_url=...,
+        repository_branch=...,
     )
 
 The ``project_dir`` is used to figure out the .py file path relative to the git root,
 that is to construct the path in the github URL.
 
-The ``html_context`` is e.g. also used like this in the :doc:`sphinx_book_theme:index`.
+The ``html_context`` is e.g. also used like this in the
+:doc:`Sphinx Book Theme <sphinx_book_theme:index>`.
 
 Usage
 -----
 
 You can use the filter e.g. in `autosummary templates`_.
-To configure the :doc:`sphinx_book_theme:index`,
+To configure the :doc:`Sphinx Book Theme <sphinx_book_theme:index>`,
 override the ``autosummary/base.rst`` template like this:
 
 .. code:: restructuredtext
