@@ -137,6 +137,14 @@ def _get_linenos(obj):
         return start, start + len(lines) - 1
 
 
+def _module_path(module: ModuleType) -> PurePosixPath:
+    stem = PurePosixPath(*module.__name__.split("."))
+    if Path(module.__file__).name == "__init__.py":
+        return stem / "__init__.py"
+    else:
+        return stem.with_suffix(".py")
+
+
 def github_url(qualname: str) -> str:
     """Get the full GitHub URL for some object’s qualname.
 
@@ -151,7 +159,7 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    path = rtd_links_prefix / PurePosixPath(*module.__name__.split("."))
+    path = rtd_links_prefix / _module_path(module)
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
@@ -182,14 +190,8 @@ def _check_html_context(config: Config):
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`."""
-    # Guess default project dir
-    proj_dir = Path.cwd()
-    if proj_dir.name == "docs":
-        proj_dir = proj_dir.parent
-    elif not (proj_dir / "docs").is_dir():
-        proj_dir = proj_dir.parent
 
-    app.add_config_value("project_dir", proj_dir, "")
+    app.add_config_value("rtd_links_prefix", PurePosixPath("."), "")
     app.connect("config-inited", _init_vars)
 
     # if linkcode config not set
