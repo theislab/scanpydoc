@@ -17,12 +17,10 @@ def env(monkeypatch: MonkeyPatch):
 
 
 def test_as_function(env):
-    assert github_url("scanpydoc.rtd_github_links") == "./scanpydoc/rtd_github_links.py"
+    pth = "./scanpydoc/rtd_github_links/__init__.py"
+    assert github_url("scanpydoc.rtd_github_links") == pth
     s, e = _get_linenos(github_url)
-    assert (
-        github_url("scanpydoc.rtd_github_links.github_url")
-        == f"./scanpydoc/rtd_github_links.py#L{s}-L{e}"
-    )
+    assert github_url("scanpydoc.rtd_github_links.github_url") == f"{pth}#L{s}-L{e}"
 
 
 def test_get_obj_module():
