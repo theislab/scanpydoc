@@ -141,6 +141,8 @@ def github_url(qualname: str) -> str:
     except ValueError:
         # trying to document something from another package
         path = "/".join(module.__file__.split("/")[-2:])
+        if (project_dir / "src").is_dir():
+            path = "src" / path
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
