@@ -1,5 +1,5 @@
 from dataclasses import Field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -11,14 +11,20 @@ HERE = Path(__file__).parent
 
 
 @pytest.fixture
-def env(monkeypatch: MonkeyPatch):
-    monkeypatch.setattr("scanpydoc.rtd_github_links.github_base_url", ".")
-    monkeypatch.setattr("scanpydoc.rtd_github_links.project_dir", HERE.parent)
+def _env(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr("scanpydoc.rtd_github_links.github_base_url", "x")
 
 
-def test_as_function(env):
-    pth = "./src/scanpydoc/rtd_github_links/__init__.py"
-    assert github_url("scanpydoc.rtd_github_links") == pth
+@pytest.fixture(params=[".", "src"])
+def pfx(monkeypatch: MonkeyPatch, _env, request):
+    pfx = PurePosixPath(request.param)
+    monkeypatch.setattr("scanpydoc.rtd_github_links.rtd_links_prefix", pfx)
+    return pfx
+
+
+def test_as_function(pfx):
+    pth = "x" / pfx / "scanpydoc/rtd_github_links/__init__.py"
+    assert github_url("scanpydoc.rtd_github_links") == str(pth)
     s, e = _get_linenos(github_url)
     assert github_url("scanpydoc.rtd_github_links.github_url") == f"{pth}#L{s}-L{e}"
 

@@ -27,7 +27,7 @@ Configuration
 
 Uses the following config values in ``conf.py``::
 
-    project_dir: Path = ...  # default: Path.cwd()
+    rtd_links_prefix: os.PathLike | str = ...  # default: '.'
 
     # sphinx book theme style
     html_context = dict(
@@ -41,8 +41,8 @@ Uses the following config values in ``conf.py``::
         github_version=...,
     )
 
-The ``project_dir`` is used to figure out the .py file path relative to the git root,
-that is to construct the path in the github URL.
+The ``rtd_links_prefix`` is for figuring out the .py file path relative to the git root,
+that is to construct the path in the GitHub URL.
 
 Which ``html_context`` style you want to use depends on your theme, e.g.
 :doc:`Sphinx Book Theme <sphinx_book_theme:index>`.
@@ -78,13 +78,13 @@ from sphinx.config import Config
 from .. import _setup_sig, metadata
 
 
-project_dir = None  # type: Path
-github_base_url = None  # type: str
+rtd_links_prefix: Path = None
+github_base_url: str = None
 
 
 def _init_vars(app: Sphinx, config: Config):
     """Called when ``conf.py`` has been loaded."""
-    global github_base_url, project_dir
+    global github_base_url, rtd_links_prefix
     _check_html_context(config)
     try:
         github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
@@ -94,7 +94,7 @@ def _init_vars(app: Sphinx, config: Config):
         github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
             config.html_context
         )
-    project_dir = Path(config.project_dir)
+    rtd_links_prefix = PurePosixPath(config.rtd_links_prefix)
 
 
 def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
@@ -137,6 +137,14 @@ def _get_linenos(obj):
         return start, start + len(lines) - 1
 
 
+def _module_path(module: ModuleType) -> PurePosixPath:
+    stem = PurePosixPath(*module.__name__.split("."))
+    if Path(module.__file__).name == "__init__.py":
+        return stem / "__init__.py"
+    else:
+        return stem.with_suffix(".py")
+
+
 def github_url(qualname: str) -> str:
     """Get the full GitHub URL for some object’s qualname.
 
@@ -151,13 +159,7 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    try:  # only works when installed in dev mode
-        path = PurePosixPath(Path(module.__file__).resolve().relative_to(project_dir))
-    except ValueError:
-        # no dev mode or something from another package
-        path = PurePosixPath(*module.__file__.split("/")[-2:])
-        if (project_dir / "src").is_dir():
-            path = "src" / path
+    path = rtd_links_prefix / _module_path(module)
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
@@ -188,14 +190,8 @@ def _check_html_context(config: Config):
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`."""
-    # Guess default project dir
-    proj_dir = Path.cwd()
-    if proj_dir.name == "docs":
-        proj_dir = proj_dir.parent
-    elif not (proj_dir / "docs").is_dir():
-        proj_dir = proj_dir.parent
 
-    app.add_config_value("project_dir", proj_dir, "")
+    app.add_config_value("rtd_links_prefix", PurePosixPath("."), "")
     app.connect("config-inited", _init_vars)
 
     # if linkcode config not set
