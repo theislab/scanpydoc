@@ -1,7 +1,19 @@
 """GitHub URLs for class and method pages.
 
-This extension registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`
-that you can use to convert a module path into a GitHub URL
+This extension does two things:
+
+#. It registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`
+   that you can use to convert a module path into a GitHub URL.
+#. It configures `sphinx.ext.linkcode` for you if loaded before this one:
+
+   .. code:: python
+
+      extensions = [
+          "sphinx.ext.linkcode",
+          "scanpydoc",
+      ]
+
+      # no need to define `linkcode_resolve`
 
 Configuration
 -------------
@@ -48,7 +60,7 @@ from jinja2.defaults import DEFAULT_FILTERS
 from sphinx.application import Sphinx
 from sphinx.config import Config
 
-from . import _setup_sig, metadata
+from .. import _setup_sig, metadata
 
 
 project_dir = None  # type: Path
@@ -168,6 +180,14 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_config_value("project_dir", proj_dir, "")
     app.connect("config-inited", _init_vars)
+
+    if (
+        "linkcode_resolve" in app.config.values
+        and app.config["linkcode_resolve"] is not None
+    ):
+        from ._linkcode import linkcode_resolve
+
+        app.config["linkcode_resolve"] = linkcode_resolve
 
     # html_context doesn’t apply to autosummary templates ☹
     # and there’s no way to insert filters into those templates
