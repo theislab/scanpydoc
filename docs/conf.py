@@ -59,8 +59,7 @@ html_context = dict(
     use_repository_button=True,
 )
 
-# proj/doc/.. → proj
-project_dir = HERE.parent
+rtd_links_prefix = Path("src")
 
 
 def setup(app: Sphinx):

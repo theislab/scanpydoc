@@ -27,7 +27,7 @@ Configuration
 
 Uses the following config values in ``conf.py``::
 
-    project_dir: Path = ...  # default: Path.cwd()
+    rtd_links_prefix: Path = ...  # default: Path('.')
 
     # sphinx book theme style
     html_context = dict(
@@ -41,8 +41,8 @@ Uses the following config values in ``conf.py``::
         github_version=...,
     )
 
-The ``project_dir`` is used to figure out the .py file path relative to the git root,
-that is to construct the path in the github URL.
+The ``rtd_links_prefix`` is for figuring out the .py file path relative to the git root,
+that is to construct the path in the GitHub URL.
 
 Which ``html_context`` style you want to use depends on your theme, e.g.
 :doc:`Sphinx Book Theme <sphinx_book_theme:index>`.
@@ -78,13 +78,13 @@ from sphinx.config import Config
 from .. import _setup_sig, metadata
 
 
-project_dir = None  # type: Path
-github_base_url = None  # type: str
+rtd_links_prefix: Path = None
+github_base_url: str = None
 
 
 def _init_vars(app: Sphinx, config: Config):
     """Called when ``conf.py`` has been loaded."""
-    global github_base_url, project_dir
+    global github_base_url, rtd_links_prefix
     _check_html_context(config)
     try:
         github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
@@ -94,7 +94,7 @@ def _init_vars(app: Sphinx, config: Config):
         github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
             config.html_context
         )
-    project_dir = Path(config.project_dir)
+    rtd_links_prefix = Path(config.rtd_links_prefix)
 
 
 def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
@@ -151,12 +151,7 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    try:
-        path = PurePosixPath(Path(module.__file__).resolve().relative_to(project_dir))
-    except ValueError as e:
-        raise RuntimeError(
-            "scanpydoc.rtd_github_links only works in dev install. See docs."
-        ) from e
+    path = PurePosixPath(*module.__name__.split("."))
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
