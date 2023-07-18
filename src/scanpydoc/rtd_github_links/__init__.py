@@ -8,6 +8,13 @@ This extension does two things:
 
    .. code:: python
 
+      import sys
+      from pathlib import Path
+
+      HERE = Path(__file__).parent
+      # make sure modules are import from the right place
+      sys.path.insert(0, HERE.parent / "src")
+
       extensions = [
           "scanpydoc",
           "sphinx.ext.linkcode",
