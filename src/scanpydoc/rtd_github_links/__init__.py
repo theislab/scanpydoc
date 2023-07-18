@@ -4,7 +4,7 @@ This extension does two things:
 
 #. It registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`
    that you can use to convert a module path into a GitHub URL.
-#. It configures `sphinx.ext.linkcode` for you if loaded after it:
+#. It configures :mod:`sphinx.ext.linkcode` for you if loaded after it in ``conf.py``:
 
    .. code:: python
 
@@ -28,19 +28,27 @@ Configuration
 Uses the following config values in ``conf.py``::
 
     project_dir: Path = ...  # default: Path.cwd()
+
+    # sphinx book theme style
     html_context = dict(
         repository_url=...,
         repository_branch=...,
+    )
+    # or RTD theme style:
+    html_context = dict(
+        github_user=...,
+        github_repo=...,
+        github_version=...,
     )
 
 The ``project_dir`` is used to figure out the .py file path relative to the git root,
 that is to construct the path in the github URL.
 
-The ``html_context`` is e.g. also used like this in the
+Which ``html_context`` style you want to use depends on your theme, e.g.
 :doc:`Sphinx Book Theme <sphinx_book_theme:index>`.
 
-Usage
------
+``:github_url:`` usage
+----------------------
 
 You can use the filter e.g. in `autosummary templates`_.
 To configure the :doc:`Sphinx Book Theme <sphinx_book_theme:index>`,
