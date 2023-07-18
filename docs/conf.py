@@ -59,7 +59,7 @@ html_context = dict(
     use_repository_button=True,
 )
 
-rtd_links_prefix = Path("src")
+rtd_links_prefix = "src"
 
 
 def setup(app: Sphinx):

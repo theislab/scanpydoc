@@ -27,7 +27,7 @@ Configuration
 
 Uses the following config values in ``conf.py``::
 
-    rtd_links_prefix: Path = ...  # default: Path('.')
+    rtd_links_prefix: os.PathLike | str = ...  # default: '.'
 
     # sphinx book theme style
     html_context = dict(
@@ -94,7 +94,7 @@ def _init_vars(app: Sphinx, config: Config):
         github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
             config.html_context
         )
-    rtd_links_prefix = Path(config.rtd_links_prefix)
+    rtd_links_prefix = PurePosixPath(config.rtd_links_prefix)
 
 
 def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
@@ -151,7 +151,7 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    path = PurePosixPath(*module.__name__.split("."))
+    path = rtd_links_prefix / PurePosixPath(*module.__name__.split("."))
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
