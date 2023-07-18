@@ -147,7 +147,7 @@ def github_url(qualname: str) -> str:
         path = PurePosixPath(Path(module.__file__).resolve().relative_to(project_dir))
     except ValueError:
         # no dev mode or something from another package
-        path = PurePosixPath(module.__file__.split("/")[-2:])
+        path = PurePosixPath(*module.__file__.split("/")[-2:])
         if (project_dir / "src").is_dir():
             path = "src" / path
     start, end = _get_linenos(obj)
