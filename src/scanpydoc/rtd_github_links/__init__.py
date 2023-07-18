@@ -1,7 +1,26 @@
 """GitHub URLs for class and method pages.
 
-This extension registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`
-that you can use to convert a module path into a GitHub URL
+This extension does two things:
+
+#. It registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`
+   that you can use to convert a module path into a GitHub URL.
+#. It configures :mod:`sphinx.ext.linkcode` for you if loaded after it in ``conf.py``:
+
+   .. code:: python
+
+      import sys
+      from pathlib import Path
+
+      HERE = Path(__file__).parent
+      # make sure modules are import from the right place
+      sys.path.insert(0, HERE.parent / "src")
+
+      extensions = [
+          "scanpydoc",
+          "sphinx.ext.linkcode",
+      ]
+
+      # no need to define `linkcode_resolve`
 
 Configuration
 -------------
@@ -9,6 +28,13 @@ Configuration
 Uses the following config values in ``conf.py``::
 
     project_dir: Path = ...  # default: Path.cwd()
+
+    # sphinx book theme style
+    html_context = dict(
+        repository_url=...,
+        repository_branch=...,
+    )
+    # or RTD theme style:
     html_context = dict(
         github_user=...,
         github_repo=...,
@@ -18,13 +44,14 @@ Uses the following config values in ``conf.py``::
 The ``project_dir`` is used to figure out the .py file path relative to the git root,
 that is to construct the path in the github URL.
 
-The ``html_context`` is e.g. also used like this in the sphinx_rtd_theme_.
+Which ``html_context`` style you want to use depends on your theme, e.g.
+:doc:`Sphinx Book Theme <sphinx_book_theme:index>`.
 
-Usage
------
+``:github_url:`` usage
+----------------------
 
 You can use the filter e.g. in `autosummary templates`_.
-To configure the sphinx_rtd_theme_,
+To configure the :doc:`Sphinx Book Theme <sphinx_book_theme:index>`,
 override the ``autosummary/base.rst`` template like this:
 
 .. code:: restructuredtext
@@ -35,7 +62,6 @@ override the ``autosummary/base.rst`` template like this:
 
 .. _autosummary templates: \
    http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
-.. _sphinx_rtd_theme: https://sphinx-rtd-theme.readthedocs.io/en/latest/
 """
 from __future__ import annotations
 
@@ -49,7 +75,7 @@ from jinja2.defaults import DEFAULT_FILTERS
 from sphinx.application import Sphinx
 from sphinx.config import Config
 
-from . import _setup_sig, metadata
+from .. import _setup_sig, metadata
 
 
 project_dir = None  # type: Path
@@ -60,9 +86,14 @@ def _init_vars(app: Sphinx, config: Config):
     """Called when ``conf.py`` has been loaded."""
     global github_base_url, project_dir
     _check_html_context(config)
-    github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
-        config.html_context
-    )
+    try:
+        github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
+            config.html_context
+        )
+    except KeyError:
+        github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
+            config.html_context
+        )
     project_dir = Path(config.project_dir)
 
 
@@ -120,11 +151,13 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    try:
+    try:  # only works when installed in dev mode
         path = PurePosixPath(Path(module.__file__).resolve().relative_to(project_dir))
     except ValueError:
-        # trying to document something from another package
-        path = "/".join(module.__file__.split("/")[-2:])
+        # no dev mode or something from another package
+        path = PurePosixPath(*module.__file__.split("/")[-2:])
+        if (project_dir / "src").is_dir():
+            path = "src" / path
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
@@ -132,20 +165,22 @@ def github_url(qualname: str) -> str:
 
 def _check_html_context(config: Config):
     try:
-        html_context = config.html_context
+        html_context: dict[str, Any] = config.html_context
     except AttributeError:
         raise ValueError(
             f"Extension {__name__} needs “html_context” to be defined in conf.py"
         )
-    missing_values = {
-        "github_user",
-        "github_repo",
-        "github_version",
-    } - html_context.keys()
-    if missing_values:
-        mvs = ", ".join([f"html_context[{mv!r}]" for mv in missing_values])
+    options = [
+        {"github_user", "github_repo", "github_version"},
+        {"repository_url", "repository_branch"},
+    ]
+    missing_value_sets = [opt - html_context.keys() for opt in options]
+    if all(missing_value_sets):
+        mvs = " or ".join(
+            ", ".join(repr(mv) for mv in mvs) for mvs in missing_value_sets
+        )
         raise ValueError(
-            f"Extension {__name__} needs “{mvs}” to be defined in conf.py.\n"
+            f"Extension {__name__} needs html_context {mvs} to be defined in conf.py.\n"
             f"html_context = {html_context!r}"
         )
 
@@ -162,6 +197,12 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_config_value("project_dir", proj_dir, "")
     app.connect("config-inited", _init_vars)
+
+    # if linkcode config not set
+    if "linkcode_resolve" not in app.config or app.config["linkcode_resolve"] is None:
+        from ._linkcode import linkcode_resolve
+
+        app.config["linkcode_resolve"] = linkcode_resolve
 
     # html_context doesn’t apply to autosummary templates ☹
     # and there’s no way to insert filters into those templates

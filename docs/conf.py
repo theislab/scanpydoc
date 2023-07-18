@@ -1,22 +1,20 @@
 import sys
 from datetime import datetime
+from importlib.metadata import metadata
 from pathlib import Path
 
 from sphinx.application import Sphinx
 
 
-# Allow importing scanpydoc itself
 HERE = Path(__file__).parent
-sys.path.insert(0, str(HERE.parent))
-import scanpydoc  # noqa
 
+# necessary for rtd_gh_links’ linkcode support
+sys.path.insert(0, HERE.parent / "src")
 
 # Clean build env
 for file in HERE.glob("scanpydoc.*.rst"):
     file.unlink()
 
-
-needs_sphinx = "1.7"  # autosummary bugfix
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
@@ -24,13 +22,14 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "scanpydoc",
+    "sphinx.ext.linkcode",  # needs to be after scanpydoc
 ]
 
 intersphinx_mapping = dict(
     python=("https://docs.python.org/3", None),
     jinja=("https://jinja.palletsprojects.com/en/2.10.x/", None),
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
-    sphinx_rtd_theme=("https://sphinx-rtd-theme.readthedocs.io/en/stable/", None),
+    sphinx_book_theme=("https://sphinx-book-theme.readthedocs.io/en/stable/", None),
     # examples
     numpy=("https://numpy.org/doc/stable/", None),
     anndata=("https://anndata.readthedocs.io/en/latest/", None),
@@ -39,10 +38,11 @@ intersphinx_mapping = dict(
 )
 
 # general information
-project = scanpydoc.__name__
-author = "Philipp Angerer"
+meta = metadata("scanpydoc")
+project = meta["name"]
+author = meta["author-email"].split(" <")[0]
 copyright = f"{datetime.now():%Y}, {author}."
-version = release = scanpydoc.__version__
+version = release = meta["version"]
 
 master_doc = "index"
 templates_path = ["_templates"]
@@ -54,11 +54,13 @@ add_module_names = False
 
 html_theme = "scanpydoc"
 html_context = dict(
-    github_user="theislab", github_repo="scanpydoc", github_version="main"
+    repository_url="https://github.com/theislab/scanpydoc",
+    repository_branch="main",
+    use_repository_button=True,
 )
 
-# proj/doc/conf.py/../.. → proj
-project_dir = Path(__file__).parent.parent
+# proj/doc/.. → proj
+project_dir = HERE.parent
 
 
 def setup(app: Sphinx):

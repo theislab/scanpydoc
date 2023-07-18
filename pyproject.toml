@@ -30,12 +30,11 @@ test = [
     'pytest-cov',
 ]
 doc = [
-    'scanpydoc[typehints]',
-    'sphinx<7', # https://github.com/readthedocs/sphinx_rtd_theme/issues/1463
-    'sphinx-rtd-theme',
+    'scanpydoc[typehints,theme]',
+    'sphinx',
 ]
 typehints = ['sphinx-autodoc-typehints>=1.15.2']
-theme = ['sphinx-rtd-theme']
+theme = ['sphinx-book-theme>=1.0.1']
 
 [project.entry-points.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
@@ -72,7 +71,7 @@ python = ['3.8', '3.9', '3.10', '3.11']
 [tool.hatch.envs.test]
 features = ['test', 'typehints']
 [tool.hatch.envs.test.scripts]
-test = 'pytest -vv'
+run = 'pytest -vv {args}'
 
 [tool.pytest.ini_options]
 addopts = [
