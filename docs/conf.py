@@ -17,8 +17,8 @@ extensions = [
     "sphinx_autodoc_typehints",  # needs to be after napoleon
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.linkcode",
     "scanpydoc",
+    "sphinx.ext.linkcode",  # needs to be after scanpydoc
 ]
 
 intersphinx_mapping = dict(

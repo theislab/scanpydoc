@@ -71,7 +71,7 @@ python = ['3.8', '3.9', '3.10', '3.11']
 [tool.hatch.envs.test]
 features = ['test', 'typehints']
 [tool.hatch.envs.test.scripts]
-test = 'pytest -vv'
+test = 'pytest -vv {args}'
 
 [tool.pytest.ini_options]
 addopts = [

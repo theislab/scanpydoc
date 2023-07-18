@@ -4,13 +4,13 @@ This extension does two things:
 
 #. It registers a :ref:`Jinja filter <jinja:filters>` called :func:`github_url`
    that you can use to convert a module path into a GitHub URL.
-#. It configures `sphinx.ext.linkcode` for you if loaded before this one:
+#. It configures `sphinx.ext.linkcode` for you if loaded after it:
 
    .. code:: python
 
       extensions = [
-          "sphinx.ext.linkcode",
           "scanpydoc",
+          "sphinx.ext.linkcode",
       ]
 
       # no need to define `linkcode_resolve`
@@ -181,10 +181,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("project_dir", proj_dir, "")
     app.connect("config-inited", _init_vars)
 
-    if (
-        "linkcode_resolve" in app.config.values
-        and app.config["linkcode_resolve"] is not None
-    ):
+    # if linkcode config not set
+    if "linkcode_resolve" not in app.config or app.config["linkcode_resolve"] is None:
         from ._linkcode import linkcode_resolve
 
         app.config["linkcode_resolve"] = linkcode_resolve
