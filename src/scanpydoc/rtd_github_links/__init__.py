@@ -136,11 +136,11 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    try:
+    try:  # only works when installed in dev mode
         path = PurePosixPath(Path(module.__file__).resolve().relative_to(project_dir))
     except ValueError:
-        # trying to document something from another package
-        path = "/".join(module.__file__.split("/")[-2:])
+        # no dev mode or something from another package
+        path = PurePosixPath(module.__file__.split("/")[-2:])
         if (project_dir / "src").is_dir():
             path = "src" / path
     start, end = _get_linenos(obj)
