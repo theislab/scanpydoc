@@ -151,13 +151,12 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    try:  # only works when installed in dev mode
+    try:
         path = PurePosixPath(Path(module.__file__).resolve().relative_to(project_dir))
-    except ValueError:
-        # no dev mode or something from another package
-        path = PurePosixPath(*module.__file__.split("/")[-2:])
-        if (project_dir / "src").is_dir():
-            path = "src" / path
+    except ValueError as e:
+        raise RuntimeError(
+            "scanpydoc.rtd_github_links only works in dev install. See docs."
+        ) from e
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
