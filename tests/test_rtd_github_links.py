@@ -13,11 +13,11 @@ HERE = Path(__file__).parent
 @pytest.fixture
 def env(monkeypatch: MonkeyPatch):
     monkeypatch.setattr("scanpydoc.rtd_github_links.github_base_url", ".")
-    monkeypatch.setattr("scanpydoc.rtd_github_links.project_dir", HERE)
+    monkeypatch.setattr("scanpydoc.rtd_github_links.project_dir", HERE.parent)
 
 
 def test_as_function(env):
-    pth = "./scanpydoc/rtd_github_links/__init__.py"
+    pth = "./src/scanpydoc/rtd_github_links/__init__.py"
     assert github_url("scanpydoc.rtd_github_links") == pth
     s, e = _get_linenos(github_url)
     assert github_url("scanpydoc.rtd_github_links.github_url") == f"{pth}#L{s}-L{e}"
