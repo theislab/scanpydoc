@@ -28,6 +28,6 @@ jobs:
       - name: dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install .[test,typehints]
+          pip install -e .[test,typehints]
       - name: tests
         run: pytest --color=yes
