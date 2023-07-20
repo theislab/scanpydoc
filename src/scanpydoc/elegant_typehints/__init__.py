@@ -97,8 +97,7 @@ def _init_vars(app: Sphinx, config: Config):
 class PickleableCallable:
     func: Callable
 
-    def __call__(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
+    __call__ = property(lambda self: self.func)
 
 
 @_setup_sig
