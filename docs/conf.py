@@ -1,15 +1,8 @@
 from datetime import datetime
 from importlib.metadata import metadata
-from pathlib import Path
 
 from sphinx.application import Sphinx
 
-
-HERE = Path(__file__).parent
-
-# Clean build env
-for file in HERE.glob("scanpydoc.*.rst"):
-    file.unlink()
 
 extensions = [
     "sphinx.ext.intersphinx",
