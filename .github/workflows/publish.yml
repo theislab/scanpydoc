@@ -10,6 +10,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PIP_ROOT_USER_ACTION: ignore
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

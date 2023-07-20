@@ -44,7 +44,7 @@ autosummary_ignore_module_all = False
 add_module_names = False
 
 html_theme = "scanpydoc"
-html_context = dict(
+html_theme_options = dict(
     repository_url="https://github.com/theislab/scanpydoc",
     repository_branch="main",
     use_repository_button=True,
