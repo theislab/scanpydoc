@@ -23,7 +23,7 @@ Uses the following config values in ``conf.py``::
     rtd_links_prefix: os.PathLike | str = ...  # default: '.'
 
     # sphinx book theme style
-    html_context = dict(
+    html_theme_options = dict(
         repository_url=...,
         repository_branch=...,
     )
@@ -37,7 +37,7 @@ Uses the following config values in ``conf.py``::
 The ``rtd_links_prefix`` is for figuring out the .py file path relative to the git root,
 that is to construct the path in the GitHub URL.
 
-Which ``html_context`` style you want to use depends on your theme, e.g.
+Which html configuration style you want to use depends on your theme, e.g.
 :doc:`Sphinx Book Theme <sphinx_book_theme:index>`.
 
 ``:github_url:`` usage
@@ -79,14 +79,14 @@ github_base_url: str = None
 def _init_vars(app: Sphinx, config: Config):
     """Called when ``conf.py`` has been loaded."""
     global github_base_url, rtd_links_prefix
-    _check_html_context(config)
+    _check_html_config(config)
     try:
         github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
             config.html_context
         )
     except KeyError:
         github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
-            config.html_context
+            config.html_theme_options
         )
     rtd_links_prefix = PurePosixPath(config.rtd_links_prefix)
 
@@ -153,7 +153,8 @@ def github_url(qualname: str) -> str:
         qualname: The full qualified name of a function, class, method or module
 
     Returns:
-        A GitHub URL derived from the :confval:`html_context`.
+        A GitHub URL derived from the :confval:`html_context`
+        or the :confval:`html_theme_options`.
     """
     try:
         obj, module = _get_obj_module(qualname)
@@ -166,26 +167,32 @@ def github_url(qualname: str) -> str:
     return f"{github_base_url}/{path}{fragment}"
 
 
-def _check_html_context(config: Config):
-    try:
-        html_context: dict[str, Any] = config.html_context
-    except AttributeError:
-        raise ValueError(
-            f"Extension {__name__} needs “html_context” to be defined in conf.py"
+def _check_html_config(config: Config):
+    options = dict(
+        html_context={"github_user", "github_repo", "github_version"},
+        html_theme_options={"repository_url", "repository_branch"},
+    )
+    if not any(name in config for name in options):
+        msg = (
+            f"Extension {__name__} needs “html_context” "
+            "or “html_theme_options” to be defined in conf.py"
         )
-    options = [
-        {"github_user", "github_repo", "github_version"},
-        {"repository_url", "repository_branch"},
-    ]
-    missing_value_sets = [opt - html_context.keys() for opt in options]
-    if all(missing_value_sets):
-        mvs = " or ".join(
-            ", ".join(repr(mv) for mv in mvs) for mvs in missing_value_sets
-        )
-        raise ValueError(
-            f"Extension {__name__} needs html_context {mvs} to be defined in conf.py.\n"
-            f"html_context = {html_context!r}"
-        )
+        raise ValueError(msg)
+    missing_value_sets = {
+        name: opts - config[name].keys() for name, opts in options.items()
+    }
+    if not all(missing_value_sets.values()):
+        return  # a valid configuration was found
+
+    mvs = " or ".join(
+        f"{name} {', '.join(repr(mv) for mv in mvs)}"
+        for name, mvs in missing_value_sets.items()
+    )
+    msg = f"Extension {__name__} needs {mvs} to be defined in conf.py."
+    for name in options:
+        if name in config:
+            msg += f"\n{name} = {config[name]!r}"
+    raise ValueError(msg)
 
 
 @_setup_sig
