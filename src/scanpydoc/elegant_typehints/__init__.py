@@ -57,7 +57,7 @@ from sphinx.config import Config
 from sphinx.ext.autodoc import ClassDocumenter
 
 from .. import _setup_sig, metadata
-from .example import example_func
+from .example import example_func  # noqa: F401
 
 
 HERE = Path(__file__).parent.resolve()
@@ -86,9 +86,6 @@ def _init_vars(app: Sphinx, config: Config):
         # override default for “typehints_defaults”
         config.typehints_defaults = "braces"
     config.html_static_path.append(str(HERE / "static"))
-
-
-example_func.__module__ = "scanpydoc.elegant_typehints"  # Make it show up here
 
 
 @_setup_sig

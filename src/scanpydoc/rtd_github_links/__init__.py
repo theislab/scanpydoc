@@ -67,6 +67,7 @@ from __future__ import annotations
 
 import inspect
 import sys
+from importlib import import_module
 from pathlib import Path, PurePosixPath
 from types import ModuleType
 from typing import Any
@@ -108,14 +109,18 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
     # retrieve object and find original module name
     mod = sys.modules[modname]
     obj = None
+    del modname
     for attr_name in attr_path:
         try:
             thing = getattr(mod if obj is None else obj, attr_name)
-        except AttributeError:
+        except AttributeError as e:
             if is_dataclass(obj):
                 thing = next(f for f in fields(obj) if f.name == attr_name)
             else:
-                raise
+                try:
+                    thing = import_module(f"{mod.__name__}.{attr_name}")
+                except ImportError:
+                    raise e from None
         if isinstance(thing, ModuleType):
             mod = thing
         else:
@@ -137,12 +142,15 @@ def _get_linenos(obj):
         return start, start + len(lines) - 1
 
 
-def _module_path(module: ModuleType) -> PurePosixPath:
-    stem = PurePosixPath(*module.__name__.split("."))
-    if Path(module.__file__).name == "__init__.py":
-        return stem / "__init__.py"
-    else:
-        return stem.with_suffix(".py")
+def _module_path(obj: Any, module: ModuleType) -> PurePosixPath:
+    """Relative module path to parent directory of toplevel module."""
+    try:
+        file = Path(inspect.getabsfile(obj))
+    except TypeError:
+        file = Path(module.__file__)
+    offset = -1 if file.name == "__init__.py" else 0
+    parts = module.__name__.split(".")
+    return PurePosixPath(*file.parts[offset - len(parts) :])
 
 
 def github_url(qualname: str) -> str:
@@ -159,7 +167,7 @@ def github_url(qualname: str) -> str:
     except Exception:
         print(f"Error in github_url({qualname!r}):", file=sys.stderr)
         raise
-    path = rtd_links_prefix / _module_path(module)
+    path = rtd_links_prefix / _module_path(obj, module)
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
