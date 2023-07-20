@@ -47,6 +47,8 @@ This extension modifies the created type annotations in four ways:
 from __future__ import annotations
 
 from collections import ChainMap
+from collections.abc import Callable
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -91,6 +93,14 @@ def _init_vars(app: Sphinx, config: Config):
     config.html_static_path.append(str(HERE / "static"))
 
 
+@dataclass
+class PickleableCallable:
+    func: Callable
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+
+
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
@@ -103,7 +113,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     from .formatting import _role_annot, format_annotation
 
-    app.config.typehints_formatter = format_annotation
+    app.config["typehints_formatter"] = PickleableCallable(format_annotation)
     for name in ["annotation-terse", "annotation-full"]:
         roles.register_canonical_role(
             name, partial(_role_annot, additional_classes=name.split("-"))
