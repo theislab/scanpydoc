@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 from importlib.metadata import metadata
 from pathlib import Path
@@ -7,9 +6,6 @@ from sphinx.application import Sphinx
 
 
 HERE = Path(__file__).parent
-
-# necessary for rtd_gh_links’ linkcode support
-sys.path.insert(0, HERE.parent / "src")
 
 # Clean build env
 for file in HERE.glob("scanpydoc.*.rst"):
@@ -49,6 +45,7 @@ templates_path = ["_templates"]
 
 # Generate .rst stubs for modules using autosummary
 autosummary_generate = True
+autosummary_ignore_module_all = False
 # Don’t add module paths to documented functions’ names
 add_module_names = False
 

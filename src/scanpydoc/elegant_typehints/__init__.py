@@ -60,6 +60,9 @@ from .. import _setup_sig, metadata
 from .example import example_func
 
 
+__all__ = ["example_func", "setup"]
+
+
 HERE = Path(__file__).parent.resolve()
 
 qualname_overrides_default = {
@@ -86,9 +89,6 @@ def _init_vars(app: Sphinx, config: Config):
         # override default for “typehints_defaults”
         config.typehints_defaults = "braces"
     config.html_static_path.append(str(HERE / "static"))
-
-
-example_func.__module__ = "scanpydoc.elegant_typehints"  # Make it show up here
 
 
 @_setup_sig

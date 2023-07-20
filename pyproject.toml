@@ -62,6 +62,7 @@ source = 'vcs'
 version-file = 'src/scanpydoc/_version.py'
 
 [tool.hatch.envs.docs]
+python = '3.11'
 features = ['doc']
 [tool.hatch.envs.docs.scripts]
 build = 'sphinx-build -M html docs docs/_build'

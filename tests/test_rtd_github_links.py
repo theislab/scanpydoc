@@ -1,4 +1,5 @@
 from dataclasses import Field
+from importlib import import_module
 from pathlib import Path, PurePosixPath
 
 import pytest
@@ -16,17 +17,30 @@ def _env(monkeypatch: MonkeyPatch) -> None:
 
 
 @pytest.fixture(params=[".", "src"])
-def pfx(monkeypatch: MonkeyPatch, _env, request):
+def prefix(monkeypatch: MonkeyPatch, _env, request) -> PurePosixPath:
     pfx = PurePosixPath(request.param)
     monkeypatch.setattr("scanpydoc.rtd_github_links.rtd_links_prefix", pfx)
-    return pfx
+    return "x" / pfx / "scanpydoc"
 
 
-def test_as_function(pfx):
-    pth = "x" / pfx / "scanpydoc/rtd_github_links/__init__.py"
-    assert github_url("scanpydoc.rtd_github_links") == str(pth)
-    s, e = _get_linenos(github_url)
-    assert github_url("scanpydoc.rtd_github_links.github_url") == f"{pth}#L{s}-L{e}"
+@pytest.mark.parametrize(
+    ("module", "name", "obj_path"),
+    [
+        pytest.param(
+            *("rtd_github_links", "github_url", "rtd_github_links/__init__.py"),
+            id="basic",
+        ),
+        pytest.param(
+            *("elegant_typehints", "example_func", "elegant_typehints/example.py"),
+            id="reexport",
+        ),
+    ],
+)
+def test_as_function(prefix, module, name, obj_path):
+    assert github_url(f"scanpydoc.{module}") == str(prefix / module / "__init__.py")
+    obj = getattr(import_module(f"scanpydoc.{module}"), name)
+    s, e = _get_linenos(obj)
+    assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
 
 
 def test_get_obj_module():
