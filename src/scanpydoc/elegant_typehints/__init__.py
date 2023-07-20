@@ -57,7 +57,10 @@ from sphinx.config import Config
 from sphinx.ext.autodoc import ClassDocumenter
 
 from .. import _setup_sig, metadata
-from .example import example_func  # noqa: F401
+from .example import example_func
+
+
+__all__ = ["example_func", "setup"]
 
 
 HERE = Path(__file__).parent.resolve()

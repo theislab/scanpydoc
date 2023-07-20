@@ -45,6 +45,7 @@ templates_path = ["_templates"]
 
 # Generate .rst stubs for modules using autosummary
 autosummary_generate = True
+autosummary_ignore_module_all = False
 # Don’t add module paths to documented functions’ names
 add_module_names = False
 
