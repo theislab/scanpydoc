@@ -1,15 +1,9 @@
 from datetime import datetime
 from importlib.metadata import metadata
-from pathlib import Path
+from pathlib import PurePosixPath
 
 from sphinx.application import Sphinx
 
-
-HERE = Path(__file__).parent
-
-# Clean build env
-for file in HERE.glob("scanpydoc.*.rst"):
-    file.unlink()
 
 extensions = [
     "sphinx.ext.intersphinx",
@@ -56,7 +50,7 @@ html_context = dict(
     use_repository_button=True,
 )
 
-rtd_links_prefix = "src"
+rtd_links_prefix = PurePosixPath("src")
 
 
 def setup(app: Sphinx):
