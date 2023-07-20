@@ -1,5 +1,6 @@
 from datetime import datetime
 from importlib.metadata import metadata
+from pathlib import PurePosixPath
 
 from sphinx.application import Sphinx
 
@@ -49,7 +50,7 @@ html_context = dict(
     use_repository_button=True,
 )
 
-rtd_links_prefix = "src"
+rtd_links_prefix = PurePosixPath("src")
 
 
 def setup(app: Sphinx):
