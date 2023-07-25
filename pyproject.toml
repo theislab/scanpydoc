@@ -34,7 +34,10 @@ doc = [
     'sphinx',
 ]
 typehints = ['sphinx-autodoc-typehints>=1.15.2']
-theme = ['sphinx-book-theme>=1.0.1']
+theme = [
+    'sphinx-book-theme>=1.0.1',
+    'docutils>=0.8,!=0.18.*,!=0.19.*',
+]
 
 [project.entry-points.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
