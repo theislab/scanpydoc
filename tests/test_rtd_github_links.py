@@ -43,6 +43,12 @@ def test_as_function(prefix, module, name, obj_path):
     assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
 
 
+def test_get_github_url_only_annotation(prefix):
+    """Doesn’t really work but shouldn’t crash either."""
+    url = github_url("scanpydoc.rtd_github_links._TestCls.test_anno")
+    assert url == f"{prefix}/rtd_github_links/__init__.py"
+
+
 def test_get_obj_module():
     import sphinx.application as sa
 
@@ -51,6 +57,11 @@ def test_get_obj_module():
     assert mod is sa
 
 
-def test_get_obj_module_anntation():
-    obj, mod = _get_obj_module("scanpydoc.rtd_github_links._TestCls.test_attr")
+def test_get_obj_module_dataclass_field():
+    obj, mod = _get_obj_module("scanpydoc.rtd_github_links._TestDataCls.test_attr")
     assert isinstance(obj, Field)
+
+
+def test_get_obj_module_only_annotation():
+    obj, mod = _get_obj_module("scanpydoc.rtd_github_links._TestCls.test_anno")
+    assert obj is None
