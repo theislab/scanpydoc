@@ -91,8 +91,23 @@ def _init_vars(app: Sphinx, config: Config):
     rtd_links_prefix = PurePosixPath(config.rtd_links_prefix)
 
 
+def _get_annotations(obj: Any) -> dict[str, Any]:
+    try:
+        from inspect import get_annotations
+    except ImportError:
+        from get_annotations import get_annotations
+
+    try:
+        return get_annotations(obj)
+    except TypeError:
+        return {}
+
+
 def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
-    """Get a module/class/attribute and its original module by qualname."""
+    """Get a module/class/attribute and its original module by qualname.
+
+    Returns `None` as `obj` if it’s an annotated field without value.
+    """
     modname = qualname
     attr_path = []
     while modname not in sys.modules:
@@ -109,6 +124,8 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
         except AttributeError as e:
             if is_dataclass(obj):
                 thing = next(f for f in fields(obj) if f.name == attr_name)
+            elif attr_name in _get_annotations(thing):
+                thing = None
             else:
                 try:
                     thing = import_module(f"{mod.__name__}.{attr_name}")
@@ -158,9 +175,10 @@ def github_url(qualname: str) -> str:
     """
     try:
         obj, module = _get_obj_module(qualname)
-    except Exception:
-        print(f"Error in github_url({qualname!r}):", file=sys.stderr)
-        raise
+    except Exception as e:
+        if hasattr(e, "__notes__"):
+            e.__notes__.append(f"Qualname: {qualname!r}")
+        raise e
     path = rtd_links_prefix / _module_path(obj, module)
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
@@ -220,5 +238,8 @@ if True:  # test data
     from dataclasses import dataclass, field, fields, is_dataclass
 
     @dataclass
-    class _TestCls:
+    class _TestDataCls:
         test_attr: dict[str, str] = field(default_factory=dict)
+
+    class _TestCls:
+        test_anno: int
