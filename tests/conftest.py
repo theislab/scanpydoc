@@ -14,16 +14,15 @@ from sphinx.application import Sphinx
 
 @pytest.fixture
 def make_app_setup(make_app, tmp_path) -> Callable[..., Sphinx]:
+    if sys.version_info < (3, 9):
+        from sphinx.testing.path import path as STP
+
+        src_dir = STP(tmp_path)
+    else:
+        src_dir = tmp_path
+
     def make_app_setup(**conf) -> Sphinx:
         (tmp_path / "conf.py").write_text("")
-
-        if sys.version_info < (3, 9):
-            from sphinx.testing.path import path as STP
-
-            src_dir = STP(tmp_path)
-        else:
-            src_dir = tmp_path
-
         return make_app(srcdir=src_dir, confoverrides=conf)
 
     return make_app_setup
