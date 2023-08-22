@@ -1,0 +1,46 @@
+{% extends "sphinx_book_theme/layout.html" %}
+
+{%- block css -%}
+    {{ super() }}
+    {% if theme_docsearch_key and theme_docsearch_index %}
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/docsearch.js@{{ theme_docsearch_js_version }}/dist/cdn/docsearch.min.css"
+        />
+    {% endif %}
+{%- endblock -%}
+
+<!-- Styles that come last -->
+{%- block extrahead -%}
+    {{ super() }}
+    {% if theme_accent_color %}
+        <!-- prettier-ignore-start -->
+        <style>
+        :root { --accent-color: {{ theme_accent_color }} }
+        </style>
+        <!-- prettier-ignore-end -->
+    {% endif %}
+{% endblock %}
+
+{% set safe_version = version if version in ["latest", "stable"] else "latest" %}
+
+{% block scripts %}
+    {{ super() }}
+    {% if theme_docsearch_key and theme_docsearch_index %}
+    <script src="https://cdn.jsdelivr.net/npm/docsearch.js@{{ theme_docsearch_js_version }}/dist/cdn/docsearch.min.js"></script>
+    <!-- prettier-ignore-start -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => docsearch({
+            apiKey: '{{ theme_docsearch_key }}',
+            indexName: '{{ theme_docsearch_index }}',
+            inputSelector: '#rtd-search-form > input[name="q"]',
+            algoliaOptions: {
+            facetFilters: ['version:{{ theme_docsearch_doc_version or safe_version }}'],
+            hitsPerPage: 10,
+            },
+            debug: {{ theme_docsearch_debug }},
+        }))
+    </script>
+    <!-- prettier-ignore-end -->
+    {% endif %}
+{% endblock %}
