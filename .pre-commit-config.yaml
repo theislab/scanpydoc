@@ -18,5 +18,5 @@ repos:
     hooks:
       - id: prettier
         additional_dependencies:
-          - prettier@2.8.1 # plugin not yet 3.0 compatible
-          - prettier-plugin-jinja-template
+          - prettier@3.0.2
+          - prettier-plugin-jinja-template@1.0.0
