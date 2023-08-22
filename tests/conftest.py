@@ -10,14 +10,20 @@ from uuid import uuid4
 import pytest
 from docutils.nodes import document
 from sphinx.application import Sphinx
-from sphinx.testing.path import path as STP
 
 
 @pytest.fixture
 def make_app_setup(make_app, tmp_path) -> Callable[..., Sphinx]:
+    if sys.version_info < (3, 9):
+        from sphinx.testing.path import path as STP
+
+        src_dir = STP(tmp_path)
+    else:
+        src_dir = tmp_path
+
     def make_app_setup(**conf) -> Sphinx:
         (tmp_path / "conf.py").write_text("")
-        return make_app(srcdir=STP(tmp_path), confoverrides=conf)
+        return make_app(srcdir=src_dir, confoverrides=conf)
 
     return make_app_setup
 
