@@ -5,11 +5,15 @@ This module is also an extension itself which simply sets up all included extens
 from __future__ import annotations
 
 from textwrap import indent
-from typing import Any
-
-from sphinx.application import Sphinx
+from typing import TYPE_CHECKING, Any
 
 from ._version import __version__
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from sphinx.application import Sphinx
 
 
 metadata = dict(version=__version__, env_version=1, parallel_read_safe=True)
@@ -25,7 +29,7 @@ Returns:
 """
 
 
-def _setup_sig(fn):
+def _setup_sig(fn: Callable) -> Callable:
     fn.__doc__ += "\n\n" + indent(setup_sig_str, " " * 4)
     return fn
 

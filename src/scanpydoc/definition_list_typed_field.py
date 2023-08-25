@@ -7,15 +7,22 @@ with a derivative :class:`DLTypedField`, which renders item items
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.domains.python import PyObject, PyTypedField
-from sphinx.environment import BuildEnvironment
 
 from . import _setup_sig, metadata
+
+
+if TYPE_CHECKING:
+    from typing import Any, TypeAlias
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+
+    TextLikeNode: TypeAlias = nodes.Text | nodes.TextElement
 
 
 class DLTypedField(PyTypedField):
@@ -36,17 +43,20 @@ class DLTypedField(PyTypedField):
         domain: str,
         items: tuple[str, list[nodes.inline]],
         env: BuildEnvironment | None = None,
-        **kw,
+        **kw,  # noqa: ANN003
     ) -> nodes.field:
-        """
-        Render a field to a document-tree node representing a definition list item.
-        """
+        """Render a field to a documenttree node representing a definition list item."""
 
-        def make_refs(role_name, name, node):
+        def make_refs(
+            role_name: str,
+            name: str,
+            node: type[TextLikeNode],
+        ) -> list[nodes.Node]:
             return self.make_xrefs(role_name, domain, name, node, env=env, **kw)
 
         def handle_item(
-            fieldarg: str, content: list[nodes.inline]
+            fieldarg: str,
+            content: list[nodes.inline],
         ) -> nodes.definition_list_item:
             term = nodes.term()
             term += make_refs(self.rolename, fieldarg, addnodes.literal_strong)
@@ -56,7 +66,9 @@ class DLTypedField(PyTypedField):
                 if len(field_type) == 1 and isinstance(field_type[0], nodes.Text):
                     (text_node,) = field_type  # type: nodes.Text
                     classifier_content = make_refs(
-                        self.typerolename, text_node.astext(), addnodes.literal_emphasis
+                        self.typerolename,
+                        text_node.astext(),
+                        addnodes.literal_emphasis,
                     )
                 else:
                     classifier_content = field_type
@@ -74,7 +86,7 @@ class DLTypedField(PyTypedField):
             return nodes.definition_list_item("", term, definition)
 
         field_name = nodes.field_name("", self.label)
-        assert not self.can_collapse
+        assert not self.can_collapse  # noqa: S101
         body_node = self.list_type(classes=["simple"])
         for field_arg, content in items:
             body_node += handle_item(field_arg, content)
@@ -87,10 +99,12 @@ def setup(app: Sphinx) -> dict[str, Any]:
     """Replace :class:`~sphinx.domains.python.PyTypedField` with ours."""
     napoleon_requested = "sphinx.ext.napoleon" in app.config.extensions
     napoleon_loaded = next(
-        (True for ft in PyObject.doc_field_types if ft.name == "keyword"), False
+        (True for ft in PyObject.doc_field_types if ft.name == "keyword"),
+        False,  # noqa: FBT003
     )
     if napoleon_requested and not napoleon_loaded:
-        raise RuntimeError(f"Please load sphinx.ext.napoleon before {__name__}")
+        msg = f"Please load sphinx.ext.napoleon before {__name__}"
+        raise RuntimeError(msg)
 
     PyObject.doc_field_types = [
         DLTypedField(

@@ -20,7 +20,8 @@ class JSInfo(TypedDict):
 
 
 def linkcode_resolve(
-    domain: Literal["py", "c", "cpp", "javascript"], info: PyInfo | CInfo | JSInfo
+    domain: Literal["py", "c", "cpp", "javascript"],
+    info: PyInfo | CInfo | JSInfo,
 ) -> str | None:
     from . import github_url
 
