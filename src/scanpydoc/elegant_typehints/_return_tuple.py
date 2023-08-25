@@ -54,7 +54,7 @@ def process_docstring(  # noqa: PLR0913
     obj = inspect.unwrap(obj)
     try:
         hints = get_type_hints(obj)
-    except (AttributeError, TypeError):
+    except (AttributeError, NameError, TypeError):
         # Introspecting a slot wrapper will raise TypeError
         return
     ret_types = get_tuple_annot(hints.get("return"))

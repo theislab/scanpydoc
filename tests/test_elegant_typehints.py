@@ -6,6 +6,10 @@ import inspect
 import re
 import sys
 import typing as t
+
+# TODO(flying-sheep): fix our code together with `if TYPE_CHECKING`
+# https://github.com/theislab/scanpydoc/issues/92
+from collections.abc import Mapping  # noqa: TCH003
 from pathlib import Path
 from typing import Any
 
@@ -22,7 +26,7 @@ from scanpydoc.elegant_typehints._return_tuple import process_docstring
 
 
 if t.TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Callable
     from types import FunctionType, ModuleType
 
     from sphinx.application import Sphinx
