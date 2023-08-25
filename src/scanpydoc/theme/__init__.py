@@ -1,4 +1,4 @@
-"""A widescreen extension for :doc:`sphinx_book_theme:index`.
+"""A widescreen extension for :doc:`Sphinx Book Theme <sphinx_book_theme:index>`.
 
 Add to ``conf.py``:
 
