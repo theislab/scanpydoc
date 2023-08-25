@@ -71,7 +71,20 @@ from scanpydoc import _setup_sig, metadata
 
 
 if TYPE_CHECKING:
-    from inspect import _SourceObjectType
+    from collections.abc import Callable
+    from types import CodeType, FrameType, FunctionType, MethodType, TracebackType
+    from typing import TypeAlias
+
+    _SourceObjectType: TypeAlias = (
+        ModuleType
+        | type[Any]
+        | MethodType
+        | FunctionType
+        | TracebackType
+        | FrameType
+        | CodeType
+        | Callable[..., Any]
+    )
 
     from sphinx.application import Sphinx
     from sphinx.config import Config

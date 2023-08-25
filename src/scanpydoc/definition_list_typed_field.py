@@ -7,7 +7,7 @@ with a derivative :class:`DLTypedField`, which renders item items
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from sphinx import addnodes
@@ -17,9 +17,12 @@ from . import _setup_sig, metadata
 
 
 if TYPE_CHECKING:
+    from typing import Any, TypeAlias
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import TextLikeNode
+
+    TextLikeNode: TypeAlias = nodes.Text | nodes.TextElement
 
 
 class DLTypedField(PyTypedField):
@@ -47,7 +50,7 @@ class DLTypedField(PyTypedField):
         def make_refs(
             role_name: str,
             name: str,
-            node: TextLikeNode,
+            node: type[TextLikeNode],
         ) -> list[nodes.Node]:
             return self.make_xrefs(role_name, domain, name, node, env=env, **kw)
 
