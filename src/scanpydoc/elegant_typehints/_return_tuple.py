@@ -3,12 +3,14 @@ from __future__ import annotations
 import inspect
 import re
 from logging import getLogger
-from typing import Any, get_args, get_origin, get_type_hints
+from typing import TYPE_CHECKING, Any, get_args, get_origin, get_type_hints
 
-from sphinx.application import Sphinx
-from sphinx.ext.autodoc import Options
+from ._formatting import format_both
 
-from .formatting import format_both
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Options
 
 
 logger = getLogger(__name__)
@@ -24,21 +26,22 @@ def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
     if not origin:
         return None
     if origin is Union:
-        for annotation in get_args(annotation):
-            origin = get_origin(annotation)
+        for annot in get_args(annotation):
+            origin = get_origin(annot)
             if origin in (tuple, Tuple):
+                annotation = annot
                 break
         else:
             return None
     return get_args(annotation)
 
 
-def process_docstring(
+def process_docstring(  # noqa: PLR0913
     app: Sphinx,
     what: str,
-    name: str,
-    obj: Any,
-    options: Options | None,
+    name: str,  # noqa: ARG001
+    obj: Any,  # noqa: ANN401
+    options: Options | None,  # noqa: ARG001
     lines: list[str],
 ) -> None:
     # Handle complex objects

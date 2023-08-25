@@ -68,18 +68,23 @@ The following configuration values are optional:
 
 """
 
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from sphinx.application import Sphinx
+from scanpydoc import _setup_sig
 
-from .. import _setup_sig
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 
 HERE = Path(__file__).parent.resolve()
 
 
 @_setup_sig
-def setup(app: Sphinx):
-    """Setup theme (like an extension)."""
+def setup(app: Sphinx) -> dict[str, bool]:
+    """Set up theme (like an extension)."""
     app.add_html_theme("scanpydoc", str(HERE))
     return dict(parallel_read_safe=True, parallel_write_safe=True)

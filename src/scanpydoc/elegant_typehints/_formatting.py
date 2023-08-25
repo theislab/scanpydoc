@@ -3,17 +3,20 @@ from __future__ import annotations
 import inspect
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import partial
-from typing import Any, Literal, get_args, get_origin
+from typing import TYPE_CHECKING, Any, Literal, get_args, get_origin
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst.roles import set_classes
 from docutils.parsers.rst.states import Inliner, Struct
 from docutils.utils import SystemMessage, unescape
-from sphinx.config import Config
 from sphinx_autodoc_typehints import format_annotation as _format_orig
 
 from scanpydoc import elegant_typehints
+
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+    from sphinx.config import Config
 
 
 def _format_full(annotation: type[Any], config: Config) -> str | None:
@@ -61,12 +64,12 @@ def _format_terse(annotation: type[Any], config: Config) -> str:
         return f":py:class:`{tilde}collections.abc.Mapping`"
 
     # display dict as {k: v}
-    if origin is dict and len(args) == 2:
+    if origin is dict and len(args) == 2:  # noqa: PLR2004
         k, v = args
         return f"{{{fmt(k)}: {fmt(v)}}}"
 
     # display Callable[[a1, a2], r] as (a1, a2) -> r
-    if origin is Callable and len(args) == 2:
+    if origin is Callable and len(args) == 2:  # noqa: PLR2004
         params, ret = args
         params = ["…"] if params is Ellipsis else map(fmt, params)
         return f"({', '.join(params)}) → {fmt(ret)}"
@@ -98,8 +101,8 @@ def format_annotation(annotation: type[Any], config: Config) -> str | None:
         and calframe[3].function == "process_docstring"
     ):
         return format_both(annotation, config)
-    else:  # recursive use
-        return _format_full(annotation, config)
+    # recursive use
+    return _format_full(annotation, config)
 
 
 def format_both(annotation: type[Any], config: Config) -> str:
@@ -110,24 +113,28 @@ def format_both(annotation: type[Any], config: Config) -> str:
     return f":annotation-terse:`{_escape(terse)}`\\ :annotation-full:`{_escape(full)}`"
 
 
-def _role_annot(
-    name: str,
+def _role_annot(  # noqa: PLR0913
+    name: str,  # noqa: ARG001
     rawtext: str,
     text: str,
     lineno: int,
     inliner: Inliner,
-    options: dict[str, Any] = {},
-    content: Sequence[str] = (),
-    # *,  # https://github.com/ambv/black/issues/613
+    options: dict[str, Any] | None = None,
+    content: Sequence[str] = (),  # noqa: ARG001
+    *,
     additional_classes: Iterable[str] = (),
 ) -> tuple[list[Node], list[SystemMessage]]:
+    if options is None:
+        options = {}
     options = options.copy()
     set_classes(options)
     if additional_classes:
         options["classes"] = options.get("classes", []).copy()
         options["classes"].extend(additional_classes)
     memo = Struct(
-        document=inliner.document, reporter=inliner.reporter, language=inliner.language
+        document=inliner.document,
+        reporter=inliner.reporter,
+        language=inliner.language,
     )
     node = nodes.inline(unescape(rawtext), "", **options)
     children, messages = inliner.parse(_unescape(text), lineno, memo, node)
@@ -140,5 +147,5 @@ def _escape(rst: str) -> str:
 
 
 def _unescape(rst: str) -> str:
-    # TODO: IDK why the [ part is necessary.
+    # IDK why the [ part is necessary.
     return unescape(rst).replace("\\`", "`").replace("[", "\\[")

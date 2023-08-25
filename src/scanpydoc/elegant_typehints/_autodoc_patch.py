@@ -1,16 +1,20 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
 from functools import wraps
+from typing import TYPE_CHECKING
 
-from docutils.statemachine import StringList
-from sphinx.ext.autodoc import ClassDocumenter
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
+    from docutils.statemachine import StringList
+    from sphinx.ext.autodoc import ClassDocumenter
 
 
 def dir_head_adder(
     qualname_overrides: Mapping[str, str],
     orig: Callable[[ClassDocumenter, str], None],
-):
+) -> Callable[[ClassDocumenter, str], None]:
     @wraps(orig)
     def add_directive_header(self: ClassDocumenter, sig: str) -> None:
         orig(self, sig)
@@ -36,9 +40,14 @@ def dir_head_adder(
     return add_directive_header
 
 
-def replace_multi_suffix(lines: StringList, old: tuple[str, str], new: tuple[str, str]):
-    if len(old) != len(new) != 2:
-        raise NotImplementedError("Only supports replacing 2 lines")
+def replace_multi_suffix(
+    lines: StringList,
+    old: tuple[str, str],
+    new: tuple[str, str],
+) -> None:
+    if len(old) != len(new) != 2:  # noqa: PLR2004
+        msg = "Only supports replacing 2 lines"
+        raise NotImplementedError(msg)
     for l, line in enumerate(lines):
         start = line.find(old[0])
         if start == -1:

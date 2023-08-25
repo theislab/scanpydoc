@@ -44,16 +44,27 @@ theme = [
 scanpydoc = 'scanpydoc.theme'
 
 [tool.ruff]
-select = [
-    'E', 'W', # Pycodestyle
-    'F', # Pyflakes
-    'I', # isort
-    'UP', # Pyupgrade
-    'RUF', # Ruff’s own rules
-]
+select = ['ALL']
 allowed-confusables = ['’', '×', 'l']
 ignore = [
-    'E741', # Ambiguous variable name
+    'ANN101', # No type annotating `self`
+    'E741',   # Ambiguous variable name
+    'C408',   # `dict` calls are useful
+    'D203',   # No blank lines before class body
+    'D213',   # Docstring summary on first line
+    'D407',   # We’re not using Numpydoc style
+    'FIX002', # TODOs are OK
+    'PD',     # False positives
+]
+[tool.ruff.per-file-ignores]
+'example.py' = ['ALL']
+'docs/conf.py' = [
+    'INP001', # `docs` is not a namespace package
+]
+'tests/**/*.py' = [
+    'INP001', # test directories are not namespace packages
+    'D103', # Test functions don’t need docstrings
+    'S101', # Pytest tests use `assert`
 ]
 
 [tool.ruff.isort]

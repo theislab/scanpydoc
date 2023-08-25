@@ -14,19 +14,22 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from sphinx.application import Sphinx
 from sphinx.ext import autosummary
 from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
 from . import _setup_sig, metadata
 
 
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+
+
 logger = logging.getLogger(__name__)
 
 
-def _generate_stubs(app: Sphinx):
+def _generate_stubs(app: Sphinx) -> None:
     gen_files = app.config.autosummary_generate
 
     if gen_files and not hasattr(gen_files, "__len__"):
@@ -62,7 +65,7 @@ def _generate_stubs(app: Sphinx):
 
 
 @_setup_sig
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(_app: Sphinx) -> dict[str, Any]:
     """Patch autosummary to generate docs for imported members as well."""
     autosummary.process_generate_options = _generate_stubs
 

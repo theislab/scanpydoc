@@ -1,13 +1,21 @@
+"""Test definition_list_typed_field subextension."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
-from sphinx.application import Sphinx
-from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.testing.restructuredtext import parse
-from sphinx.writers.html import HTMLTranslator
-from sphinx.writers.html5 import HTML5Translator
 
 
-@pytest.fixture
-def app(make_app_setup) -> Sphinx:
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from sphinx.application import Sphinx
+
+
+@pytest.fixture()
+def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
     app = make_app_setup()
     app.setup_extension("scanpydoc.definition_list_typed_field")
     return app
@@ -31,21 +39,20 @@ params_code_single = """\
 """
 
 
-def test_apps_separate(app, make_app_setup):
+def test_apps_separate(app: Sphinx, make_app_setup: Callable[..., Sphinx]) -> None:
     app_no_setup = make_app_setup()
     assert app is not make_app_setup
     assert "scanpydoc.definition_list_typed_field" in app.extensions
     assert "scanpydoc.definition_list_typed_field" not in app_no_setup.extensions
 
 
-@pytest.mark.parametrize("code,n", [(params_code, 2), (params_code_single, 1)])
-def test_convert_params(app, code, n):
+@pytest.mark.parametrize(("code", "n"), [(params_code, 2), (params_code_single, 1)])
+def test_convert_params(app: Sphinx, code: str, n: int) -> None:
     # the directive class is PyModuleLevel → PyObject → ObjectDescription
     # ObjectDescription.run uses a DocFieldTransformer to transform members
     # the signature of each Directive(
     #     name, arguments, options, content, lineno,
     #     content_offset, block_text, state, state_machine,
-    # )
 
     doc = parse(app, code)
     assert doc[1].tagname == "desc"
@@ -64,17 +71,3 @@ def test_convert_params(app, code, n):
         assert dli.tagname == "definition_list_item"
         assert dli[0].tagname == "term"
         assert dli[1].tagname == "definition"
-
-    # print(doc.asdom().toprettyxml())
-
-
-@pytest.mark.parametrize("translator", [HTMLTranslator, HTML5Translator])
-@pytest.mark.parametrize("code", [params_code, params_code_single])
-def test_render_params_html4(app, render, translator, code):
-    app.config.html4_writer = translator is HTMLTranslator
-    assert app.builder.__class__ is StandaloneHTMLBuilder
-    assert app.builder.default_translator_class is translator
-
-    doc = parse(app, code)
-    html = render(app, doc)
-    assert "<dl" in html

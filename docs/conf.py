@@ -1,8 +1,16 @@
+"""Sphinx configuration."""
+
+from __future__ import annotations
+
 from datetime import datetime
+from datetime import timezone as tz
 from importlib.metadata import metadata
 from pathlib import PurePosixPath
+from typing import TYPE_CHECKING
 
-from sphinx.application import Sphinx
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 
 extensions = [
@@ -31,7 +39,7 @@ intersphinx_mapping = dict(
 meta = metadata("scanpydoc")
 project = meta["name"]
 author = meta["author-email"].split(" <")[0]
-copyright = f"{datetime.now():%Y}, {author}."
+copyright = f"{datetime.now(tz=tz.utc):%Y}, {author}."  # noqa: A001
 version = release = meta["version"]
 
 master_doc = "index"
@@ -53,7 +61,8 @@ html_theme_options = dict(
 rtd_links_prefix = PurePosixPath("src")
 
 
-def setup(app: Sphinx):
+def setup(app: Sphinx) -> None:
+    """Set up custom Sphinx extension."""
     app.add_object_type(
         "confval",
         "confval",

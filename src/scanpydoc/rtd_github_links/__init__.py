@@ -63,35 +63,40 @@ import sys
 from importlib import import_module
 from pathlib import Path, PurePosixPath
 from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from jinja2.defaults import DEFAULT_FILTERS
-from sphinx.application import Sphinx
-from sphinx.config import Config
 
-from .. import _setup_sig, metadata
+from scanpydoc import _setup_sig, metadata
+
+
+if TYPE_CHECKING:
+    from inspect import _SourceObjectType
+
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 
 rtd_links_prefix: Path = None
 github_base_url: str = None
 
 
-def _init_vars(app: Sphinx, config: Config):
-    """Called when ``conf.py`` has been loaded."""
-    global github_base_url, rtd_links_prefix
+def _init_vars(_app: Sphinx, config: Config) -> None:
+    """Run hook when ``conf.py`` has been loaded."""
+    global github_base_url, rtd_links_prefix  # noqa: PLW0603
     _check_html_config(config)
     try:
         github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
-            config.html_context
+            config.html_context,
         )
     except KeyError:
         github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
-            config.html_theme_options
+            config.html_theme_options,
         )
     rtd_links_prefix = PurePosixPath(config.rtd_links_prefix)
 
 
-def _get_annotations(obj: Any) -> dict[str, Any]:
+def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
     try:
         from inspect import get_annotations
     except ImportError:
@@ -124,7 +129,7 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
         except AttributeError as e:
             if is_dataclass(obj):
                 thing = next(f for f in fields(obj) if f.name == attr_name)
-            elif attr_name in _get_annotations(thing):
+            elif attr_name in _get_annotations(obj):
                 thing = None
             else:
                 try:
@@ -142,7 +147,7 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
     return obj, mod
 
 
-def _get_linenos(obj):
+def _get_linenos(obj: _SourceObjectType) -> tuple[int, int] | tuple[None, None]:
     """Get an object’s line numbers."""
     try:
         lines, start = inspect.getsourcelines(obj)
@@ -152,7 +157,7 @@ def _get_linenos(obj):
         return start, start + len(lines) - 1
 
 
-def _module_path(obj: Any, module: ModuleType) -> PurePosixPath:
+def _module_path(obj: _SourceObjectType, module: ModuleType) -> PurePosixPath:
     """Relative module path to parent directory of toplevel module."""
     try:
         file = Path(inspect.getabsfile(obj))
@@ -178,14 +183,14 @@ def github_url(qualname: str) -> str:
     except Exception as e:
         if hasattr(e, "__notes__"):
             e.__notes__.append(f"Qualname: {qualname!r}")
-        raise e
+        raise
     path = rtd_links_prefix / _module_path(obj, module)
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
     return f"{github_base_url}/{path}{fragment}"
 
 
-def _check_html_config(config: Config):
+def _check_html_config(config: Config) -> None:
     options = dict(
         html_context={"github_user", "github_repo", "github_version"},
         html_theme_options={"repository_url", "repository_branch"},
@@ -216,7 +221,6 @@ def _check_html_config(config: Config):
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`."""
-
     app.add_config_value("rtd_links_prefix", PurePosixPath("."), "")
     app.connect("config-inited", _init_vars)
 
