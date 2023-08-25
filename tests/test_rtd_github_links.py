@@ -61,11 +61,11 @@ def test_get_github_url_only_annotation(prefix: PurePosixPath) -> None:
 
 
 def test_get_obj_module() -> None:
-    import sphinx.application as sa
+    import textwrap
 
-    obj, mod = _get_obj_module("scanpydoc.Sphinx")
-    assert obj is sa.Sphinx
-    assert mod is sa
+    obj, mod = _get_obj_module("scanpydoc.indent")
+    assert obj is textwrap.indent
+    assert mod is textwrap
 
 
 def test_get_obj_module_dataclass_field() -> None:

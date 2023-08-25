@@ -55,10 +55,10 @@ def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
             "scanpydoc.elegant_typehints",
         ],
         qualname_overrides={
-            "_testmod.Class": "test.Class",
-            "_testmod.SubCl": "test.SubCl",
-            "_testmod.Excep": "test.Excep",
-            "_testmod.Excep2": "test.Excep2",
+            "testmod.Class": "test.Class",
+            "testmod.SubCl": "test.SubCl",
+            "testmod.Excep": "test.Excep",
+            "testmod.Excep2": "test.Excep2",
         },
     )
 
@@ -76,7 +76,7 @@ def process_doc(app: Sphinx) -> Callable[[FunctionType], list[str]]:
 
 def test_app(app: Sphinx) -> None:
     assert "qualname_overrides" in app.config.values
-    assert "_testmod.Class" in app.config.qualname_overrides
+    assert "testmod.Class" in app.config.qualname_overrides
 
 
 def test_default(app: Sphinx) -> None:
