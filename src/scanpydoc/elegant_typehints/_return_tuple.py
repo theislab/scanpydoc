@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 import re
 from logging import getLogger
-from typing import TYPE_CHECKING, Any, get_args, get_origin, get_type_hints
+from typing import TYPE_CHECKING, Any, Collection, get_args, get_origin, get_type_hints
 
 from ._formatting import format_both
 
@@ -61,6 +61,14 @@ def process_docstring(  # noqa: PLR0913
     if ret_types is None:
         return
 
+    idxs_ret_names = _get_idxs_ret_names(lines)
+    if len(idxs_ret_names) == len(ret_types):
+        for l, rt in zip(idxs_ret_names, ret_types):
+            typ = format_both(rt, app.config)
+            lines[l : l + 1] = [f"{lines[l]} : {typ}"]
+
+
+def _get_idxs_ret_names(lines: Collection[str]) -> list[int]:
     # Get return section
     i_prefix = None
     l_start = None
@@ -76,15 +84,11 @@ def process_docstring(  # noqa: PLR0913
     else:
         l_end = len(lines) - 1
     if i_prefix is None:
-        return
+        return []
 
     # Meat
     idxs_ret_names = []
     for l, line in enumerate([l[i_prefix:] for l in lines[l_start : l_end + 1]]):
         if line.isidentifier() and lines[l + l_start + 1].startswith("    "):
             idxs_ret_names.append(l + l_start)
-
-    if len(idxs_ret_names) == len(ret_types):
-        for l, rt in zip(idxs_ret_names, ret_types):
-            typ = format_both(rt, app.config)
-            lines[l : l + 1] = [f"{lines[l]} : {typ}"]
+    return idxs_ret_names
