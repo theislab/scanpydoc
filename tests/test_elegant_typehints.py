@@ -7,7 +7,16 @@ import re
 import sys
 from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AnyStr, Literal, Optional, Union, get_origin
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AnyStr,
+    Literal,
+    NoReturn,
+    Optional,
+    Union,
+    get_origin,
+)
 
 import pytest
 import sphinx_autodoc_typehints as sat
@@ -199,10 +208,8 @@ def test_classes_get_added(app: Sphinx) -> None:
     [
         Any,
         AnyStr,
-        # t.NoReturn,
+        NoReturn,
         Callable[[int], None],
-        tuple[int, str],
-        tuple[float, ...],
         Union[int, str],
         Union[int, str, None],
     ],
@@ -323,6 +330,7 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
     [
         (tuple[str, int], ":py:class:`str`"),
         (Optional[tuple[str, int]], ":py:class:`str`"),
+        (tuple[str, int] | None, ":py:class:`str`"),
         (
             tuple[Mapping[str, float], int],
             r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
@@ -331,7 +339,7 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
             r"]`",
         ),
     ],
-    ids=["Tuple", "Optional[Tuple]", "Complex"],
+    ids=["tuple", "Optional[Tuple]", "Tuple | None", "Complex"],
 )
 def test_return(
     process_doc: Callable[[FunctionType], list[str]],
