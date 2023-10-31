@@ -326,7 +326,7 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
         (
             tuple[Mapping[str, float], int],
             r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
-            r":annotation-full:`:py:class:\`~typing.Mapping\`\["
+            r":annotation-full:`:py:class:\`~collections.abc.Mapping\`\["
             r":py:class:\`str\`, :py:class:\`float\`"
             r"]`",
         ),
