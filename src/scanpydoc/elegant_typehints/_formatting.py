@@ -3,7 +3,16 @@ from __future__ import annotations
 import inspect
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import partial
-from typing import TYPE_CHECKING, Any, Literal, get_args, get_origin
+from typing import TYPE_CHECKING, Any, Literal, Union, get_args, get_origin
+from typing import Callable as t_Callable
+from typing import Dict as t_Dict  # noqa: UP035
+from typing import Mapping as t_Mapping  # noqa: UP035
+
+
+try:
+    from types import UnionType
+except ImportError:
+    UnionType = None
 
 from docutils import nodes
 from docutils.parsers.rst.roles import set_classes
@@ -45,31 +54,28 @@ def _format_full(annotation: type[Any], config: Config) -> str | None:
 
 
 def _format_terse(annotation: type[Any], config: Config) -> str:
-    from typing import Mapping as t_Mapping
-    from typing import Union
-
     origin = get_origin(annotation)
     args = get_args(annotation)
     tilde = "" if config.typehints_fully_qualified else "~"
     fmt = partial(_format_terse, config=config)
 
     # display `Union[A, B]` as `A | B`
-    if origin is Union:
+    if origin in ({Union, UnionType} - {None}):
         # Never use the `Optional` keyword in the displayed docs.
         # Use `| None` instead, similar to other large numerical packages.
         return " | ".join(map(fmt, args))
 
     # do not show the arguments of Mapping
-    if origin is Mapping or origin is t_Mapping:
+    if origin in (Mapping, t_Mapping):
         return f":py:class:`{tilde}collections.abc.Mapping`"
 
     # display dict as {k: v}
-    if origin is dict and len(args) == 2:  # noqa: PLR2004
+    if origin in (dict, t_Dict) and len(args) == 2:  # noqa: UP006, PLR2004
         k, v = args
         return f"{{{fmt(k)}: {fmt(v)}}}"
 
     # display Callable[[a1, a2], r] as (a1, a2) -> r
-    if origin is Callable and len(args) == 2:  # noqa: PLR2004
+    if origin in (Callable, t_Callable) and len(args) == 2:  # noqa: PLR2004
         params, ret = args
         params = ["…"] if params is Ellipsis else map(fmt, params)
         return f"({', '.join(params)}) → {fmt(ret)}"
