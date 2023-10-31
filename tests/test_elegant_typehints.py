@@ -111,7 +111,6 @@ def test_defaults_simple(process_doc: Callable[[FunctionType], list[str]]) -> No
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="s-a-t bug in Python 3.8")
 def test_defaults_complex(process_doc: Callable[[FunctionType], list[str]]) -> None:
     def fn_test(m: Mapping[str, int] = {}):  # noqa: ANN202, ARG001
         """:param m: Test M"""
@@ -135,7 +134,7 @@ def test_mapping(app: Sphinx) -> None:
 
 
 def test_dict(app: Sphinx) -> None:
-    assert _format_terse(t.Dict[str, Any], app.config) == (
+    assert _format_terse(dict[str, Any], app.config) == (
         "{:py:class:`str`: :py:data:`~typing.Any`}"
     )
 
@@ -207,8 +206,8 @@ def test_classes_get_added(app: Sphinx) -> None:
         t.AnyStr,
         # t.NoReturn,
         t.Callable[[int], None],
-        t.Tuple[int, str],
-        t.Tuple[float, ...],
+        tuple[int, str],
+        tuple[float, ...],
         t.Union[int, str],
         t.Union[int, str, None],
     ],
@@ -327,10 +326,10 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
 @pytest.mark.parametrize(
     ("return_ann", "foo_rendered"),
     [
-        (t.Tuple[str, int], ":py:class:`str`"),
-        (t.Optional[t.Tuple[str, int]], ":py:class:`str`"),
+        (tuple[str, int], ":py:class:`str`"),
+        (t.Optional[tuple[str, int]], ":py:class:`str`"),
         (
-            t.Tuple[t.Mapping[str, float], int],
+            tuple[t.Mapping[str, float], int],
             r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
             r":annotation-full:`:py:class:\`~typing.Mapping\`\["
             r":py:class:\`str\`, :py:class:\`float\`"
