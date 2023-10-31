@@ -6,6 +6,7 @@ from functools import partial
 from types import UnionType
 from typing import TYPE_CHECKING, Any, Literal, Union, get_args, get_origin
 from typing import Callable as t_Callable
+from typing import Dict as t_Dict  # noqa: UP035
 from typing import Mapping as t_Mapping  # noqa: UP035
 
 from docutils import nodes
@@ -64,7 +65,7 @@ def _format_terse(annotation: type[Any], config: Config) -> str:
         return f":py:class:`{tilde}collections.abc.Mapping`"
 
     # display dict as {k: v}
-    if origin is dict and len(args) == 2:  # noqa: PLR2004
+    if origin in (dict, t_Dict) and len(args) == 2:  # noqa: UP006, PLR2004
         k, v = args
         return f"{{{fmt(k)}: {fmt(v)}}}"
 

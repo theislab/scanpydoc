@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import inspect
 import re
-from collections.abc import Collection
 from logging import getLogger
-from typing import TYPE_CHECKING, Any, get_args, get_origin, get_type_hints
+from types import UnionType
+from typing import TYPE_CHECKING, Any, Union, get_args, get_origin, get_type_hints
+from typing import Tuple as t_Tuple  # noqa: UP035
 
 from ._formatting import format_both
 
 
 if TYPE_CHECKING:
+    from collections.abc import Collection
+
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Options
 
@@ -19,17 +22,15 @@ re_ret = re.compile("^:returns?: ")
 
 
 def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
-    from typing import Union
-
     if annotation is None:
         return None
     origin = get_origin(annotation)
     if not origin:
         return None
-    if origin is Union:
+    if origin in (Union, UnionType):
         for annot in get_args(annotation):
             origin = get_origin(annot)
-            if origin in (tuple, tuple):
+            if origin in (tuple, t_Tuple):  # noqa: UP006
                 annotation = annot
                 break
         else:
