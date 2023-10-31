@@ -330,7 +330,6 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
     [
         (tuple[str, int], ":py:class:`str`"),
         (Optional[tuple[str, int]], ":py:class:`str`"),
-        (tuple[str, int] | None, ":py:class:`str`"),
         (
             tuple[Mapping[str, float], int],
             r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
@@ -339,7 +338,7 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
             r"]`",
         ),
     ],
-    ids=["tuple", "Optional[Tuple]", "Tuple | None", "Complex"],
+    ids=["tuple", "Optional[Tuple]", "Complex"],
 )
 def test_return(
     process_doc: Callable[[FunctionType], list[str]],

@@ -3,11 +3,16 @@ from __future__ import annotations
 import inspect
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import partial
-from types import UnionType
 from typing import TYPE_CHECKING, Any, Literal, Union, get_args, get_origin
 from typing import Callable as t_Callable
 from typing import Dict as t_Dict  # noqa: UP035
 from typing import Mapping as t_Mapping  # noqa: UP035
+
+
+try:
+    from types import UnionType
+except ImportError:
+    UnionType = None
 
 from docutils import nodes
 from docutils.parsers.rst.roles import set_classes
@@ -55,7 +60,7 @@ def _format_terse(annotation: type[Any], config: Config) -> str:
     fmt = partial(_format_terse, config=config)
 
     # display `Union[A, B]` as `A | B`
-    if origin in (Union, UnionType):
+    if origin in ({Union, UnionType} - {None}):
         # Never use the `Optional` keyword in the displayed docs.
         # Use `| None` instead, similar to other large numerical packages.
         return " | ".join(map(fmt, args))

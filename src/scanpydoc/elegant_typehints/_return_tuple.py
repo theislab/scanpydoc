@@ -3,9 +3,14 @@ from __future__ import annotations
 import inspect
 import re
 from logging import getLogger
-from types import UnionType
 from typing import TYPE_CHECKING, Any, Union, get_args, get_origin, get_type_hints
 from typing import Tuple as t_Tuple  # noqa: UP035
+
+
+try:
+    from types import UnionType
+except ImportError:
+    UnionType = None
 
 from ._formatting import format_both
 
@@ -27,7 +32,7 @@ def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
     origin = get_origin(annotation)
     if not origin:
         return None
-    if origin in (Union, UnionType):
+    if origin in ({Union, UnionType} - {None}):
         for annot in get_args(annotation):
             origin = get_origin(annot)
             if origin in (tuple, t_Tuple):  # noqa: UP006

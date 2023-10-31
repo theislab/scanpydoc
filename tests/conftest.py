@@ -27,16 +27,9 @@ def make_app_setup(
     make_app: Callable[..., Sphinx],
     tmp_path: Path,
 ) -> Callable[..., Sphinx]:
-    if sys.version_info < (3, 9):
-        from sphinx.testing.path import path as STP  # noqa: N812
-
-        src_dir = STP(tmp_path)
-    else:
-        src_dir = tmp_path
-
     def make_app_setup(**conf: Any) -> Sphinx:  # noqa: ANN401
         (tmp_path / "conf.py").write_text("")
-        return make_app(srcdir=src_dir, confoverrides=conf)
+        return make_app(srcdir=tmp_path, confoverrides=conf)
 
     return make_app_setup
 
