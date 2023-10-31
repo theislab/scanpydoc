@@ -5,13 +5,9 @@ from __future__ import annotations
 import inspect
 import re
 import sys
-import typing as t
-
-# TODO(flying-sheep): fix our code together with `if TYPE_CHECKING`
-# https://github.com/theislab/scanpydoc/issues/92
-from collections.abc import Mapping  # noqa: TCH003
+from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, AnyStr, Literal, Optional, Union, get_origin
 
 import pytest
 import sphinx_autodoc_typehints as sat
@@ -25,8 +21,7 @@ from scanpydoc.elegant_typehints._formatting import (
 from scanpydoc.elegant_typehints._return_tuple import process_docstring
 
 
-if t.TYPE_CHECKING:
-    from collections.abc import Callable
+if TYPE_CHECKING:
     from types import FunctionType, ModuleType
 
     from sphinx.application import Sphinx
@@ -127,10 +122,10 @@ def test_defaults_complex(process_doc: Callable[[FunctionType], list[str]]) -> N
 
 def test_mapping(app: Sphinx) -> None:
     assert (
-        _format_terse(t.Mapping[str, Any], app.config)
+        _format_terse(Mapping[str, Any], app.config)
         == ":py:class:`~collections.abc.Mapping`"
     )
-    assert _format_full(t.Mapping[str, Any], app.config) is None
+    assert _format_full(Mapping[str, Any], app.config) is None
 
 
 def test_dict(app: Sphinx) -> None:
@@ -142,9 +137,9 @@ def test_dict(app: Sphinx) -> None:
 @pytest.mark.parametrize(
     ("annotation", "expected"),
     [
-        (t.Callable[..., t.Any], "(…) → :py:data:`~typing.Any`"),
+        (Callable[..., Any], "(…) → :py:data:`~typing.Any`"),
         (
-            t.Callable[[str, int], None],
+            Callable[[str, int], None],
             "(:py:class:`str`, :py:class:`int`) → :py:obj:`None`",
         ),
     ],
@@ -154,8 +149,8 @@ def test_callable_terse(app: Sphinx, annotation: type, expected: str) -> None:
 
 
 def test_literal(app: Sphinx) -> None:
-    assert _format_terse(t.Literal["str", 1, None], app.config) == "{'str', 1, None}"
-    assert _format_full(t.Literal["str", 1, None], app.config) is None
+    assert _format_terse(Literal["str", 1, None], app.config) == "{'str', 1, None}"
+    assert _format_full(Literal["str", 1, None], app.config) is None
 
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="Syntax only available on 3.10+")
@@ -176,18 +171,18 @@ def test_qualname_overrides_exception(app: Sphinx, testmod: ModuleType) -> None:
 
 
 def test_qualname_overrides_recursive(app: Sphinx, testmod: ModuleType) -> None:
-    assert _format_terse(t.Union[testmod.Class, str], app.config) == (
+    assert _format_terse(Union[testmod.Class, str], app.config) == (
         r":py:class:`~test.Class` | :py:class:`str`"
     )
-    assert _format_full(t.Union[testmod.Class, str], app.config) is None
+    assert _format_full(Union[testmod.Class, str], app.config) is None
 
 
 def test_fully_qualified(app: Sphinx, testmod: ModuleType) -> None:
     app.config.typehints_fully_qualified = True
-    assert _format_terse(t.Union[testmod.Class, str], app.config) == (
+    assert _format_terse(Union[testmod.Class, str], app.config) == (
         r":py:class:`test.Class` | :py:class:`str`"
     )
-    assert _format_full(t.Union[testmod.Class, str], app.config) is None
+    assert _format_full(Union[testmod.Class, str], app.config) is None
 
 
 def test_classes_get_added(app: Sphinx) -> None:
@@ -202,14 +197,14 @@ def test_classes_get_added(app: Sphinx) -> None:
 @pytest.mark.parametrize(
     "annotation",
     [
-        t.Any,
-        t.AnyStr,
+        Any,
+        AnyStr,
         # t.NoReturn,
-        t.Callable[[int], None],
+        Callable[[int], None],
         tuple[int, str],
         tuple[float, ...],
-        t.Union[int, str],
-        t.Union[int, str, None],
+        Union[int, str],
+        Union[int, str, None],
     ],
     ids=lambda p: str(p).replace("typing.", ""),
 )
@@ -222,7 +217,7 @@ def test_typing_classes(
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
-        or getattr(t.get_origin(annotation), "_name", None)
+        or getattr(get_origin(annotation), "_name", None)
         # 3.6 _Any and _Union
         or annotation.__class__.__name__[1:]
     )
@@ -327,9 +322,9 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
     ("return_ann", "foo_rendered"),
     [
         (tuple[str, int], ":py:class:`str`"),
-        (t.Optional[tuple[str, int]], ":py:class:`str`"),
+        (Optional[tuple[str, int]], ":py:class:`str`"),
         (
-            tuple[t.Mapping[str, float], int],
+            tuple[Mapping[str, float], int],
             r":annotation-terse:`:py:class:\`~collections.abc.Mapping\``\ "
             r":annotation-full:`:py:class:\`~typing.Mapping\`\["
             r":py:class:\`str\`, :py:class:\`float\`"
