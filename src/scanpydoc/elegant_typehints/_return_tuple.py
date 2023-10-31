@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import inspect
 import re
+from collections.abc import Collection
 from logging import getLogger
-from typing import TYPE_CHECKING, Any, Collection, get_args, get_origin, get_type_hints
+from typing import TYPE_CHECKING, Any, get_args, get_origin, get_type_hints
 
 from ._formatting import format_both
 
@@ -18,7 +19,7 @@ re_ret = re.compile("^:returns?: ")
 
 
 def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
-    from typing import Tuple, Union
+    from typing import Union
 
     if annotation is None:
         return None
@@ -28,7 +29,7 @@ def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
     if origin is Union:
         for annot in get_args(annotation):
             origin = get_origin(annot)
-            if origin in (tuple, Tuple):
+            if origin in (tuple, tuple):
                 annotation = annot
                 break
         else:

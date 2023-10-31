@@ -45,7 +45,7 @@ def _format_full(annotation: type[Any], config: Config) -> str | None:
 
 
 def _format_terse(annotation: type[Any], config: Config) -> str:
-    from typing import Mapping as t_Mapping
+    from collections.abc import Mapping as t_Mapping
     from typing import Union
 
     origin = get_origin(annotation)
