@@ -112,7 +112,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
     app.add_config_value("qualname_overrides", default={}, rebuild="html")
     app.add_config_value("annotate_defaults", default=True, rebuild="html")
-    app.add_css_file("typehints.css")
     app.connect("config-inited", _init_vars)
 
     from ._formatting import _role_annot, typehints_formatter
