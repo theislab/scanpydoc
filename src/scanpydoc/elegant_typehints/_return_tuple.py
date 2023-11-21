@@ -12,7 +12,7 @@ try:
 except ImportError:
     UnionType = None
 
-from ._formatting import format_both
+from sphinx_autodoc_typehints import format_annotation
 
 
 if TYPE_CHECKING:
@@ -71,7 +71,7 @@ def process_docstring(  # noqa: PLR0913
     idxs_ret_names = _get_idxs_ret_names(lines)
     if len(idxs_ret_names) == len(ret_types):
         for l, rt in zip(idxs_ret_names, ret_types):
-            typ = format_both(rt, app.config)
+            typ = format_annotation(rt, app.config)
             lines[l : l + 1] = [f"{lines[l]} : {typ}"]
 
 

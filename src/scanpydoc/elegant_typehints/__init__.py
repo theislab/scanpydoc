@@ -41,7 +41,7 @@ This extension modifies the created type annotations in four ways:
 
 
 .. _sphinx issue 4826: https://github.com/sphinx-doc/sphinx/issues/4826
-.. _sphinx-autodoc-typehints issue 38: https://github.com/agronholm/sphinx-autodoc-typehints/issues/38
+.. _sphinx-autodoc-typehints issue 38: https://github.com/tox-dev/sphinx-autodoc-typehints/issues/38
 
 """  # noqa: D300, D301
 
@@ -97,7 +97,6 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
     if config.typehints_defaults is None and config.annotate_defaults:
         # override default for “typehints_defaults”
         config.typehints_defaults = "braces"
-    config.html_static_path.append(str(HERE / "static"))
 
 
 @dataclass
@@ -112,12 +111,11 @@ def setup(app: Sphinx) -> dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
     app.add_config_value("qualname_overrides", default={}, rebuild="html")
     app.add_config_value("annotate_defaults", default=True, rebuild="html")
-    app.add_css_file("typehints.css")
     app.connect("config-inited", _init_vars)
 
-    from ._formatting import _role_annot, format_annotation
+    from ._formatting import _role_annot, typehints_formatter
 
-    app.config["typehints_formatter"] = PickleableCallable(format_annotation)
+    app.config["typehints_formatter"] = PickleableCallable(typehints_formatter)
     for name in ["annotation-terse", "annotation-full"]:
         roles.register_canonical_role(
             name,
