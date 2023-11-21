@@ -115,9 +115,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_css_file("typehints.css")
     app.connect("config-inited", _init_vars)
 
-    from ._formatting import _role_annot, format_annotation
+    from ._formatting import _role_annot, typehints_formatter
 
-    app.config["typehints_formatter"] = PickleableCallable(format_annotation)
+    app.config["typehints_formatter"] = PickleableCallable(typehints_formatter)
     for name in ["annotation-terse", "annotation-full"]:
         roles.register_canonical_role(
             name,
