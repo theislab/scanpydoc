@@ -29,7 +29,9 @@ dev = [
 ]
 test = [
     'pytest',
-    'pytest-cov',
+    'coverage',
+    'coverage-rich',
+    'toml',  # coverage-rich’s dep anyconfig 0.13 needs this
 ]
 doc = [
     'scanpydoc[typehints,theme]',
@@ -89,6 +91,10 @@ python = ['3.9', '3.10', '3.11', '3.12']
 features = ['test', 'typehints']
 [tool.hatch.envs.test.scripts]
 run = 'pytest -vv {args}'
+cov = [
+    'coverage run -m pytest -vv {args}',
+    'coverage-rich report',
+]
 
 [tool.pytest.ini_options]
 addopts = [
