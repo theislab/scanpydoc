@@ -6,7 +6,14 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: ["*"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_ROOT_USER_ACTION: ignore
 
 jobs:
   build:
@@ -15,19 +22,19 @@ jobs:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/pre-commit
-          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          cache: pip
       - name: dependencies
         run: |
           pip install --upgrade pip wheel
           pip install .[test,typehints]
       - name: tests
-        run: pytest --color=yes
+        run: pytest --verbose --color=yes
+      - name: upload coverage
+        uses: codecov/codecov-action@v3
