@@ -35,6 +35,8 @@ jobs:
           pip install --upgrade pip wheel
           pip install .[test,typehints]
       - name: tests
-        run: pytest --verbose --color=yes
+        run: coverage run -m pytest --verbose --color=yes
+      - name: show coverage
+        run: coverage-rich report
       - name: upload coverage
         uses: codecov/codecov-action@v3
