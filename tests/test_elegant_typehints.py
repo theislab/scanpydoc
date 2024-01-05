@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
+NONE_RTYPE = ":rtype: :sphinx_autodoc_typehints_type:`\\:py\\:obj\\:\\`None\\``"
+
+
 @pytest.fixture()
 def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
     return make_module(
@@ -104,6 +107,7 @@ def test_alternatives(process_doc: Callable[[Callable[..., Any]], list[str]]) ->
     assert process_doc(fn_test) == [
         f":type s: {_escape_sat(':py:class:`str`')}",
         ":param s: Test",
+        NONE_RTYPE,
     ]
 
 
@@ -124,6 +128,7 @@ def test_defaults_simple(
         ":param n: Test N",
         rf":type i\_: {_escape_sat(':py:class:`int`')} (default: ``1``)",
         r":param i\_: Test I",
+        NONE_RTYPE,
     ]
 
 
@@ -140,6 +145,7 @@ def test_defaults_complex(
     assert process_doc(fn_test) == [
         f":type m: {_escape_sat(expected)} (default: ``{{}}``)",
         ":param m: Test M",
+        NONE_RTYPE,
     ]
 
 
