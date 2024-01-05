@@ -7,7 +7,7 @@ with a derivative :class:`DLTypedField`, which renders item items
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from sphinx import addnodes
 from docutils import nodes
@@ -60,11 +60,11 @@ class DLTypedField(PyTypedField):
 
             field_type = types.pop(fieldarg, None)
             if field_type is not None:
+                # convert `param : SomeClass` into reference
                 if len(field_type) == 1 and isinstance(field_type[0], nodes.Text):
-                    [text_node] = cast(tuple[nodes.Text], field_type)
                     classifier_content = make_refs(
                         self.typerolename,
-                        text_node.astext(),
+                        field_type[0].astext(),
                         addnodes.literal_emphasis,
                     )
                 else:
