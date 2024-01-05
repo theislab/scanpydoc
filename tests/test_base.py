@@ -20,8 +20,8 @@ if TYPE_CHECKING:
 def test_all_get_installed(
     monkeypatch: pytest.MonkeyPatch, make_app_setup: Callable[..., Sphinx]
 ) -> None:
-    setups_seen = set()
-    setups_called = {}
+    setups_seen: set[str] = set()
+    setups_called: dict[str, Sphinx] = {}
     for _finder, mod_name, _ in pkgutil.walk_packages(
         scanpydoc.__path__,
         f"{scanpydoc.__name__}.",

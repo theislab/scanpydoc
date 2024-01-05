@@ -35,7 +35,7 @@ def _generate_stubs(app: Sphinx) -> None:
     if gen_files and not hasattr(gen_files, "__len__"):
         env = app.builder.env
         gen_files = [
-            env.doc2path(x, base=None)
+            env.doc2path(x, base=False)
             for x in env.found_docs
             if Path(env.doc2path(x)).is_file()
         ]
@@ -54,9 +54,6 @@ def _generate_stubs(app: Sphinx) -> None:
 
     generate_autosummary_docs(
         gen_files,
-        builder=app.builder,
-        warn=logger.warning,
-        info=logger.info,
         suffix=suffix,
         base_path=app.srcdir,
         imported_members=True,

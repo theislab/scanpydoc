@@ -17,7 +17,7 @@ from sphinx_autodoc_typehints import format_annotation
 
 
 if TYPE_CHECKING:
-    from collections.abc import Collection
+    from collections.abc import Sequence
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Options
@@ -76,10 +76,10 @@ def process_docstring(  # noqa: PLR0913
             lines[l : l + 1] = [f"{lines[l]} : {typ}"]
 
 
-def _get_idxs_ret_names(lines: Collection[str]) -> list[int]:
+def _get_idxs_ret_names(lines: Sequence[str]) -> list[int]:
     # Get return section
     i_prefix = None
-    l_start = None
+    l_start = 0
     for l, line in enumerate(lines):
         if i_prefix is None:
             m = re_ret.match(line)

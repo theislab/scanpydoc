@@ -8,7 +8,7 @@ _version.py
 # Testing
 /.coverage
 /coverage.*
-/.pytest_cache/
+/.*cache/
 
 # Docs
 /docs/_build/

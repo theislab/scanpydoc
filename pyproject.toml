@@ -77,11 +77,18 @@ length-sort = true
 lines-after-imports = 2
 known-first-party = ['scanpydoc']
 
+[tool.mypy]
+strict = true
+explicit_package_bases = true
+mypy_path = ['$MYPY_CONFIG_FILE_DIR/src']
+
 [tool.hatch.version]
 source = 'vcs'
 [tool.hatch.build.hooks.vcs]
 version-file = 'src/scanpydoc/_version.py'
 
+[tool.hatch.envs.default]
+dependencies = ['types-docutils']
 [tool.hatch.envs.docs]
 python = '3.11'
 features = ['doc']

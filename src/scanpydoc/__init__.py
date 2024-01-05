@@ -4,15 +4,14 @@ This module is also an extension itself which simply sets up all included extens
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 from textwrap import indent
+from collections.abc import Callable
 
 from ._version import __version__
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from sphinx.application import Sphinx
 
 
@@ -28,9 +27,11 @@ Returns:
     :ref:`Metadata <sphinx:ext-metadata>` for this extension.
 """
 
+C = TypeVar("C", bound=Callable[..., Any])
 
-def _setup_sig(fn: Callable) -> Callable:
-    fn.__doc__ += "\n\n" + indent(setup_sig_str, " " * 4)
+
+def _setup_sig(fn: C) -> C:
+    fn.__doc__ = f"{fn.__doc__ or ''}\n\n{indent(setup_sig_str, ' ' * 4)}"
     return fn
 
 

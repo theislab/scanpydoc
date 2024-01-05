@@ -96,12 +96,12 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
         raise ValueError(msg)
     if config.typehints_defaults is None and config.annotate_defaults:
         # override default for “typehints_defaults”
-        config.typehints_defaults = "braces"
+        config.typehints_defaults = "braces"  # type: ignore[attr-defined]
 
 
 @dataclass
 class PickleableCallable:
-    func: Callable
+    func: Callable[..., Any]
 
     __call__ = property(lambda self: self.func)
 
@@ -124,7 +124,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     from ._autodoc_patch import dir_head_adder
 
-    ClassDocumenter.add_directive_header = dir_head_adder(
+    ClassDocumenter.add_directive_header = dir_head_adder(  # type: ignore[method-assign,assignment]
         qualname_overrides,
         ClassDocumenter.add_directive_header,
     )
