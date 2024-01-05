@@ -112,6 +112,12 @@ addopts = [
     '-psphinx.testing.fixtures',
 ]
 
+[tool.coverage.run]
+source_pkgs = ["scanpydoc"]
+
+[tool.coverage.paths]
+scanpydoc = ["src/scanpydoc"]
+
 [tool.coverage.report]
 exclude_lines = [
   "no cov",
