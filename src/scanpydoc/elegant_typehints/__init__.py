@@ -47,16 +47,16 @@ This extension modifies the created type annotations in four ways:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from functools import partial
 from collections import ChainMap
 from dataclasses import dataclass
-from functools import partial
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
 
-from docutils.parsers.rst import roles
 from sphinx.ext.autodoc import ClassDocumenter
+from docutils.parsers.rst import roles
 
-from scanpydoc import _setup_sig, metadata
+from scanpydoc import metadata, _setup_sig
 
 from .example import example_func
 
@@ -64,8 +64,8 @@ from .example import example_func
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.application import Sphinx
 
 
 __all__ = ["example_func", "setup"]

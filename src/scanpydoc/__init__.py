@@ -4,8 +4,8 @@ This module is also an extension itself which simply sets up all included extens
 """
 from __future__ import annotations
 
-from textwrap import indent
 from typing import TYPE_CHECKING, Any
+from textwrap import indent
 
 from ._version import __version__
 

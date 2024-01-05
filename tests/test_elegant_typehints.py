@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-import inspect
 import re
-from collections.abc import Callable, Mapping
-from pathlib import Path
+import inspect
 from typing import (
     TYPE_CHECKING,
     Any,
+    Union,
     AnyStr,
     NoReturn,
     Optional,
-    Union,
     get_origin,
 )
+from pathlib import Path
+from collections.abc import Mapping, Callable
 
 import pytest
 import sphinx_autodoc_typehints as sat
@@ -24,15 +24,13 @@ from scanpydoc.elegant_typehints._return_tuple import process_docstring
 
 
 if TYPE_CHECKING:
-    from types import FunctionType, ModuleType
+    from types import ModuleType, FunctionType
 
     from sphinx.application import Sphinx
 
 
 @pytest.fixture()
-def testmod(
-    make_module: Callable[[str, str], ModuleType],
-) -> ModuleType:
+def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
     return make_module(
         "testmod",
         """\
@@ -159,10 +157,7 @@ def test_qualname_overrides_exception(app: Sphinx, testmod: ModuleType) -> None:
     ],
     ids=lambda p: str(p).replace("typing.", ""),
 )
-def test_typing_classes(
-    app: Sphinx,
-    annotation: type,
-) -> None:
+def test_typing_classes(app: Sphinx, annotation: type) -> None:
     app.config.typehints_fully_qualified = True
     name = (
         getattr(annotation, "_name", None)

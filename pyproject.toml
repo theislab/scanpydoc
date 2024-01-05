@@ -45,7 +45,7 @@ theme = [
 [project.entry-points.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
 
-[tool.ruff]
+[tool.ruff.lint]
 select = ['ALL']
 allowed-confusables = ['’', '×', 'l']
 ignore = [
@@ -57,8 +57,10 @@ ignore = [
     'D407',   # We’re not using Numpydoc style
     'FIX002', # TODOs are OK
     'PD',     # False positives
+    'COM812', # Conflicts with formatting
+    'ISC001', # Conflicts with formatting
 ]
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 'example.py' = ['ALL']
 'docs/conf.py' = [
     'INP001', # `docs` is not a namespace package
@@ -68,8 +70,10 @@ ignore = [
     'D103', # Test functions don’t need docstrings
     'S101', # Pytest tests use `assert`
 ]
-
-[tool.ruff.isort]
+[tool.ruff.lint.flake8-type-checking]
+strict = true
+[tool.ruff.lint.isort]
+length-sort = true
 lines-after-imports = 2
 known-first-party = ['scanpydoc']
 

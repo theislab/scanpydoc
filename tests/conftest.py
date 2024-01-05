@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-import importlib.util
-import linecache
 import sys
-from textwrap import dedent
-from typing import TYPE_CHECKING, Any
+import linecache
+import importlib.util
 from uuid import uuid4
+from typing import TYPE_CHECKING, Any
+from textwrap import dedent
 
 import pytest
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-    from pathlib import Path
     from types import ModuleType
+    from pathlib import Path
+    from collections.abc import Callable
 
     from docutils.nodes import document
     from docutils.writers import Writer
@@ -24,8 +24,7 @@ if TYPE_CHECKING:
 
 @pytest.fixture()
 def make_app_setup(
-    make_app: Callable[..., Sphinx],
-    tmp_path: Path,
+    make_app: Callable[..., Sphinx], tmp_path: Path
 ) -> Callable[..., Sphinx]:
     def make_app_setup(**conf: Any) -> Sphinx:  # noqa: ANN401
         (tmp_path / "conf.py").write_text("")

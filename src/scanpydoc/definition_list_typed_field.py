@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils import nodes
 from sphinx import addnodes
+from docutils import nodes
 from sphinx.domains.python import PyObject, PyTypedField
 
-from . import _setup_sig, metadata
+from . import metadata, _setup_sig
 
 
 if TYPE_CHECKING:
@@ -48,15 +48,12 @@ class DLTypedField(PyTypedField):
         """Render a field to a documenttree node representing a definition list item."""
 
         def make_refs(
-            role_name: str,
-            name: str,
-            node: type[TextLikeNode],
+            role_name: str, name: str, node: type[TextLikeNode]
         ) -> list[nodes.Node]:
             return self.make_xrefs(role_name, domain, name, node, env=env, **kw)
 
         def handle_item(
-            fieldarg: str,
-            content: list[nodes.inline],
+            fieldarg: str, content: list[nodes.inline]
         ) -> nodes.definition_list_item:
             term = nodes.term()
             term += make_refs(self.rolename, fieldarg, addnodes.literal_strong)

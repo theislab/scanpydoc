@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+import sys
 import inspect
 from typing import TYPE_CHECKING, Any, get_origin
 
 
-try:
+if sys.version_info >= (3, 10):
     from types import UnionType
-except ImportError:
+else:
     UnionType = None
 
 from docutils import nodes
+from docutils.utils import unescape
 from docutils.parsers.rst.roles import set_classes
-from docutils.parsers.rst.states import Inliner, Struct
-from docutils.utils import SystemMessage, unescape
+from docutils.parsers.rst.states import Struct
 
 from scanpydoc import elegant_typehints
 
@@ -20,8 +21,10 @@ from scanpydoc import elegant_typehints
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from docutils.nodes import Node
     from sphinx.config import Config
+    from docutils.nodes import Node
+    from docutils.utils import SystemMessage
+    from docutils.parsers.rst.states import Inliner
 
 
 def typehints_formatter(annotation: type[Any], config: Config) -> str | None:

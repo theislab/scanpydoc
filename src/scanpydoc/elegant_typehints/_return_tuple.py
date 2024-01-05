@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-import inspect
 import re
-from logging import getLogger
+import sys
+import inspect
 from typing import TYPE_CHECKING, Any, Union, get_args, get_origin, get_type_hints
 from typing import Tuple as t_Tuple  # noqa: UP035
+from logging import getLogger
 
 
-try:
+if sys.version_info > (3, 10):
     from types import UnionType
-except ImportError:
+else:
     UnionType = None
 
 from sphinx_autodoc_typehints import format_annotation

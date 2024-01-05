@@ -58,22 +58,22 @@ override the ``autosummary/base.rst`` template like this:
 """
 from __future__ import annotations
 
-import inspect
 import sys
-from importlib import import_module
-from pathlib import Path, PurePosixPath
+import inspect
 from types import ModuleType
 from typing import TYPE_CHECKING, Any
+from pathlib import Path, PurePosixPath
+from importlib import import_module
 
 from jinja2.defaults import DEFAULT_FILTERS
 
-from scanpydoc import _setup_sig, metadata
+from scanpydoc import metadata, _setup_sig
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-    from types import CodeType, FrameType, FunctionType, MethodType, TracebackType
+    from types import CodeType, FrameType, MethodType, FunctionType, TracebackType
     from typing import TypeAlias
+    from collections.abc import Callable
 
     _SourceObjectType: TypeAlias = (
         ModuleType
@@ -86,8 +86,8 @@ if TYPE_CHECKING:
         | Callable[..., Any]
     )
 
-    from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.application import Sphinx
 
 
 rtd_links_prefix: Path = None
@@ -110,9 +110,9 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
 
 
 def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
-    try:
+    if sys.version_info > (3, 10):
         from inspect import get_annotations
-    except ImportError:
+    else:
         from get_annotations import get_annotations
 
     try:
@@ -252,7 +252,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
 
 if True:  # test data
-    from dataclasses import dataclass, field, fields, is_dataclass
+    from dataclasses import field, fields, dataclass, is_dataclass
 
     @dataclass
     class _TestDataCls:

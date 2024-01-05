@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+from pathlib import PurePosixPath
 from datetime import datetime
 from datetime import timezone as tz
 from importlib.metadata import metadata
-from pathlib import PurePosixPath
-from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:

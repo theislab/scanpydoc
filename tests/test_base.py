@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import pkgutil
+from typing import TYPE_CHECKING
 from functools import partial
 from importlib import import_module
-from typing import TYPE_CHECKING
 
 import scanpydoc
 
@@ -18,8 +18,7 @@ if TYPE_CHECKING:
 
 
 def test_all_get_installed(
-    monkeypatch: pytest.MonkeyPatch,
-    make_app_setup: Callable[..., Sphinx],
+    monkeypatch: pytest.MonkeyPatch, make_app_setup: Callable[..., Sphinx]
 ) -> None:
     setups_seen = set()
     setups_called = {}
