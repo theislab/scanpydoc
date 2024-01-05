@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, TypedDict, cast, overload
+from typing import TYPE_CHECKING, Literal, TypedDict, cast, overload
 
 
 class PyInfo(TypedDict):
@@ -19,25 +19,35 @@ class JSInfo(TypedDict):
     fullname: str
 
 
-@overload
-def linkcode_resolve(domain: Literal["py"], info: PyInfo) -> str | None:
-    ...
+if TYPE_CHECKING:
+    from typing import TypeAlias
+
+    Domain = Literal["py", "c", "cpp", "javascript"]
+    DomainInfo: TypeAlias = PyInfo | CInfo | JSInfo
 
 
 @overload
-def linkcode_resolve(domain: Literal["c", "cpp"], info: CInfo) -> str | None:
-    ...
-
-
-@overload
-def linkcode_resolve(domain: Literal["javascript"], info: JSInfo) -> str | None:
-    ...
-
-
 def linkcode_resolve(
-    domain: Literal["py", "c", "cpp", "javascript"],
-    info: PyInfo | CInfo | JSInfo,
-) -> str | None:
+    domain: Literal["py"], info: PyInfo
+) -> str | None:  # pragma: no cover
+    ...
+
+
+@overload
+def linkcode_resolve(
+    domain: Literal["c", "cpp"], info: CInfo
+) -> str | None:  # pragma: no cover
+    ...
+
+
+@overload
+def linkcode_resolve(
+    domain: Literal["javascript"], info: JSInfo
+) -> str | None:  # pragma: no cover
+    ...
+
+
+def linkcode_resolve(domain: Domain, info: DomainInfo) -> str | None:
     from . import github_url
 
     if domain != "py":

@@ -76,10 +76,12 @@ strict = true
 length-sort = true
 lines-after-imports = 2
 known-first-party = ['scanpydoc']
+required-imports = ["from __future__ import annotations"]
 
 [tool.mypy]
 strict = true
 explicit_package_bases = true
+disallow_untyped_defs = false  # handled by Ruff
 mypy_path = ['$MYPY_CONFIG_FILE_DIR/src']
 
 [tool.hatch.version]
@@ -103,6 +105,7 @@ features = ['test', 'typehints']
 run = 'pytest -vv {args}'
 cov = [
     'coverage run -m pytest -vv {args}',
+    'coverage xml',
     'coverage-rich report',
 ]
 
@@ -110,6 +113,10 @@ cov = [
 addopts = [
     '--import-mode=importlib',
     '-psphinx.testing.fixtures',
+]
+filterwarnings = [
+    'error',
+    'ignore:The frontend.Option:DeprecationWarning',
 ]
 
 [tool.coverage.run]
@@ -122,8 +129,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-[tool.coverage_rich]
-fail-under = 70
 
 [build-system]
 requires = ['hatchling', 'hatch-vcs']

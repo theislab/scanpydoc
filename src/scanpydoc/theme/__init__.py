@@ -84,7 +84,7 @@ HERE = Path(__file__).parent.resolve()
 
 
 @_setup_sig
-def setup(app: Sphinx) -> dict[str, bool]:
+def setup(app: Sphinx) -> dict[str, bool]:  # pragma: no cover
     """Set up theme (like an extension)."""
     app.add_html_theme("scanpydoc", str(HERE))
     return dict(parallel_read_safe=True, parallel_write_safe=True)

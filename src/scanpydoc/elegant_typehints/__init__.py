@@ -49,12 +49,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 from pathlib import Path
-from functools import partial
 from collections import ChainMap
 from dataclasses import dataclass
 
 from sphinx.ext.autodoc import ClassDocumenter
-from docutils.parsers.rst import roles
 
 from scanpydoc import metadata, _setup_sig
 
@@ -113,14 +111,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("annotate_defaults", default=True, rebuild="html")
     app.connect("config-inited", _init_vars)
 
-    from ._formatting import _role_annot, typehints_formatter
+    from ._formatting import typehints_formatter
 
     app.config["typehints_formatter"] = PickleableCallable(typehints_formatter)
-    for name in ["annotation-terse", "annotation-full"]:
-        roles.register_canonical_role(
-            name,
-            partial(_role_annot, additional_classes=name.split("-")),
-        )
 
     from ._autodoc_patch import dir_head_adder
 
