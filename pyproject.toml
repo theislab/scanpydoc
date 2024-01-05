@@ -130,7 +130,7 @@ exclude_lines = [
   "if TYPE_CHECKING:",
 ]
 [tool.coverage_rich]
-fail-under = 70
+fail-under = 100
 
 [build-system]
 requires = ['hatchling', 'hatch-vcs']
