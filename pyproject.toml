@@ -114,16 +114,16 @@ addopts = [
 
 [tool.coverage.run]
 source_pkgs = ["scanpydoc"]
-
 [tool.coverage.paths]
 scanpydoc = ["src/scanpydoc"]
-
 [tool.coverage.report]
 exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+[tool.coverage_rich]
+fail-under = 70
 
 [build-system]
 requires = ['hatchling', 'hatch-vcs']
