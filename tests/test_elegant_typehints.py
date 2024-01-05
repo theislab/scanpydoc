@@ -100,7 +100,7 @@ def _escape_sat(rst: str) -> str:
 
 
 def test_alternatives(process_doc: Callable[[Callable[..., Any]], list[str]]) -> None:
-    def fn_test(s: str) -> None:
+    def fn_test(s: str) -> None:  # pragma: no cover
         """:param s: Test"""
         del s
 
@@ -114,7 +114,9 @@ def test_alternatives(process_doc: Callable[[Callable[..., Any]], list[str]]) ->
 def test_defaults_simple(
     process_doc: Callable[[Callable[..., Any]], list[str]],
 ) -> None:
-    def fn_test(s: str = "foo", n: None = None, i_: int = 1) -> None:
+    def fn_test(
+        s: str = "foo", n: None = None, i_: int = 1
+    ) -> None:  # pragma: no cover
         r""":param s: Test S
         :param n: Test N
         :param i\_: Test I
@@ -135,7 +137,7 @@ def test_defaults_simple(
 def test_defaults_complex(
     process_doc: Callable[[Callable[..., Any]], list[str]],
 ) -> None:
-    def fn_test(m: Mapping[str, int] = {}) -> None:
+    def fn_test(m: Mapping[str, int] = {}) -> None:  # pragma: no cover
         """:param m: Test M"""
         del m
 
@@ -297,7 +299,7 @@ def test_return(
     return_ann: type,
     foo_rendered: str,
 ) -> None:
-    def fn_test() -> None:
+    def fn_test() -> None:  # pragma: no cover
         pass
 
     fn_test.__doc__ = docstring

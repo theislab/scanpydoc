@@ -112,7 +112,6 @@ addopts = [
     '-psphinx.testing.fixtures',
 ]
 
-
 [tool.coverage.report]
 exclude_lines = [
   "no cov",
