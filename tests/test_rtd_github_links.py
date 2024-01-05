@@ -1,9 +1,10 @@
 """Test rtd_github_links subextension."""
 from __future__ import annotations
 
+import re
 import sys
 import textwrap
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 from pathlib import Path, PurePosixPath
 from importlib import import_module
 
@@ -17,6 +18,11 @@ from scanpydoc.rtd_github_links import (
     _get_linenos,
     _get_obj_module,
 )
+from scanpydoc.rtd_github_links._linkcode import (
+    CInfo,
+    PyInfo,
+    linkcode_resolve,
+)
 
 
 if TYPE_CHECKING:
@@ -25,6 +31,8 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from _pytest.monkeypatch import MonkeyPatch
+
+    from scanpydoc.rtd_github_links._linkcode import Domain, DomainInfo
 
 
 HERE = Path(__file__).parent
@@ -109,12 +117,12 @@ def test_app(monkeypatch: MonkeyPatch, make_app_setup: Callable[..., Sphinx]) ->
     monkeypatch.setattr("scanpydoc.rtd_github_links._init_vars", lambda *_: None)
     monkeypatch.setattr("scanpydoc.rtd_github_links.DEFAULT_FILTERS", filters)
     app = make_app_setup(
-        extensions=["scanpydoc.rtd_github_links"],
+        extensions=["sphinx.ext.linkcode", "scanpydoc.rtd_github_links"],
         html_context=dict(
             github_user="scverse", github_repo="scanpydoc", github_version="test-branch"
         ),
     )
-    assert app.config["linkcode_resolve"] is rtd_github_links._linkcode.linkcode_resolve  # noqa: SLF001
+    assert app.config["linkcode_resolve"] is linkcode_resolve
     assert filters == dict(github_url=rtd_github_links.github_url)
 
 
@@ -175,3 +183,21 @@ def test_get_obj_module(obj_path: str, obj: object, mod: ModuleType) -> None:
     obj_rcv, mod_rcv = _get_obj_module(obj_path)
     assert obj_rcv is obj
     assert mod_rcv is mod
+
+
+def test_linkdoc(prefix: PurePosixPath) -> None:
+    link = linkcode_resolve(
+        "py", PyInfo(module="scanpydoc.rtd_github_links", fullname="setup")
+    )
+    assert link is not None
+    url, hash_ = link.split("#")
+    assert url == f"{prefix}/rtd_github_links/__init__.py"
+    assert re.fullmatch(r"L\d+-L\d+", hash_)
+
+
+@pytest.mark.parametrize(
+    ("domain", "info"),
+    [("py", PyInfo(fullname="foo", module="")), ("c", CInfo(names=[]))],
+)
+def test_linkdoc_skip(domain: Literal[Domain], info: DomainInfo) -> None:
+    assert linkcode_resolve(domain, info) is None  # type: ignore[arg-type]
