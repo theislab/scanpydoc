@@ -112,6 +112,10 @@ addopts = [
     '--import-mode=importlib',
     '-psphinx.testing.fixtures',
 ]
+filterwarnings = [
+    'error',
+    'ignore:The frontend.Option:DeprecationWarning',
+]
 
 [tool.coverage.run]
 source_pkgs = ["scanpydoc"]
