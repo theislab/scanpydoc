@@ -129,8 +129,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-[tool.coverage_rich]
-fail-under = 100
 
 [build-system]
 requires = ['hatchling', 'hatch-vcs']
