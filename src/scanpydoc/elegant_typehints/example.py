@@ -12,3 +12,4 @@ def example_func(a: str | None, b: str | int | None = None) -> dict[str, int]:
     Returns:
         An example return value
     """
+    return {}

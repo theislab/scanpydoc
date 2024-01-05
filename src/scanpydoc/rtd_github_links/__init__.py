@@ -58,22 +58,22 @@ override the ``autosummary/base.rst`` template like this:
 """
 from __future__ import annotations
 
-import inspect
 import sys
-from importlib import import_module
-from pathlib import Path, PurePosixPath
+import inspect
 from types import ModuleType
 from typing import TYPE_CHECKING, Any
+from pathlib import Path, PurePosixPath
+from importlib import import_module
 
-from jinja2.defaults import DEFAULT_FILTERS
+from jinja2.defaults import DEFAULT_FILTERS  # type: ignore[attr-defined]
 
-from scanpydoc import _setup_sig, metadata
+from scanpydoc import metadata, _setup_sig
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-    from types import CodeType, FrameType, FunctionType, MethodType, TracebackType
+    from types import CodeType, FrameType, MethodType, FunctionType, TracebackType
     from typing import TypeAlias
+    from collections.abc import Callable
 
     _SourceObjectType: TypeAlias = (
         ModuleType
@@ -86,12 +86,12 @@ if TYPE_CHECKING:
         | Callable[..., Any]
     )
 
-    from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.application import Sphinx
 
 
-rtd_links_prefix: Path = None
-github_base_url: str = None
+rtd_links_prefix: PurePosixPath | None = None
+github_base_url: str | None = None
 
 
 def _init_vars(_app: Sphinx, config: Config) -> None:
@@ -110,13 +110,13 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
 
 
 def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
-    try:
+    if sys.version_info > (3, 10):
         from inspect import get_annotations
-    except ImportError:
+    else:
         from get_annotations import get_annotations
 
     try:
-        return get_annotations(obj)
+        return get_annotations(obj)  # type: ignore[arg-type]
     except TypeError:
         return {}
 
@@ -127,7 +127,7 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
     Returns `None` as `obj` if it’s an annotated field without value.
     """
     modname = qualname
-    attr_path = []
+    attr_path: list[str] = []
     while modname not in sys.modules:
         modname, leaf = modname.rsplit(".", 1)
         attr_path.insert(0, leaf)
@@ -142,7 +142,7 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
         except AttributeError as e:
             if is_dataclass(obj):
                 thing = next(f for f in fields(obj) if f.name == attr_name)
-            elif attr_name in _get_annotations(obj):
+            elif obj is not None and attr_name in _get_annotations(obj):
                 thing = None
             else:
                 try:
@@ -175,7 +175,7 @@ def _module_path(obj: _SourceObjectType, module: ModuleType) -> PurePosixPath:
     try:
         file = Path(inspect.getabsfile(obj))
     except TypeError:
-        file = Path(module.__file__)
+        file = Path(module.__file__ or "")
     offset = -1 if file.name == "__init__.py" else 0
     parts = module.__name__.split(".")
     return PurePosixPath(*file.parts[offset - len(parts) :])
@@ -197,6 +197,7 @@ def github_url(qualname: str) -> str:
         if hasattr(e, "__notes__"):
             e.__notes__.append(f"Qualname: {qualname!r}")
         raise
+    assert rtd_links_prefix is not None  # noqa: S101
     path = rtd_links_prefix / _module_path(obj, module)
     start, end = _get_linenos(obj)
     fragment = f"#L{start}-L{end}" if start and end else ""
@@ -252,7 +253,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
 
 if True:  # test data
-    from dataclasses import dataclass, field, fields, is_dataclass
+    from dataclasses import field, fields, dataclass, is_dataclass
 
     @dataclass
     class _TestDataCls:

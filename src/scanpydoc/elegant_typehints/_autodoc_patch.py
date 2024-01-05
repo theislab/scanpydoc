@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from functools import wraps
 from typing import TYPE_CHECKING
+from functools import wraps
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Mapping, Callable
 
-    from docutils.statemachine import StringList
     from sphinx.ext.autodoc import ClassDocumenter
+    from docutils.statemachine import StringList
 
 
 def dir_head_adder(
@@ -41,9 +41,7 @@ def dir_head_adder(
 
 
 def replace_multi_suffix(
-    lines: StringList,
-    old: tuple[str, str],
-    new: tuple[str, str],
+    lines: StringList, old: tuple[str, str], new: tuple[str, str]
 ) -> None:
     if len(old) != len(new) != 2:  # noqa: PLR2004
         msg = "Only supports replacing 2 lines"

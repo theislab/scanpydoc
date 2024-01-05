@@ -1,13 +1,13 @@
 """Test rtd_github_links subextension."""
 
-from dataclasses import Field
-from importlib import import_module
 from pathlib import Path, PurePosixPath
+from importlib import import_module
+from dataclasses import Field
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from scanpydoc.rtd_github_links import _get_linenos, _get_obj_module, github_url
+from scanpydoc.rtd_github_links import github_url, _get_linenos, _get_obj_module
 
 
 HERE = Path(__file__).parent
@@ -20,9 +20,7 @@ def _env(monkeypatch: MonkeyPatch) -> None:
 
 @pytest.fixture(params=[".", "src"])
 def prefix(
-    monkeypatch: MonkeyPatch,
-    _env: None,
-    request: pytest.FixtureRequest,
+    monkeypatch: MonkeyPatch, _env: None, request: pytest.FixtureRequest
 ) -> PurePosixPath:
     pfx = PurePosixPath(request.param)
     monkeypatch.setattr("scanpydoc.rtd_github_links.rtd_links_prefix", pfx)
@@ -43,10 +41,7 @@ def prefix(
     ],
 )
 def test_as_function(
-    prefix: PurePosixPath,
-    module: str,
-    name: str,
-    obj_path: str,
+    prefix: PurePosixPath, module: str, name: str, obj_path: str
 ) -> None:
     assert github_url(f"scanpydoc.{module}") == str(prefix / module / "__init__.py")
     obj = getattr(import_module(f"scanpydoc.{module}"), name)

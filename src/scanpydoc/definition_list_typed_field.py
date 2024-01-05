@@ -7,13 +7,13 @@ with a derivative :class:`DLTypedField`, which renders item items
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
-from docutils import nodes
 from sphinx import addnodes
+from docutils import nodes
 from sphinx.domains.python import PyObject, PyTypedField
 
-from . import _setup_sig, metadata
+from . import metadata, _setup_sig
 
 
 if TYPE_CHECKING:
@@ -37,26 +37,23 @@ class DLTypedField(PyTypedField):
     #: Override the list type
     list_type = nodes.definition_list
 
-    def make_field(
+    def make_field(  # type: ignore[override]
         self,
         types: dict[str, list[nodes.Node]],
         domain: str,
         items: tuple[str, list[nodes.inline]],
         env: BuildEnvironment | None = None,
-        **kw,  # noqa: ANN003
+        **kw: Any,  # noqa: ANN401
     ) -> nodes.field:
         """Render a field to a documenttree node representing a definition list item."""
 
         def make_refs(
-            role_name: str,
-            name: str,
-            node: type[TextLikeNode],
+            role_name: str, name: str, node: type[TextLikeNode]
         ) -> list[nodes.Node]:
             return self.make_xrefs(role_name, domain, name, node, env=env, **kw)
 
         def handle_item(
-            fieldarg: str,
-            content: list[nodes.inline],
+            fieldarg: str, content: list[nodes.inline]
         ) -> nodes.definition_list_item:
             term = nodes.term()
             term += make_refs(self.rolename, fieldarg, addnodes.literal_strong)
@@ -64,7 +61,7 @@ class DLTypedField(PyTypedField):
             field_type = types.pop(fieldarg, None)
             if field_type is not None:
                 if len(field_type) == 1 and isinstance(field_type[0], nodes.Text):
-                    (text_node,) = field_type  # type: nodes.Text
+                    [text_node] = cast(tuple[nodes.Text], field_type)
                     classifier_content = make_refs(
                         self.typerolename,
                         text_node.astext(),

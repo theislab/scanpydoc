@@ -2,19 +2,21 @@
 
 from __future__ import annotations
 
-import inspect
 import re
-from collections.abc import Callable, Mapping
-from pathlib import Path
+import inspect
+from io import StringIO
 from typing import (
     TYPE_CHECKING,
     Any,
+    Union,
     AnyStr,
     NoReturn,
     Optional,
-    Union,
+    cast,
     get_origin,
 )
+from pathlib import Path
+from collections.abc import Mapping, Callable
 
 import pytest
 import sphinx_autodoc_typehints as sat
@@ -24,15 +26,16 @@ from scanpydoc.elegant_typehints._return_tuple import process_docstring
 
 
 if TYPE_CHECKING:
-    from types import FunctionType, ModuleType
+    from types import ModuleType
 
     from sphinx.application import Sphinx
 
 
+NONE_RTYPE = ":rtype: :sphinx_autodoc_typehints_type:`\\:py\\:obj\\:\\`None\\``"
+
+
 @pytest.fixture()
-def testmod(
-    make_module: Callable[[str, str], ModuleType],
-) -> ModuleType:
+def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
     return make_module(
         "testmod",
         """\
@@ -64,9 +67,9 @@ def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
 
 
 @pytest.fixture()
-def process_doc(app: Sphinx) -> Callable[[FunctionType], list[str]]:
-    def process(fn: FunctionType) -> list[str]:
-        lines = inspect.getdoc(fn).split("\n")
+def process_doc(app: Sphinx) -> Callable[[Callable[..., Any]], list[str]]:
+    def process(fn: Callable[..., Any]) -> list[str]:
+        lines = (inspect.getdoc(fn) or "").split("\n")
         sat.process_docstring(app, "function", fn.__name__, fn, None, lines)
         process_docstring(app, "function", fn.__name__, fn, None, lines)
         return lines
@@ -96,22 +99,29 @@ def _escape_sat(rst: str) -> str:
     return f":sphinx_autodoc_typehints_type:`{rst}`"
 
 
-def test_alternatives(process_doc: Callable[[FunctionType], list[str]]) -> None:
-    def fn_test(s: str):  # noqa: ANN202, ARG001
+def test_alternatives(process_doc: Callable[[Callable[..., Any]], list[str]]) -> None:
+    def fn_test(s: str) -> None:  # pragma: no cover
         """:param s: Test"""
+        del s
 
     assert process_doc(fn_test) == [
         f":type s: {_escape_sat(':py:class:`str`')}",
         ":param s: Test",
+        NONE_RTYPE,
     ]
 
 
-def test_defaults_simple(process_doc: Callable[[FunctionType], list[str]]) -> None:
-    def fn_test(s: str = "foo", n: None = None, i_: int = 1):  # noqa: ANN202, ARG001
+def test_defaults_simple(
+    process_doc: Callable[[Callable[..., Any]], list[str]],
+) -> None:
+    def fn_test(
+        s: str = "foo", n: None = None, i_: int = 1
+    ) -> None:  # pragma: no cover
         r""":param s: Test S
         :param n: Test N
         :param i\_: Test I
         """  # noqa: D205
+        del s, n, i_
 
     assert process_doc(fn_test) == [
         f":type s: {_escape_sat(':py:class:`str`')} (default: ``'foo'``)",
@@ -120,12 +130,16 @@ def test_defaults_simple(process_doc: Callable[[FunctionType], list[str]]) -> No
         ":param n: Test N",
         rf":type i\_: {_escape_sat(':py:class:`int`')} (default: ``1``)",
         r":param i\_: Test I",
+        NONE_RTYPE,
     ]
 
 
-def test_defaults_complex(process_doc: Callable[[FunctionType], list[str]]) -> None:
-    def fn_test(m: Mapping[str, int] = {}):  # noqa: ANN202, ARG001
+def test_defaults_complex(
+    process_doc: Callable[[Callable[..., Any]], list[str]],
+) -> None:
+    def fn_test(m: Mapping[str, int] = {}) -> None:  # pragma: no cover
         """:param m: Test M"""
+        del m
 
     expected = (
         r":py:class:`~collections.abc.Mapping`\ \[:py:class:`str`, :py:class:`int`]"
@@ -133,6 +147,7 @@ def test_defaults_complex(process_doc: Callable[[FunctionType], list[str]]) -> N
     assert process_doc(fn_test) == [
         f":type m: {_escape_sat(expected)} (default: ``{{}}``)",
         ":param m: Test M",
+        NONE_RTYPE,
     ]
 
 
@@ -159,11 +174,8 @@ def test_qualname_overrides_exception(app: Sphinx, testmod: ModuleType) -> None:
     ],
     ids=lambda p: str(p).replace("typing.", ""),
 )
-def test_typing_classes(
-    app: Sphinx,
-    annotation: type,
-) -> None:
-    app.config.typehints_fully_qualified = True
+def test_typing_classes(app: Sphinx, annotation: type) -> None:
+    app.config.typehints_fully_qualified = True  # type: ignore[attr-defined]
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
@@ -197,7 +209,7 @@ def test_autodoc(
     )
     app.build()
     out = Path(app.outdir, "index.html").read_text()
-    assert not app._warning.getvalue(), app._warning.getvalue()  # noqa: SLF001
+    assert not (ws := cast(StringIO, app._warning).getvalue()), ws  # noqa: SLF001
     assert re.search(
         r'<(code|span)?[^>]*><span class="pre">test\.</span></(code|span)>'
         f'<(code|span)?[^>]*><span class="pre">{sub}</span></(code|span)>',
@@ -235,9 +247,10 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
     app.build()
 
     out = Path(app.outdir, "index.html").read_text()
+    buf = cast(StringIO, app._warning)  # noqa: SLF001
     warnings = [
         w
-        for w in app._warning.getvalue().splitlines()  # noqa: SLF001
+        for w in buf.getvalue().splitlines()
         if "Cannot treat a function defined as a local function" not in w
     ]
     assert not warnings, warnings
@@ -281,12 +294,12 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
     ids=["tuple", "Optional[Tuple]", "Complex"],
 )
 def test_return(
-    process_doc: Callable[[FunctionType], list[str]],
+    process_doc: Callable[[Callable[..., Any]], list[str]],
     docstring: str,
     return_ann: type,
     foo_rendered: str,
 ) -> None:
-    def fn_test():  # noqa: ANN202
+    def fn_test() -> None:  # pragma: no cover
         pass
 
     fn_test.__doc__ = docstring

@@ -6,9 +6,9 @@ _version.py
 /.python-version
 
 # Testing
-/.coverage
+/.coverage*
 /coverage.*
-/.pytest_cache/
+/.*cache/
 
 # Docs
 /docs/_build/

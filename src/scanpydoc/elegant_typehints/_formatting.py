@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+import sys
 import inspect
-from typing import TYPE_CHECKING, Any, get_origin
+from typing import TYPE_CHECKING, Any, cast, get_origin
 
 
-try:
+if sys.version_info >= (3, 10):
     from types import UnionType
-except ImportError:
+else:
     UnionType = None
 
 from docutils import nodes
+from docutils.utils import unescape
 from docutils.parsers.rst.roles import set_classes
-from docutils.parsers.rst.states import Inliner, Struct
-from docutils.utils import SystemMessage, unescape
+from docutils.parsers.rst.states import Struct
 
 from scanpydoc import elegant_typehints
 
@@ -20,8 +21,10 @@ from scanpydoc import elegant_typehints
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from docutils.nodes import Node
     from sphinx.config import Config
+    from docutils.nodes import Node
+    from docutils.utils import SystemMessage
+    from docutils.parsers.rst.states import Inliner
 
 
 def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
@@ -52,7 +55,10 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
         try:
             full_name = f"{annotation.__module__}.{annotation.__qualname__}"
         except AttributeError:
-            full_name = f"{origin.__module__}.{origin.__qualname__}"
+            if origin is not None:
+                full_name = f"{origin.__module__}.{origin.__qualname__}"
+            else:
+                return None
         override = elegant_typehints.qualname_overrides.get(full_name)
         role = "exc" if issubclass(annotation_cls, BaseException) else "class"
         if override is not None:
@@ -80,16 +86,16 @@ def _role_annot(  # noqa: PLR0913
         options["classes"] = options.get("classes", []).copy()
         options["classes"].extend(additional_classes)
     memo = Struct(
-        document=inliner.document,
-        reporter=inliner.reporter,
-        language=inliner.language,
+        document=inliner.document,  # type: ignore[attr-defined]
+        reporter=inliner.reporter,  # type: ignore[attr-defined]
+        language=inliner.language,  # type: ignore[attr-defined]
     )
     node = nodes.inline(unescape(rawtext), "", **options)
-    children, messages = inliner.parse(_unescape(text), lineno, memo, node)
+    children, messages = inliner.parse(_unescape(text), lineno, memo, node)  # type: ignore[attr-defined]
     node.extend(children)
     return [node], messages
 
 
 def _unescape(rst: str) -> str:
     # IDK why the [ part is necessary.
-    return unescape(rst).replace("\\`", "`").replace("[", "\\[")
+    return cast(str, unescape(rst)).replace("\\`", "`").replace("[", "\\[")

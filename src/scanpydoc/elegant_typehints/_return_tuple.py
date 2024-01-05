@@ -1,22 +1,23 @@
 from __future__ import annotations
 
-import inspect
 import re
-from logging import getLogger
+import sys
+import inspect
 from typing import TYPE_CHECKING, Any, Union, get_args, get_origin, get_type_hints
 from typing import Tuple as t_Tuple  # noqa: UP035
+from logging import getLogger
 
 
-try:
+if sys.version_info > (3, 10):
     from types import UnionType
-except ImportError:
+else:
     UnionType = None
 
 from sphinx_autodoc_typehints import format_annotation
 
 
 if TYPE_CHECKING:
-    from collections.abc import Collection
+    from collections.abc import Sequence
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Options
@@ -75,10 +76,10 @@ def process_docstring(  # noqa: PLR0913
             lines[l : l + 1] = [f"{lines[l]} : {typ}"]
 
 
-def _get_idxs_ret_names(lines: Collection[str]) -> list[int]:
+def _get_idxs_ret_names(lines: Sequence[str]) -> list[int]:
     # Get return section
     i_prefix = None
-    l_start = None
+    l_start = 0
     for l, line in enumerate(lines):
         if i_prefix is None:
             m = re_ret.match(line)
