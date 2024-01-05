@@ -20,6 +20,7 @@ from collections.abc import Mapping, Callable
 
 import pytest
 import sphinx_autodoc_typehints as sat
+from sphinx.errors import ExtensionError
 
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
 from scanpydoc.elegant_typehints._return_tuple import process_docstring
@@ -311,3 +312,14 @@ def test_return(
         "         bar : :py:class:`int`",
         "             A bar!",
     ]
+
+
+def test_load_error(make_app_setup: Callable[..., Sphinx]) -> None:
+    with pytest.raises(
+        ExtensionError,
+        match=r"Can only use annotate_defaults.*when using sphinx-autodoc-typehints",
+    ):
+        make_app_setup(
+            extensions=["sphinx.ext.autodoc", "scanpydoc.elegant_typehints"],
+            annotate_defaults=True,
+        )
