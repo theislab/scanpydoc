@@ -17,17 +17,19 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
+DEPRECATED = frozenset({"scanpydoc.autosummary_generate_imported"})
+
+
 def test_all_get_installed(
     monkeypatch: pytest.MonkeyPatch, make_app_setup: Callable[..., Sphinx]
 ) -> None:
     setups_seen: set[str] = set()
     setups_called: dict[str, Sphinx] = {}
     for _finder, mod_name, _ in pkgutil.walk_packages(
-        scanpydoc.__path__,
-        f"{scanpydoc.__name__}.",
+        scanpydoc.__path__, f"{scanpydoc.__name__}."
     ):
         mod = import_module(mod_name)
-        if not hasattr(mod, "setup"):
+        if mod_name in DEPRECATED or not hasattr(mod, "setup"):
             continue
         setups_seen.add(mod_name)
         monkeypatch.setattr(mod, "setup", partial(setups_called.__setitem__, mod_name))
@@ -35,6 +37,6 @@ def test_all_get_installed(
     app = make_app_setup()
     app.setup_extension("scanpydoc")
 
-    assert setups_called.keys() == setups_seen
+    assert set(setups_called) == setups_seen
     for app2 in setups_called.values():
         assert app is app2

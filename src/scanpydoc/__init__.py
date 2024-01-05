@@ -37,8 +37,7 @@ def _setup_sig(fn: C) -> C:
 
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
-    """Set up all included extensions!."""
-    app.setup_extension("scanpydoc.autosummary_generate_imported")
+    """Set up all included extensions!"""  # noqa: D400
     app.setup_extension("scanpydoc.definition_list_typed_field")
     app.setup_extension("scanpydoc.elegant_typehints")
     app.setup_extension("scanpydoc.rtd_github_links")
