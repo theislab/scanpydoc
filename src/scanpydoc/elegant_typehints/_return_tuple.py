@@ -7,12 +7,6 @@ from typing import TYPE_CHECKING, Any, Union, get_args, get_origin, get_type_hin
 from typing import Tuple as t_Tuple  # noqa: UP035
 from logging import getLogger
 
-
-if sys.version_info > (3, 10):
-    from types import UnionType
-else:  # pragma: no cover
-    UnionType = None
-
 from sphinx_autodoc_typehints import format_annotation
 
 
@@ -21,6 +15,14 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Options
+
+
+if sys.version_info > (3, 10):
+    from types import UnionType
+
+    UNION_TYPES = {Union, UnionType}
+else:  # pragma: no cover
+    UNION_TYPES = {Union}
 
 
 logger = getLogger(__name__)
@@ -62,8 +64,8 @@ def process_docstring(  # noqa: PLR0913
     obj = inspect.unwrap(obj)
     try:
         hints = get_type_hints(obj)
-    except (AttributeError, NameError, TypeError):
-        # Introspecting a slot wrapper will raise TypeError
+    except (AttributeError, NameError, TypeError):  # pragma: no cover
+        # Introspecting a slot wrapper can raise TypeError
         return
     ret_types = get_tuple_annot(hints.get("return"))
     if ret_types is None:

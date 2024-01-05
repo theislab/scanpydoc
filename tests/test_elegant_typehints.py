@@ -17,6 +17,7 @@ from typing import (
     get_origin,
 )
 from pathlib import Path
+from textwrap import dedent
 from collections.abc import Mapping, Callable
 
 import pytest
@@ -72,8 +73,14 @@ def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
 def process_doc(app: Sphinx) -> Callable[[Callable[..., Any]], list[str]]:
     def process(fn: Callable[..., Any]) -> list[str]:
         lines = (inspect.getdoc(fn) or "").split("\n")
-        sat.process_docstring(app, "function", fn.__name__, fn, None, lines)
-        process_docstring(app, "function", fn.__name__, fn, None, lines)
+        if isinstance(fn, property):
+            name = fn.fget.__name__
+        elif hasattr(fn, "__name__"):
+            name = fn.__name__
+        else:
+            name = "???"
+        sat.process_docstring(app, "function", name, fn, None, lines)
+        process_docstring(app, "function", name, fn, None, lines)
         return lines
 
     return process
@@ -101,16 +108,52 @@ def _escape_sat(rst: str) -> str:
     return f":sphinx_autodoc_typehints_type:`{rst}`"
 
 
-def test_alternatives(process_doc: Callable[[Callable[..., Any]], list[str]]) -> None:
+@pytest.mark.parametrize(
+    ("kind", "add_rtype"),
+    [
+        pytest.param(lambda f: f, True, id="function"),
+        pytest.param(property, False, id="property"),
+    ],
+)
+def test_kinds(
+    *,
+    process_doc: Callable[[Callable[..., Any]], list[str]],
+    kind: Callable[[Callable[..., Any]], Callable[..., Any]],
+    add_rtype: bool,
+) -> None:
     def fn_test(s: str) -> None:  # pragma: no cover
         """:param s: Test"""
         del s
 
-    assert process_doc(fn_test) == [
+    assert process_doc(kind(fn_test)) == [
         f":type s: {_escape_sat(':py:class:`str`')}",
         ":param s: Test",
-        NONE_RTYPE,
+        *([NONE_RTYPE] if add_rtype else []),
     ]
+
+
+class CustomCls:  # noqa: D101
+    __slots__ = ["foo"]
+
+    def meth(self):  # pragma: no cover  # noqa: ANN201
+        """No return section and no return annotation."""
+
+
+@pytest.mark.parametrize(
+    "obj",
+    [
+        pytest.param(None, id="none"),
+        pytest.param(CustomCls.foo, id="slotwrapper"),  # type: ignore[attr-defined]
+        pytest.param(lambda: None, id="lambda"),
+        pytest.param(CustomCls.meth, id="func_nodoc"),
+        pytest.param(CustomCls().meth, id="meth_nodoc"),
+    ],
+)
+def test_skip(
+    process_doc: Callable[[Callable[..., Any]], list[str]], obj: Callable[..., Any]
+) -> None:
+    doc = inspect.getdoc(obj)
+    assert process_doc(obj) == [doc or ""]
 
 
 def test_defaults_simple(
@@ -290,22 +333,23 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
 @pytest.mark.parametrize(
     ("return_ann", "foo_rendered"),
     [
-        (tuple[str, int], ":py:class:`str`"),
-        (Optional[tuple[str, int]], ":py:class:`str`"),
-        (
+        pytest.param(tuple[str, int], ":py:class:`str`", id="tuple"),
+        pytest.param(Optional[tuple[str, int]], ":py:class:`str`", id="tuple | None"),
+        pytest.param(
             tuple[Mapping[str, float], int],
             r":py:class:`~collections.abc.Mapping`\ \["
             ":py:class:`str`, :py:class:`float`"
             "]",
+            id="complex",
         ),
+        pytest.param(Optional[int], None, id="int | None"),
     ],
-    ids=["tuple", "Optional[Tuple]", "Complex"],
 )
 def test_return(
     process_doc: Callable[[Callable[..., Any]], list[str]],
     docstring: str,
     return_ann: type,
-    foo_rendered: str,
+    foo_rendered: str | None,
 ) -> None:
     def fn_test() -> None:  # pragma: no cover
         pass
@@ -313,12 +357,30 @@ def test_return(
     fn_test.__doc__ = docstring
     fn_test.__annotations__["return"] = return_ann
     lines = [l for l in process_doc(fn_test) if not re.match("^:(rtype|param):", l)]
-    assert lines == [
-        f":return: foo : {foo_rendered}",
-        "             A foo!",
-        "         bar : :py:class:`int`",
-        "             A bar!",
-    ]
+    if foo_rendered is None:
+        assert lines == [
+            l
+            for l in dedent(docstring).strip().splitlines()
+            if not l.startswith(":param:")
+        ]
+    else:
+        assert lines == [
+            f":return: foo : {foo_rendered}",
+            "             A foo!",
+            "         bar : :py:class:`int`",
+            "             A bar!",
+        ]
+
+
+def test_return_nodoc(process_doc: Callable[[Callable[..., Any]], list[str]]) -> None:
+    def fn() -> tuple[int, str]:  # pragma: no cover
+        """No return section."""
+        return 1, ""
+
+    res = process_doc(fn)
+    assert len(res) == 3  # noqa: PLR2004
+    assert res[0:2] == [inspect.getdoc(fn), ""]
+    assert res[2].startswith(":rtype: :sphinx_autodoc_typehints_type:")
 
 
 def test_load_error(make_app_setup: Callable[..., Sphinx]) -> None:

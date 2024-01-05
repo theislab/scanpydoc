@@ -80,6 +80,7 @@ known-first-party = ['scanpydoc']
 [tool.mypy]
 strict = true
 explicit_package_bases = true
+disallow_untyped_defs = false  # handled by Ruff
 mypy_path = ['$MYPY_CONFIG_FILE_DIR/src']
 
 [tool.hatch.version]
