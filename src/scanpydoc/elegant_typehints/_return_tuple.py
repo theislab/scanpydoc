@@ -35,7 +35,7 @@ def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
     origin = get_origin(annotation)
     if not origin:
         return None
-    if origin in ({Union, UnionType} - {None}):
+    if origin in UNION_TYPES:
         for annot in get_args(annotation):
             origin = get_origin(annot)
             if origin in (tuple, t_Tuple):  # noqa: UP006
