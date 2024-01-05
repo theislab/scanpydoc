@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import inspect
-from typing import TYPE_CHECKING, Any, cast, get_origin
+from typing import TYPE_CHECKING, Any
 
 
 if sys.version_info >= (3, 10):
@@ -10,7 +10,6 @@ if sys.version_info >= (3, 10):
 else:  # pragma: no cover
     UnionType = None
 
-from docutils.utils import unescape
 
 from scanpydoc import elegant_typehints
 
@@ -35,30 +34,18 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return None
 
-    origin = get_origin(annotation)
     tilde = "" if config.typehints_fully_qualified else "~"
 
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
-    if annotation_cls.__module__ == "typing":
+    if annotation_cls.__module__ in {"typing", "types"}:
         return None
 
     # Only if this is a real class we override sphinx_autodoc_typehints
-    if inspect.isclass(annotation) or inspect.isclass(origin):
-        try:
-            full_name = f"{annotation.__module__}.{annotation.__qualname__}"
-        except AttributeError:
-            if origin is not None:
-                full_name = f"{origin.__module__}.{origin.__qualname__}"
-            else:
-                return None
+    if inspect.isclass(annotation):
+        full_name = f"{annotation.__module__}.{annotation.__qualname__}"
         override = elegant_typehints.qualname_overrides.get(full_name)
         role = "exc" if issubclass(annotation_cls, BaseException) else "class"
         if override is not None:
             return f":py:{role}:`{tilde}{override}`"
 
     return None
-
-
-def _unescape(rst: str) -> str:
-    # IDK why the [ part is necessary.
-    return cast(str, unescape(rst)).replace("\\`", "`").replace("[", "\\[")

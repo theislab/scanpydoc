@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import sys
 import inspect
 from io import StringIO
 from typing import (
@@ -186,6 +187,12 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
     )
     output = typehints_formatter(annotation, app.config)
     assert output is None or output.startswith(f":py:data:`typing.{name}")
+
+
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="requires Python 3.10+")
+def test_union_type(app: Sphinx) -> None:
+    union = eval("int | str")  # noqa: S307, PGH001
+    assert typehints_formatter(union, app.config) is None
 
 
 @pytest.mark.parametrize(
