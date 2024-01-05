@@ -43,7 +43,7 @@ def dir_head_adder(
 def replace_multi_suffix(
     lines: StringList, old: tuple[str, str], new: tuple[str, str]
 ) -> None:
-    if len(old) != len(new) != 2:  # noqa: PLR2004
+    if len(old) != len(new) != 2:  # noqa: PLR2004  # pragma: no cover
         msg = "Only supports replacing 2 lines"
         raise NotImplementedError(msg)
     for l, line in enumerate(lines):

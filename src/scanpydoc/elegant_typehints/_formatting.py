@@ -7,24 +7,16 @@ from typing import TYPE_CHECKING, Any, cast, get_origin
 
 if sys.version_info >= (3, 10):
     from types import UnionType
-else:
+else:  # pragma: no cover
     UnionType = None
 
-from docutils import nodes
 from docutils.utils import unescape
-from docutils.parsers.rst.roles import set_classes
-from docutils.parsers.rst.states import Struct
 
 from scanpydoc import elegant_typehints
 
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-
     from sphinx.config import Config
-    from docutils.nodes import Node
-    from docutils.utils import SystemMessage
-    from docutils.parsers.rst.states import Inliner
 
 
 def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
@@ -65,35 +57,6 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
             return f":py:{role}:`{tilde}{override}`"
 
     return None
-
-
-def _role_annot(  # noqa: PLR0913
-    name: str,  # noqa: ARG001
-    rawtext: str,
-    text: str,
-    lineno: int,
-    inliner: Inliner,
-    options: dict[str, Any] | None = None,
-    content: Sequence[str] = (),  # noqa: ARG001
-    *,
-    additional_classes: Iterable[str] = (),
-) -> tuple[list[Node], list[SystemMessage]]:
-    if options is None:
-        options = {}
-    options = options.copy()
-    set_classes(options)
-    if additional_classes:
-        options["classes"] = options.get("classes", []).copy()
-        options["classes"].extend(additional_classes)
-    memo = Struct(
-        document=inliner.document,  # type: ignore[attr-defined]
-        reporter=inliner.reporter,  # type: ignore[attr-defined]
-        language=inliner.language,  # type: ignore[attr-defined]
-    )
-    node = nodes.inline(unescape(rawtext), "", **options)
-    children, messages = inliner.parse(_unescape(text), lineno, memo, node)  # type: ignore[attr-defined]
-    node.extend(children)
-    return [node], messages
 
 
 def _unescape(rst: str) -> str:

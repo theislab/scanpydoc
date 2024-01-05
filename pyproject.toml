@@ -103,6 +103,7 @@ features = ['test', 'typehints']
 run = 'pytest -vv {args}'
 cov = [
     'coverage run -m pytest -vv {args}',
+    'coverage xml',
     'coverage-rich report',
 ]
 

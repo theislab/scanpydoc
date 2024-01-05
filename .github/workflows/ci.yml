@@ -14,7 +14,8 @@ concurrency:
 
 env:
   PIP_ROOT_USER_ACTION: ignore
-  COLUMNS: 200
+  COLUMNS: "200"
+  FORCE_COLOR: "1"
 
 jobs:
   build:

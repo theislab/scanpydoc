@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 
-def example_func(a: str | None, b: str | int | None = None) -> dict[str, int]:
+def example_func(
+    a: str | None, b: str | int | None = None
+) -> dict[str, int]:  # pragma: no cover
     """Example function.
 
     Hover over the parameter and return type annotations to see the long versions.

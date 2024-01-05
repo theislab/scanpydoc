@@ -112,7 +112,7 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
 def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
     if sys.version_info > (3, 10):
         from inspect import get_annotations
-    else:
+    else:  # pragma: no cover
         from get_annotations import get_annotations
 
     try:

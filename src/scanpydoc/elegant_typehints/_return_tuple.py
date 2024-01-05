@@ -10,7 +10,7 @@ from logging import getLogger
 
 if sys.version_info > (3, 10):
     from types import UnionType
-else:
+else:  # pragma: no cover
     UnionType = None
 
 from sphinx_autodoc_typehints import format_annotation

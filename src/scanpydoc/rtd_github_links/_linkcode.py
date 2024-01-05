@@ -20,17 +20,23 @@ class JSInfo(TypedDict):
 
 
 @overload
-def linkcode_resolve(domain: Literal["py"], info: PyInfo) -> str | None:
+def linkcode_resolve(
+    domain: Literal["py"], info: PyInfo
+) -> str | None:  # pragma: no cover
     ...
 
 
 @overload
-def linkcode_resolve(domain: Literal["c", "cpp"], info: CInfo) -> str | None:
+def linkcode_resolve(
+    domain: Literal["c", "cpp"], info: CInfo
+) -> str | None:  # pragma: no cover
     ...
 
 
 @overload
-def linkcode_resolve(domain: Literal["javascript"], info: JSInfo) -> str | None:
+def linkcode_resolve(
+    domain: Literal["javascript"], info: JSInfo
+) -> str | None:  # pragma: no cover
     ...
 
 
