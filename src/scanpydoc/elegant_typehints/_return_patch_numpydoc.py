@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from sphinx_autodoc_typehints import format_annotation
+
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Generator
@@ -16,7 +18,9 @@ def _process_return(lines: Iterable[str]) -> Generator[str, None, None]:
     for line in lines:
         m = re.fullmatch(r"(?P<param>\w+)\s+:\s+(?P<type>[\w.]+)", line)
         if m:
-            yield f'**{m["param"]}** : :class:`~{m["type"]}`'
+            # TODO: pass in the object
+            typ = format_annotation(m.group("type"))
+            yield f'**{m["param"]}** : {typ}'
         else:
             yield line
 
