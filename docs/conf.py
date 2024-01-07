@@ -8,6 +8,8 @@ from datetime import datetime
 from datetime import timezone as tz
 from importlib.metadata import metadata
 
+from jinja2.tests import TESTS
+
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -50,6 +52,17 @@ autosummary_generate = True
 autosummary_ignore_module_all = False
 # Don’t add module paths to documented functions’ names
 add_module_names = False
+
+
+def test_search(value: str, pattern: str) -> bool:
+    """Tests if `pattern` can be found in `value`."""
+    import re
+
+    return bool(re.search(pattern, value))
+
+
+# IDK if there’s a good way to do this without modifying the global list
+TESTS["search"] = test_search
 
 html_theme = "scanpydoc"
 html_theme_options = dict(

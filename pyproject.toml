@@ -77,6 +77,8 @@ length-sort = true
 lines-after-imports = 2
 known-first-party = ['scanpydoc']
 required-imports = ["from __future__ import annotations"]
+[tool.ruff.lint.pydocstyle]
+convention = 'numpy'
 
 [tool.mypy]
 strict = true

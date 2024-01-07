@@ -53,10 +53,11 @@ from collections import ChainMap
 from dataclasses import dataclass
 
 from sphinx.ext.autodoc import ClassDocumenter
+from sphinx.ext.napoleon import NumpyDocstring  # type: ignore[attr-defined]
 
 from scanpydoc import metadata, _setup_sig
 
-from .example import example_func
+from .example import example_func_prose, example_func_tuple
 
 
 if TYPE_CHECKING:
@@ -66,7 +67,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
-__all__ = ["example_func", "setup"]
+__all__ = ["example_func_prose", "example_func_tuple", "setup"]
 
 
 HERE = Path(__file__).parent.resolve()
@@ -123,7 +124,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
     )
 
     from ._return_tuple import process_docstring  # , process_signature
+    from ._return_patch_numpydoc import _parse_returns_section
 
+    NumpyDocstring._parse_returns_section = _parse_returns_section  # type: ignore[method-assign,assignment]  # noqa: SLF001
     app.connect("autodoc-process-docstring", process_docstring)
 
     return metadata

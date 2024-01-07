@@ -1,17 +1,33 @@
 from __future__ import annotations
 
 
-def example_func(
+def example_func_prose(
     a: str | None, b: str | int | None = None
 ) -> dict[str, int]:  # pragma: no cover
-    """Example function.
+    """Example function with a paragraph return section.
 
-    Hover over the parameter and return type annotations to see the long versions.
+    Parameters
+    ----------
+    a
+        An example parameter
+    b
+        Another, with a default
 
-    Args:
-        a: An example parameter
-        b: Another, with a default
-    Returns:
-        An example return value
+    Returns
+    -------
+    An example dict
     """
     return {}
+
+
+def example_func_tuple() -> tuple[int, str]:  # pragma: no cover
+    """Example function with return tuple.
+
+    Returns
+    -------
+    x
+        An example int
+    y
+        An example str
+    """
+    return (1, "foo")

@@ -20,11 +20,14 @@ metadata = dict(version=__version__, env_version=1, parallel_read_safe=True)
 # Can’t seem to be able to do this in numpydoc style:
 # https://github.com/sphinx-doc/sphinx/issues/5887
 setup_sig_str = """\
-Args:
-    app: Sphinx app to set this :term:`sphinx:extension` up for
+Arguments
+---------
+app
+    Sphinx app to set this :term:`sphinx:extension` up for
 
-Returns:
-    :ref:`Metadata <sphinx:ext-metadata>` for this extension.
+Returns
+-------
+:ref:`Metadata <sphinx:ext-metadata>` for this extension.
 """
 
 C = TypeVar("C", bound=Callable[..., Any])

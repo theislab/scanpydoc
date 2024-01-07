@@ -191,12 +191,15 @@ def _module_path(obj: _SourceObjectType, module: ModuleType) -> PurePosixPath:
 def github_url(qualname: str) -> str:
     """Get the full GitHub URL for some object’s qualname.
 
-    Args:
-        qualname: The full qualified name of a function, class, method or module
+    Parameters
+    ----------
+    qualname
+        The full qualified name of a function, class, method or module
 
-    Returns:
-        A GitHub URL derived from the :confval:`html_context`
-        or the :confval:`html_theme_options`.
+    Returns
+    -------
+    A GitHub URL derived from the :confval:`html_context`
+    or the :confval:`html_theme_options`.
     """
     try:
         obj, module = _get_obj_module(qualname)
