@@ -134,7 +134,9 @@ def test_app(monkeypatch: MonkeyPatch, make_app_setup: Callable[..., Sphinx]) ->
             id="basic",
         ),
         pytest.param(
-            *("elegant_typehints", "example_func", "elegant_typehints/example.py"),
+            "elegant_typehints",
+            "example_func_prose",
+            "elegant_typehints/example.py",
             id="reexport",
         ),
     ],
