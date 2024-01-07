@@ -7,19 +7,19 @@
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
-
-
-if sys.version_info >= (3, 11):
-    from typing import Never
-else:  # pragma: no cover
-    from typing import NoReturn as Never
 
 from . import _setup_sig
 
 
 if TYPE_CHECKING:
+    import sys
+
+    if sys.version_info >= (3, 11):
+        from typing import Never
+    else:  # pragma: no cover
+        from typing import NoReturn as Never
+
     from sphinx.application import Sphinx
 
 

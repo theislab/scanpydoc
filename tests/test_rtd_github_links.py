@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 import sys
 import textwrap
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
 
@@ -27,6 +27,7 @@ from scanpydoc.rtd_github_links._linkcode import (
 
 if TYPE_CHECKING:
     from types import ModuleType
+    from typing import Literal
     from collections.abc import Callable
 
     from sphinx.application import Sphinx

@@ -61,7 +61,7 @@ from __future__ import annotations
 import sys
 import inspect
 from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
 
@@ -72,7 +72,7 @@ from scanpydoc import metadata, _setup_sig
 
 if TYPE_CHECKING:
     from types import CodeType, FrameType, MethodType, FunctionType, TracebackType
-    from typing import TypeAlias
+    from typing import Any, TypeAlias
     from collections.abc import Callable
 
     _SourceObjectType: TypeAlias = (

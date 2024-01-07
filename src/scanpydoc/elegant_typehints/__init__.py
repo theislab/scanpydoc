@@ -47,7 +47,7 @@ This extension modifies the created type annotations in four ways:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from pathlib import Path
 from collections import ChainMap
 from dataclasses import dataclass
@@ -61,6 +61,7 @@ from .example import example_func_prose, example_func_tuple
 
 
 if TYPE_CHECKING:
+    from typing import Any
     from collections.abc import Callable
 
     from sphinx.config import Config

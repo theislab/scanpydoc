@@ -6,7 +6,7 @@ import sys
 import linecache
 import importlib.util
 from uuid import uuid4
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from textwrap import dedent
 
 import pytest
@@ -14,6 +14,7 @@ import pytest
 
 if TYPE_CHECKING:
     from types import ModuleType
+    from typing import Any
     from pathlib import Path
     from collections.abc import Callable, Generator
 

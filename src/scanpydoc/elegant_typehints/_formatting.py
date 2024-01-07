@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import inspect
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 
 if sys.version_info >= (3, 10):
@@ -15,6 +15,8 @@ from scanpydoc import elegant_typehints
 
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.config import Config
 
 

@@ -53,6 +53,9 @@ autosummary_ignore_module_all = False
 # Don’t add module paths to documented functions’ names
 add_module_names = False
 
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+
 
 def test_search(value: str, pattern: str) -> bool:
     """Tests if `pattern` can be found in `value`."""
