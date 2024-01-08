@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 import sys
 import textwrap
-from types import ModuleType
+from types import ModuleType, FunctionType
 from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
@@ -12,7 +12,9 @@ from dataclasses import field, dataclass
 
 import pytest
 from sphinx.config import Config
+from legacy_api_wrap import legacy_api
 
+import scanpydoc
 from scanpydoc import rtd_github_links
 from scanpydoc.rtd_github_links import (
     github_url,
@@ -148,19 +150,6 @@ def test_as_function(
     assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
 
 
-def test_get_github_url_only_annotation(prefix: PurePosixPath) -> None:
-    """Doesn’t really work but shouldn’t crash either."""
-    url = github_url("scanpydoc.rtd_github_links._TestCls.test_anno")
-    assert url == f"{prefix}/rtd_github_links/__init__.py"
-
-
-def test_get_github_url_error() -> None:
-    with pytest.raises(KeyError) as exc_info:
-        github_url("test.nonexistant.Thingamajig")
-    if sys.version_info >= (3, 11):
-        assert exc_info.value.__notes__[0] == "Qualname: 'test.nonexistant.Thingamajig'"
-
-
 class _TestMod:
     modname = "testing.scanpydoc"
 
@@ -171,19 +160,52 @@ class _TestMod:
     class TestCls:
         test_anno: int
 
+    def test_func(self) -> None:  # pragma: no cover
+        pass
+
+    test_func_wrap: Callable[[], None]  # is set below
+
 
 @pytest.fixture()
 def test_mod() -> Generator[ModuleType, None, None]:
     mod = sys.modules[_TestMod.modname] = ModuleType(_TestMod.modname)
-    for name, cls in vars(_TestMod).items():
-        if isinstance(cls, type):
-            cls.__module__ = _TestMod.modname
-            setattr(mod, name, cls)
+    mod.__file__ = str(
+        Path(scanpydoc.__file__).parent.parent
+        / Path(*_TestMod.modname.split("."))
+        / "__init__.py"
+    )
+    for name, obj in vars(_TestMod).items():
+        if not isinstance(obj, (type, FunctionType)):
+            continue
+        # pretend things are in the same module
+        if "test_rtd_github_links" in obj.__module__:
+            obj.__module__ = _TestMod.modname
+        setattr(mod, name, obj)
+
+    mod.test_func_wrap = legacy_api()(mod.test_func)  # type: ignore[attr-defined]
 
     try:
         yield mod
     finally:
         sys.modules.pop(_TestMod.modname, None)
+
+
+def test_get_github_url_only_annotation(
+    prefix: PurePosixPath,
+    test_mod: ModuleType,  # noqa: ARG001
+) -> None:
+    """Doesn’t really work but shouldn’t crash either."""
+    url = github_url(f"{_TestMod.modname}.TestCls.test_anno")
+    assert url == str(
+        prefix.parent / Path(*_TestMod.modname.split(".")) / "__init__.py"
+    )
+
+
+def test_get_github_url_error() -> None:
+    with pytest.raises(KeyError) as exc_info:
+        github_url("test.nonexistant.Thingamajig")
+    if sys.version_info >= (3, 11):
+        assert exc_info.value.__notes__[0] == "Qualname: 'test.nonexistant.Thingamajig'"
 
 
 @pytest.mark.parametrize(
@@ -194,6 +216,18 @@ def test_mod() -> Generator[ModuleType, None, None]:
             lambda _: textwrap.indent,
             lambda _: textwrap,
             id="reexport",
+        ),
+        pytest.param(
+            "testing.scanpydoc.test_func",
+            lambda m: m.test_func,
+            lambda m: m,
+            id="func",
+        ),
+        pytest.param(
+            "testing.scanpydoc.test_func_wrap",
+            lambda m: m.test_func_wrap,
+            lambda m: m,
+            id="wrapper",
         ),
         pytest.param("testing.scanpydoc", lambda m: m, lambda m: m, id="mod"),
         pytest.param(

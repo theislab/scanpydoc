@@ -32,6 +32,7 @@ test = [
     'coverage',
     'coverage-rich',
     'toml',  # coverage-rich’s dep anyconfig 0.13 needs this
+    'legacy-api-wrap',
 ]
 doc = [
     'scanpydoc[typehints,theme]',
