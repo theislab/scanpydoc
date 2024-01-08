@@ -64,6 +64,7 @@ from types import ModuleType
 from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
+from dataclasses import fields, is_dataclass
 
 from jinja2.defaults import DEFAULT_FILTERS  # type: ignore[attr-defined]
 
@@ -260,14 +261,3 @@ def setup(app: Sphinx) -> dict[str, Any]:
     DEFAULT_FILTERS["github_url"] = github_url
 
     return metadata
-
-
-if True:  # test data
-    from dataclasses import field, fields, dataclass, is_dataclass
-
-    @dataclass
-    class _TestDataCls:
-        test_attr: dict[str, str] = field(default_factory=dict)
-
-    class _TestCls:
-        test_anno: int
