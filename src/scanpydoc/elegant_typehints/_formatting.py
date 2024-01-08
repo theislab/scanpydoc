@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import inspect
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 
 if sys.version_info >= (3, 10):
@@ -15,6 +15,8 @@ from scanpydoc import elegant_typehints
 
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.config import Config
 
 
@@ -24,12 +26,16 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
     Can be used as ``typehints_formatter`` for :mod:`sphinx_autodoc_typehints`,
     to respect the ``qualname_overrides`` option.
 
-    Args:
-        annotation: A type or class used as type annotation.
-        config: Sphinx config containing ``sphinx-autodoc-typehints``’s options.
+    Arguments
+    ---------
+    annotation
+        A type or class used as type annotation.
+    config
+        Sphinx config containing ``sphinx-autodoc-typehints``’s options.
 
-    Returns:
-        reStructuredText describing the type
+    Returns
+    -------
+    reStructuredText describing the type
     """
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return None

@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 import sys
 import textwrap
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
 
@@ -27,6 +27,7 @@ from scanpydoc.rtd_github_links._linkcode import (
 
 if TYPE_CHECKING:
     from types import ModuleType
+    from typing import Literal
     from collections.abc import Callable
 
     from sphinx.application import Sphinx
@@ -134,7 +135,9 @@ def test_app(monkeypatch: MonkeyPatch, make_app_setup: Callable[..., Sphinx]) ->
             id="basic",
         ),
         pytest.param(
-            *("elegant_typehints", "example_func", "elegant_typehints/example.py"),
+            "elegant_typehints",
+            "example_func_prose",
+            "elegant_typehints/example.py",
             id="reexport",
         ),
     ],

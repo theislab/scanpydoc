@@ -61,7 +61,7 @@ from __future__ import annotations
 import sys
 import inspect
 from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
 
@@ -72,7 +72,7 @@ from scanpydoc import metadata, _setup_sig
 
 if TYPE_CHECKING:
     from types import CodeType, FrameType, MethodType, FunctionType, TracebackType
-    from typing import TypeAlias
+    from typing import Any, TypeAlias
     from collections.abc import Callable
 
     _SourceObjectType: TypeAlias = (
@@ -191,12 +191,15 @@ def _module_path(obj: _SourceObjectType, module: ModuleType) -> PurePosixPath:
 def github_url(qualname: str) -> str:
     """Get the full GitHub URL for some object’s qualname.
 
-    Args:
-        qualname: The full qualified name of a function, class, method or module
+    Parameters
+    ----------
+    qualname
+        The full qualified name of a function, class, method or module
 
-    Returns:
-        A GitHub URL derived from the :confval:`html_context`
-        or the :confval:`html_theme_options`.
+    Returns
+    -------
+    A GitHub URL derived from the :confval:`html_context`
+    or the :confval:`html_theme_options`.
     """
     try:
         obj, module = _get_obj_module(qualname)

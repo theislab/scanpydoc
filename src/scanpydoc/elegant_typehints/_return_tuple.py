@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import sys
 import inspect
-from typing import TYPE_CHECKING, Any, Union, get_args, get_origin, get_type_hints
+from typing import TYPE_CHECKING, Union, get_args, get_origin, get_type_hints
 from typing import Tuple as t_Tuple  # noqa: UP035
 from logging import getLogger
 
@@ -11,6 +11,7 @@ from sphinx_autodoc_typehints import format_annotation
 
 
 if TYPE_CHECKING:
+    from typing import Any
     from collections.abc import Sequence
 
     from sphinx.application import Sphinx

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, TypedDict, cast, overload
+from typing import TYPE_CHECKING, TypedDict, cast, overload
 
 
 class PyInfo(TypedDict):
@@ -20,7 +20,7 @@ class JSInfo(TypedDict):
 
 
 if TYPE_CHECKING:
-    from typing import TypeAlias
+    from typing import Literal, TypeAlias
 
     Domain = Literal["py", "c", "cpp", "javascript"]
     DomainInfo: TypeAlias = PyInfo | CInfo | JSInfo
