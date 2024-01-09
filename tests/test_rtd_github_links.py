@@ -4,30 +4,28 @@ from __future__ import annotations
 import re
 import sys
 import textwrap
-from types import ModuleType, FunctionType
 from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
-from dataclasses import field, dataclass
 
 import pytest
 from sphinx.config import Config
-from legacy_api_wrap import legacy_api
 
-import scanpydoc
-from scanpydoc import rtd_github_links
 from scanpydoc.rtd_github_links import (
+    _testdata,
     github_url,
     _infer_vars,
     _get_linenos,
+    _module_path,
     _get_obj_module,
 )
 from scanpydoc.rtd_github_links._linkcode import CInfo, PyInfo, linkcode_resolve
 
 
 if TYPE_CHECKING:
+    from types import ModuleType
     from typing import Literal
-    from collections.abc import Callable, Generator
+    from collections.abc import Callable
 
     from sphinx.application import Sphinx
     from _pytest.monkeypatch import MonkeyPatch
@@ -123,7 +121,7 @@ def test_app(monkeypatch: MonkeyPatch, make_app_setup: Callable[..., Sphinx]) ->
         ),
     )
     assert app.config["linkcode_resolve"] is linkcode_resolve
-    assert filters == dict(github_url=rtd_github_links.github_url)
+    assert filters == dict(github_url=github_url)
 
 
 @pytest.mark.parametrize(
@@ -150,55 +148,11 @@ def test_as_function(
     assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
 
 
-class _TestMod:
-    modname = "testing.scanpydoc"
-
-    @dataclass
-    class TestDataCls:
-        test_attr: dict[str, str] = field(default_factory=dict)
-
-    class TestCls:
-        test_anno: int
-
-    def test_func(self) -> None:  # pragma: no cover
-        pass
-
-    test_func_wrap: Callable[[], None]  # is set below
-
-
-@pytest.fixture()
-def test_mod() -> Generator[ModuleType, None, None]:
-    mod = sys.modules[_TestMod.modname] = ModuleType(_TestMod.modname)
-    mod.__file__ = str(
-        Path(scanpydoc.__file__).parent.parent
-        / Path(*_TestMod.modname.split("."))
-        / "__init__.py"
-    )
-    for name, obj in vars(_TestMod).items():
-        if not isinstance(obj, (type, FunctionType)):
-            continue
-        # pretend things are in the same module
-        if "test_rtd_github_links" in obj.__module__:
-            obj.__module__ = _TestMod.modname
-        setattr(mod, name, obj)
-
-    mod.test_func_wrap = legacy_api()(mod.test_func)  # type: ignore[attr-defined]
-
-    try:
-        yield mod
-    finally:
-        sys.modules.pop(_TestMod.modname, None)
-
-
-def test_get_github_url_only_annotation(
-    prefix: PurePosixPath,
-    test_mod: ModuleType,  # noqa: ARG001
-) -> None:
+def test_get_github_url_only_annotation(prefix: PurePosixPath) -> None:
     """Doesn’t really work but shouldn’t crash either."""
-    url = github_url(f"{_TestMod.modname}.TestCls.test_anno")
-    assert url == str(
-        prefix.parent / Path(*_TestMod.modname.split(".")) / "__init__.py"
-    )
+    url = github_url(f"{_testdata.__name__}.TestCls.test_anno")
+    path = prefix.parent / Path(*_testdata.__name__.split("."))
+    assert url == str(path.with_suffix(".py"))
 
 
 def test_get_github_url_error() -> None:
@@ -209,50 +163,56 @@ def test_get_github_url_error() -> None:
 
 
 @pytest.mark.parametrize(
-    ("obj_path", "get_obj", "get_mod"),
+    ("obj_path", "obj", "mod", "path_expected"),
     [
         pytest.param(
-            "scanpydoc.indent",
-            lambda _: textwrap.indent,
-            lambda _: textwrap,
-            id="reexport",
+            "scanpydoc.indent", textwrap.indent, textwrap, "textwrap.py", id="reexport"
         ),
         pytest.param(
-            "testing.scanpydoc.test_func",
-            lambda m: m.test_func,
-            lambda m: m,
+            "scanpydoc.rtd_github_links._testdata.test_func",
+            _testdata.test_func,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
             id="func",
         ),
         pytest.param(
-            "testing.scanpydoc.test_func_wrap",
-            lambda m: m.test_func_wrap,
-            lambda m: m,
+            "scanpydoc.rtd_github_links._testdata.test_func_wrap",
+            _testdata.test_func_wrap,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
             id="wrapper",
         ),
-        pytest.param("testing.scanpydoc", lambda m: m, lambda m: m, id="mod"),
         pytest.param(
-            "testing.scanpydoc.TestDataCls.test_attr",
-            lambda m: m.TestDataCls.__dataclass_fields__["test_attr"],
-            lambda m: m,
+            "scanpydoc.rtd_github_links._testdata",
+            _testdata,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="mod",
+        ),
+        pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestDataCls.test_attr",
+            _testdata.TestDataCls.__dataclass_fields__["test_attr"],
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
             id="dataclass_field",
         ),
         pytest.param(
-            "testing.scanpydoc.TestCls.test_anno",
-            lambda _: None,
-            lambda m: m,
+            "scanpydoc.rtd_github_links._testdata.TestCls.test_anno",
+            None,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
             id="anno",
         ),
     ],
 )
-def test_get_obj_module(
-    test_mod: ModuleType,
-    obj_path: str,
-    get_obj: Callable[[ModuleType], object],
-    get_mod: Callable[[ModuleType], ModuleType],
+def test_get_obj_module_path(
+    obj_path: str, obj: object, mod: ModuleType, path_expected: PurePosixPath
 ) -> None:
     obj_rcv, mod_rcv = _get_obj_module(obj_path)
-    assert obj_rcv is get_obj(test_mod)
-    assert mod_rcv is get_mod(test_mod)
+    assert obj_rcv is obj
+    assert mod_rcv is mod
+    path = _module_path(obj_rcv, mod_rcv)
+    assert path == PurePosixPath(path_expected)
 
 
 def test_linkdoc(prefix: PurePosixPath) -> None:
