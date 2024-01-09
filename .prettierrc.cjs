@@ -6,7 +6,7 @@ module.exports = {
     plugins: [require.resolve("prettier-plugin-jinja-template")],
     overrides: [
         {
-            files: ["settings.json"],
+            files: [".vscode/*.json"],
             options: {
                 parser: "json5",
                 quoteProps: "preserve",

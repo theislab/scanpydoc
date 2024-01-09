@@ -11,7 +11,7 @@
             "program": "${file}",
             "pythonArgs": ["-Xfrozen_modules=off"],
             "console": "internalConsole",
-            "justMyCode": false
-        }
-    ]
+            "justMyCode": false,
+        },
+    ],
 }
