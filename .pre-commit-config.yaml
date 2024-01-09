@@ -24,3 +24,4 @@ repos:
           - sphinx
           - pytest
           - types-docutils
+          - legacy-api-wrap
