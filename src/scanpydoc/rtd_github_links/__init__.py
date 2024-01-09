@@ -180,6 +180,8 @@ def _get_linenos(obj: _SourceObjectType) -> tuple[int, int] | tuple[None, None]:
 
 def _module_path(obj: _SourceObjectType, module: ModuleType) -> PurePosixPath:
     """Relative module path to parent directory of toplevel module."""
+    while hasattr(obj, "__wrapped__"):
+        obj = obj.__wrapped__
     try:
         file = Path(inspect.getabsfile(obj))
     except TypeError:
