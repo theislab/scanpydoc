@@ -80,7 +80,11 @@ def process_docstring(  # noqa: PLR0913
     if len(idxs_ret_names) == len(ret_types):
         for l, rt in zip(idxs_ret_names, ret_types):
             typ = format_annotation(rt, app.config)
-            lines[l : l + 1] = [f"{lines[l]} : {typ}"]
+            if (line := lines[l]).lstrip() in {":returns: :", ":return: :", ":"}:
+                transformed = f"{line[:-1]}{typ}"
+            else:
+                transformed = f"{line} : {typ}"
+            lines[l : l + 1] = [transformed]
 
 
 def _get_idxs_ret_names(lines: Sequence[str]) -> list[int]:
@@ -104,7 +108,9 @@ def _get_idxs_ret_names(lines: Sequence[str]) -> list[int]:
     # Meat
     idxs_ret_names = []
     for l, line in enumerate([l[i_prefix:] for l in lines[l_start : l_end + 1]]):
-        if line.isidentifier() and lines[l + l_start + 1].startswith("    "):
+        if (line == ":" or line.isidentifier()) and (
+            lines[l + l_start + 1].startswith("    ")
+        ):
             idxs_ret_names.append(l + l_start)
     return idxs_ret_names
 
