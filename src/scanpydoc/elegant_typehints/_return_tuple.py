@@ -3,10 +3,12 @@ from __future__ import annotations
 import re
 import sys
 import inspect
+from types import FunctionType
 from typing import TYPE_CHECKING, Union, get_args, get_origin, get_type_hints
 from typing import Tuple as t_Tuple  # noqa: UP035
 from logging import getLogger
 
+from sphinx.ext.napoleon import NumpyDocstring  # type: ignore[attr-defined]
 from sphinx_autodoc_typehints import format_annotation
 
 
@@ -25,6 +27,8 @@ if sys.version_info > (3, 10):
 else:  # pragma: no cover
     UNION_TYPES = {Union}
 
+
+__all__ = ["process_docstring", "_parse_returns_section", "setup"]
 
 logger = getLogger(__name__)
 re_ret = re.compile("^:returns?: ")
@@ -103,3 +107,36 @@ def _get_idxs_ret_names(lines: Sequence[str]) -> list[int]:
         if line.isidentifier() and lines[l + l_start + 1].startswith("    "):
             idxs_ret_names.append(l + l_start)
     return idxs_ret_names
+
+
+def _parse_returns_section(self: NumpyDocstring, section: str) -> list[str]:  # noqa: ARG001
+    """Parse return section as prose instead of tuple by default."""
+    lines_raw = list(self._dedent(self._consume_to_next_section()))
+    lines = self._format_block(":returns: ", lines_raw)
+    if lines and lines[-1]:
+        lines.append("")
+    return lines
+
+
+def _delete_sphinx_autodoc_typehints_docstring_processor(app: Sphinx) -> None:
+    for listener in app.events.listeners["autodoc-process-docstring"].copy():
+        if not isinstance(handler := listener.handler, FunctionType):
+            continue
+        # https://github.com/tox-dev/sphinx-autodoc-typehints/blob/a5c091f725da8374347802d54c16c3d38833d41c/src/sphinx_autodoc_typehints/patches.py#L69
+        if handler.__name__ == "napoleon_numpy_docstring_return_type_processor":
+            app.disconnect(listener.id)
+
+
+def setup(app: Sphinx) -> None:
+    """Patches the Sphinx app and :mod:`sphinx.ext.napoleon` in some ways.
+
+    1. Replaces the return section parser of napoleon’s NumpyDocstring
+       with one that just adds a prose section.
+    2. Removes sphinx-autodoc-typehints’s docstring processor that expects
+       NumpyDocstring’s old behavior.
+    2. Adds our own docstring processor that adds tuple return types
+       If the docstring contains a definition list of appropriate length.
+    """
+    NumpyDocstring._parse_returns_section = _parse_returns_section  # type: ignore[method-assign,assignment]  # noqa: SLF001
+    _delete_sphinx_autodoc_typehints_docstring_processor(app)
+    app.connect("autodoc-process-docstring", process_docstring, 1000)
