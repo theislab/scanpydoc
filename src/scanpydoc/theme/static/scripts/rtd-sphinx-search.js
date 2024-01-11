@@ -18,8 +18,9 @@ function overrideSearchButton() {
     search_button.addEventListener("click", () => {
         showSearchModal()
 
-        // delete the theme’s search popup
+        // hide the theme’s search popup
+        /** @type {HTMLDivElement} */
         const theme_popup = document.querySelector(".search-button__wrapper")
-        if (theme_popup) theme_popup.parentElement.removeChild(theme_popup)
+        theme_popup.style.display = "none"
     })
 }
