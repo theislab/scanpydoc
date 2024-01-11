@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 from pathlib import PurePosixPath
 from datetime import datetime
@@ -23,6 +24,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "scanpydoc",
     "sphinx.ext.linkcode",  # needs to be after scanpydoc
+    "sphinx_search.extension",
 ]
 
 intersphinx_mapping = dict(
@@ -75,6 +77,15 @@ html_theme_options = dict(
 )
 
 rtd_links_prefix = PurePosixPath("src")
+
+try:
+    int(os.environ.get("READTHEDOCS_VERSION", ""))
+except ValueError:
+    pass  # we’re on a specific version or local
+else:  # we’re on a PR version
+    rtd_sphinx_search_default_filter = (
+        f"subprojects:{os.getenv('READTHEDOCS_PROJECT')}/latest"
+    )
 
 
 def setup(app: Sphinx) -> None:
