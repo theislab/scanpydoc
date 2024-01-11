@@ -24,9 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    'pre-commit',
-]
+dev = ['pre-commit']
 test = [
     'pytest',
     'coverage',
@@ -37,11 +35,10 @@ test = [
 doc = [
     'scanpydoc[typehints,theme]',
     'sphinx',
+    'readthedocs-sphinx-search',
 ]
 typehints = ['sphinx-autodoc-typehints>=1.15.2']
-theme = [
-    'sphinx-book-theme>=1.1.0rc1',
-]
+theme = ['sphinx-book-theme>=1.1.0']
 
 [project.entry-points.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
