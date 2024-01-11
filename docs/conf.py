@@ -87,7 +87,7 @@ if re.fullmatch(r"\d+", rtd_ver):  # PR versions don’t have a own search index
 def setup(app: Sphinx) -> None:
     """Set up custom Sphinx extension."""
     if rtd_ver:  # if we’re on ReadTheDocs, hide the pydata-sphinx-theme search popup
-        app.add_css_file("styles/rtd-sphinx-search.css")
+        app.add_js_file("scripts/rtd-sphinx-search.js", loading_method="defer")
     app.add_object_type(
         "confval",
         "confval",

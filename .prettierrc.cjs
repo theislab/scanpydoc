@@ -4,6 +4,7 @@
 /** @type {import("prettier").Config} */
 module.exports = {
     plugins: [require.resolve("prettier-plugin-jinja-template")],
+    semi: false,
     overrides: [
         {
             files: [".vscode/*.json"],
@@ -21,4 +22,4 @@ module.exports = {
             },
         },
     ],
-};
+}
