@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import TYPE_CHECKING
 from pathlib import PurePosixPath
 from datetime import datetime
@@ -61,8 +62,6 @@ napoleon_numpy_docstring = True
 
 def test_search(value: str, pattern: str) -> bool:
     """Tests if `pattern` can be found in `value`."""
-    import re
-
     return bool(re.search(pattern, value))
 
 
@@ -78,11 +77,8 @@ html_theme_options = dict(
 
 rtd_links_prefix = PurePosixPath("src")
 
-try:
-    int(os.environ.get("READTHEDOCS_VERSION", ""))
-except ValueError:
-    pass  # we’re on a specific version or local
-else:  # we’re on a PR version
+rtd_ver = os.environ.get("READTHEDOCS_VERSION", "")
+if re.fullmatch(r"\d+", rtd_ver):  # PR versions don’t have a own search index
     rtd_sphinx_search_default_filter = (
         f"subprojects:{os.getenv('READTHEDOCS_PROJECT')}/latest"
     )
@@ -90,6 +86,8 @@ else:  # we’re on a PR version
 
 def setup(app: Sphinx) -> None:
     """Set up custom Sphinx extension."""
+    if rtd_ver:  # if we’re on ReadTheDocs, hide the pydata-sphinx-theme search popup
+        app.add_css_file("styles/rtd-sphinx-search.css")
     app.add_object_type(
         "confval",
         "confval",

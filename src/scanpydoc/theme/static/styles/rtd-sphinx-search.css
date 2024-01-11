@@ -1,0 +1,7 @@
+/*
+* Hide the sphinx-book-theme search popup.
+* This CSS is only included when the RTD Sphinx search is active.
+*/
+.search-button__wrapper {
+    display: none !important;
+}
