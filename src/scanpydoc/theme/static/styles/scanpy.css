@@ -21,6 +21,16 @@ dl.citation > dt {
     font-size: 70% !important;
 }
 
+/* Fix pydata theme search button changing size */
+.search-button-field {
+    border: 0;
+    outline: 1px solid var(--pst-color-border);
+}
+.search-button-field:hover {
+    border: 0;
+    outline: 2px solid var(--pst-color-link-hover);
+}
+
 /* Make the readthedocs-sphinx-search popup adapt to the theme */
 /*backdrop*/
 html[data-theme] .search__backdrop {
