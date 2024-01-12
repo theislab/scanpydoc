@@ -23,41 +23,40 @@ dl.citation > dt {
 
 /* for the search */
 /*container*/
-html[data-theme="dark"] :is(.search__outer, .rtd__search__credits) {
+html[data-theme] :is(.search__outer, .rtd__search__credits) {
     font-family: var(--pst-font-family-base);
     color: var(--pst-color-text-base);
     background-color: var(--pst-color-background);
     border-color: var(--pst-color-border);
 }
-html[data-theme="dark"] .rtd__search__credits a {
+html[data-theme] .rtd__search__credits a {
     color: var(--pst-color-link);
 }
 /*input*/
-html[data-theme="dark"] .search__outer__input {
+html[data-theme] .search__outer__input {
     color: var(--pst-color-text-base);
     background-color: transparent;
     border-bottom-color: var(--pst-color-border);
 }
-html[data-theme="dark"] .search__outer .bar::before,
-html[data-theme="dark"] .search__outer .bar::after {
+html[data-theme] .search__outer .bar::before,
+html[data-theme] .search__outer .bar::after {
     background-color: var(--pst-color-accent);
 }
 /*results*/
-html[data-theme="dark"] :is(.search__result__subheading span, .search__result__single) {
+html[data-theme] :is(.search__result__subheading span, .search__result__single) {
     border-bottom-color: var(--pst-color-border);
 }
-html[data-theme="dark"] .search__result__single:last-of-type {
+html[data-theme] .search__result__single:last-of-type {
     border-bottom-width: 0;
 }
-html[data-theme="dark"]
-    :is(.outer_div_page_results:hover, .search__result__box .active) {
+html[data-theme] :is(.outer_div_page_results:hover, .search__result__box .active) {
     background-color: var(--pst-color-primary-highlight);
 }
-html[data-theme="dark"]
+html[data-theme]
     :is(.search__error__box, .search__result__subheading, .search__result__content) {
     color: var(--pst-color-text-base);
 }
-html[data-theme="dark"]
+html[data-theme]
     .search__outer
     :is(.search__result__content, .search__result__title)
     span {
