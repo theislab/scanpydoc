@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 import sys
 import inspect
-from types import FunctionType
 from typing import TYPE_CHECKING, Union, get_args, get_origin, get_type_hints
 from typing import Tuple as t_Tuple  # noqa: UP035
 from logging import getLogger
@@ -126,10 +125,9 @@ def _parse_returns_section(self: NumpyDocstring, section: str) -> list[str]:  # 
 
 def _delete_sphinx_autodoc_typehints_docstring_processor(app: Sphinx) -> None:
     for listener in app.events.listeners["autodoc-process-docstring"].copy():
-        if not isinstance(handler := listener.handler, FunctionType):
-            continue
+        handler_name = getattr(listener.handler, "__name__", None)
         # https://github.com/tox-dev/sphinx-autodoc-typehints/blob/a5c091f725da8374347802d54c16c3d38833d41c/src/sphinx_autodoc_typehints/patches.py#L69
-        if handler.__name__ == "napoleon_numpy_docstring_return_type_processor":
+        if handler_name == "napoleon_numpy_docstring_return_type_processor":
             app.disconnect(listener.id)
 
 
