@@ -23,9 +23,6 @@ import pytest
 import sphinx_autodoc_typehints as sat
 from sphinx.ext import napoleon
 from sphinx.errors import ExtensionError
-from sphinx_autodoc_typehints.patches import (
-    napoleon_numpy_docstring_return_type_processor,
-)
 
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
 from scanpydoc.elegant_typehints._return_tuple import process_docstring
@@ -89,9 +86,6 @@ def process_doc(app: Sphinx) -> ProcessDoc:
             name = fn.__name__
         else:
             name = "???"
-        napoleon_numpy_docstring_return_type_processor(
-            app, "function", name, fn, None, lines
-        )
         if run_napoleon:
             napoleon._process_docstring(app, "function", name, fn, None, lines)  # noqa: SLF001
         sat.process_docstring(app, "function", name, fn, None, lines)
