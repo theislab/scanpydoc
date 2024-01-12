@@ -396,6 +396,32 @@ def test_return_tuple(
         ]
 
 
+def test_return_tuple_anonymous(process_doc: ProcessDoc) -> None:
+    def fn_test() -> tuple[int, str]:  # pragma: no cover
+        """
+        Returns
+        -------
+        :
+            An int!
+        :
+            A str!
+        """  # noqa: D401, D205
+        return (1, "foo")
+
+    lines = [
+        l
+        for l in process_doc(fn_test, run_napoleon=True)
+        if l
+        if not re.match(r"^:(rtype|param)( \w+)?:", l)
+    ]
+    assert lines == [
+        ":returns: :py:class:`int`",
+        "              An int!",
+        "          :py:class:`str`",
+        "              A str!",
+    ]
+
+
 def test_return_nodoc(process_doc: ProcessDoc) -> None:
     def fn() -> tuple[int, str]:  # pragma: no cover
         """No return section."""
