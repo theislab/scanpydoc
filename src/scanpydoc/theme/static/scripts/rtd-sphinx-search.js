@@ -2,25 +2,28 @@
  * This JS is only included when the RTD Sphinx search is active.
  */
 
-setTimeout(overrideSearchButton, 0)
-
-function overrideSearchButton() {
-    /** @type {HTMLDivElement} */
-    const search_backdrop = document.querySelector(".search__backdrop")
-    if (!search_backdrop) {
-        setTimeout(overrideSearchButton, 500)
-        return
+// wire up the search key combination
+addEventListener("keydown", ({ key, metaKey, ctrlKey }) => {
+    if (key === "k" && (metaKey || ctrlKey)) {
+        showSearchModal()
     }
-    search_backdrop.style.zIndex = "1020"
+})
 
+// start attempting to override the search popup and to wire up the search button
+setTimeout(overrideSearch, 0)
+
+function overrideSearch() {
+    /** @type {HTMLDivElement} */
+    const theme_popup = document.querySelector(".search-button__wrapper")
     /** @type {HTMLButtonElement} */
     const search_button = document.querySelector("button[aria-label='Search']")
-    search_button.addEventListener("click", () => {
-        showSearchModal()
-
-        // hide the theme’s search popup
-        /** @type {HTMLDivElement} */
-        const theme_popup = document.querySelector(".search-button__wrapper")
-        theme_popup.style.display = "none"
-    })
+    if (!theme_popup || !search_button) {
+        // try again later
+        setTimeout(overrideSearch, 500)
+        return
+    }
+    // Hide the pydata theme’s search popup.
+    theme_popup.style.display = "none"
+    // wire up the search button
+    search_button.addEventListener("click", () => showSearchModal())
 }
