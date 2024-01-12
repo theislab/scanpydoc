@@ -95,7 +95,10 @@ def process_doc(app: Sphinx) -> ProcessDoc:
         else:
             name = "???"
         for listener in listeners:
-            if not run_napoleon and listener.handler.__name__ == "_process_docstring":
+            if (
+                not run_napoleon
+                and listener.handler.__module__ == "sphinx.ext.napoleon"
+            ):
                 continue
             listener.handler(app, "function", name, fn, None, lines)
         return lines
