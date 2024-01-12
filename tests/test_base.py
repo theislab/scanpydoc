@@ -29,7 +29,11 @@ def test_all_get_installed(
         scanpydoc.__path__, f"{scanpydoc.__name__}."
     ):
         mod = import_module(mod_name)
-        if mod_name in DEPRECATED or not hasattr(mod, "setup"):
+        if (
+            mod_name in DEPRECATED
+            or any(m.startswith("_") for m in mod_name.split("."))
+            or not hasattr(mod, "setup")
+        ):
             continue
         setups_seen.add(mod_name)
         monkeypatch.setattr(mod, "setup", partial(setups_called.__setitem__, mod_name))

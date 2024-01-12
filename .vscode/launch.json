@@ -5,11 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File",
+            "name": "Debug current File",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "pythonArgs": ["-Xfrozen_modules=off"],
+            "console": "internalConsole",
+            "justMyCode": false,
+        },
+        {
+            "name": "Build Documentation",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "sphinx",
+            "args": ["-M", "html", ".", "_build"],
+            "cwd": "${workspaceFolder}/docs",
             "console": "internalConsole",
             "justMyCode": false,
         },

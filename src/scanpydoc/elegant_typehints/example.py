@@ -31,3 +31,16 @@ def example_func_tuple() -> tuple[int, str]:  # pragma: no cover
         An example str
     """
     return (1, "foo")
+
+
+def example_func_anonymous_tuple() -> tuple[int, str]:  # pragma: no cover
+    """Example function with anonymous return tuple.
+
+    Returns
+    -------
+    :
+        An example int
+    :
+        An example str
+    """
+    return (1, "foo")

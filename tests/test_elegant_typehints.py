@@ -17,18 +17,13 @@ from typing import (
     get_origin,
 )
 from pathlib import Path
+from operator import attrgetter
 from collections.abc import Mapping, Callable
 
 import pytest
-import sphinx_autodoc_typehints as sat
-from sphinx.ext import napoleon
 from sphinx.errors import ExtensionError
-from sphinx_autodoc_typehints.patches import (
-    napoleon_numpy_docstring_return_type_processor,
-)
 
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
-from scanpydoc.elegant_typehints._return_tuple import process_docstring
 
 
 if TYPE_CHECKING:
@@ -81,6 +76,16 @@ def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
 
 @pytest.fixture()
 def process_doc(app: Sphinx) -> ProcessDoc:
+    listeners = sorted(
+        (l for l in app.events.listeners["autodoc-process-docstring"]),
+        key=attrgetter("priority"),
+    )
+    assert [f"{l.handler.__module__}.{l.handler.__qualname__}" for l in listeners] == [
+        "sphinx.ext.napoleon._process_docstring",
+        "sphinx_autodoc_typehints.process_docstring",
+        "scanpydoc.elegant_typehints._return_tuple.process_docstring",
+    ]
+
     def process(fn: Callable[..., Any], *, run_napoleon: bool = False) -> list[str]:
         lines = (inspect.getdoc(fn) or "").split("\n")
         if isinstance(fn, property):
@@ -89,13 +94,13 @@ def process_doc(app: Sphinx) -> ProcessDoc:
             name = fn.__name__
         else:
             name = "???"
-        napoleon_numpy_docstring_return_type_processor(
-            app, "function", name, fn, None, lines
-        )
-        if run_napoleon:
-            napoleon._process_docstring(app, "function", name, fn, None, lines)  # noqa: SLF001
-        sat.process_docstring(app, "function", name, fn, None, lines)
-        process_docstring(app, "function", name, fn, None, lines)
+        for listener in listeners:
+            if (
+                not run_napoleon
+                and listener.handler.__module__ == "sphinx.ext.napoleon"
+            ):
+                continue
+            listener.handler(app, "function", name, fn, None, lines)
         return lines
 
     return process
@@ -400,6 +405,32 @@ def test_return_tuple(
             "          bar : :py:class:`int`",
             "              A bar!",
         ]
+
+
+def test_return_tuple_anonymous(process_doc: ProcessDoc) -> None:
+    def fn_test() -> tuple[int, str]:  # pragma: no cover
+        """
+        Returns
+        -------
+        :
+            An int!
+        :
+            A str!
+        """  # noqa: D401, D205
+        return (1, "foo")
+
+    lines = [
+        l
+        for l in process_doc(fn_test, run_napoleon=True)
+        if l
+        if not re.match(r"^:(rtype|param)( \w+)?:", l)
+    ]
+    assert lines == [
+        ":returns: :py:class:`int`",
+        "              An int!",
+        "          :py:class:`str`",
+        "              A str!",
+    ]
 
 
 def test_return_nodoc(process_doc: ProcessDoc) -> None:

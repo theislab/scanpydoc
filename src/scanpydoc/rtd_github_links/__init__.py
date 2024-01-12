@@ -122,7 +122,7 @@ def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
         from get_annotations import get_annotations
 
     try:
-        return get_annotations(obj)  # type: ignore[arg-type]
+        return get_annotations(obj)  # type: ignore[no-any-return,arg-type,unused-ignore]
     except TypeError:  # pragma: no cover
         return {}
 
