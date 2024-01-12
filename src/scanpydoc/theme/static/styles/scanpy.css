@@ -21,7 +21,12 @@ dl.citation > dt {
     font-size: 70% !important;
 }
 
-/* for the search */
+/* Make the readthedocs-sphinx-search popup adapt to the theme */
+/*backdrop*/
+html[data-theme] .search__backdrop {
+    z-index: 1020;
+    backdrop-filter: saturate(150%) blur(20px);
+}
 /*container*/
 html[data-theme] :is(.search__outer, .rtd__search__credits) {
     font-family: var(--pst-font-family-base);
