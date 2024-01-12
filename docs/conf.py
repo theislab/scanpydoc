@@ -77,8 +77,8 @@ html_theme_options = dict(
 
 rtd_links_prefix = PurePosixPath("src")
 
-rtd_ver = os.environ.get("READTHEDOCS_VERSION", "")
-if re.fullmatch(r"\d+", rtd_ver):  # PR versions don’t have a own search index
+# PR versions don’t have a own search index
+if re.fullmatch(r"\d+", os.environ.get("READTHEDOCS_VERSION", "")):
     rtd_sphinx_search_default_filter = (
         f"subprojects:{os.getenv('READTHEDOCS_PROJECT')}/latest"
     )
@@ -86,8 +86,6 @@ if re.fullmatch(r"\d+", rtd_ver):  # PR versions don’t have a own search index
 
 def setup(app: Sphinx) -> None:
     """Set up custom Sphinx extension."""
-    if rtd_ver:  # if we’re on ReadTheDocs, hide the pydata-sphinx-theme search popup
-        app.add_js_file("scripts/rtd-sphinx-search.js", loading_method="defer")
     app.add_object_type(
         "confval",
         "confval",
