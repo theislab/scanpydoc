@@ -55,9 +55,22 @@ html[data-theme] .rtd__search__credits {
 html[data-theme] .rtd__search__credits a {
     color: var(--pst-color-link);
 }
+/*icons*/
+html[data-theme] .search__outer::before {
+    position: absolute;
+    top: 0.3em;
+    left: 0.4em;
+    content: "\f002"; /* fa-magnifying-glass */
+    font: var(--fa-font-solid);
+    color: var(--pst-color-text-muted);
+}
+html[data-theme] .search__cross__img polygon {
+    fill: currentcolor;
+}
 /*input*/
 html[data-theme] .search__outer__input {
     color: var(--pst-color-text-base);
+    background-image: none;
     background-color: transparent;
     border-bottom-color: var(--pst-color-border);
 }
