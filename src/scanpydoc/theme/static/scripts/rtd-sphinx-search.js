@@ -3,11 +3,15 @@
  */
 
 // wire up the search key combination
-addEventListener("keydown", ({ key, metaKey, ctrlKey }) => {
-    if (key === "k" && (metaKey || ctrlKey)) {
-        showSearchModal()
-    }
-})
+addEventListener(
+    "keydown",
+    ({ key, metaKey, ctrlKey }) => {
+        if (key === "k" && (metaKey || ctrlKey)) {
+            showSearchModal()
+        }
+    },
+    { passive: true },
+)
 
 // start attempting to override the search popup and to wire up the search button
 setTimeout(overrideSearch, 0)
@@ -25,15 +29,11 @@ function overrideSearch() {
     // Hide the pydata theme’s search popup.
     theme_popup.style.display = "none"
     // wire up the search button
-    search_button.addEventListener(
-        "click",
-        () => {
-            if (isModalVisible()) {
-                removeSearchModal()
-            } else {
-                showSearchModal()
-            }
-        },
-        { passive: true },
-    )
+    search_button.addEventListener("click", () => {
+        if (isModalVisible()) {
+            removeSearchModal()
+        } else {
+            showSearchModal()
+        }
+    })
 }
