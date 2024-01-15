@@ -25,5 +25,15 @@ function overrideSearch() {
     // Hide the pydata theme’s search popup.
     theme_popup.style.display = "none"
     // wire up the search button
-    search_button.addEventListener("click", () => showSearchModal())
+    search_button.addEventListener(
+        "click",
+        () => {
+            if (isModalVisible()) {
+                removeSearchModal()
+            } else {
+                showSearchModal()
+            }
+        },
+        { passive: true },
+    )
 }
