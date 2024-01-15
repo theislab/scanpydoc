@@ -57,9 +57,9 @@ html[data-theme] .rtd__search__credits a {
 }
 /*icons*/
 html[data-theme] .search__outer::before {
+    /* this can’t be put on .search__outer__input, as <input/> supports no ::before */
     position: absolute;
-    top: 0.3em;
-    left: 0.4em;
+    padding: 0.4em 0.3em;
     content: "\f002"; /* fa-magnifying-glass */
     font: var(--fa-font-solid);
     color: var(--pst-color-text-muted);
@@ -70,7 +70,7 @@ html[data-theme] .search__cross__img polygon {
 /*input*/
 html[data-theme] .search__outer__input {
     color: var(--pst-color-text-base);
-    background-image: none;
+    background-image: none; /* hide the default search icon */
     background-color: transparent;
     border-bottom-color: var(--pst-color-border);
 }
