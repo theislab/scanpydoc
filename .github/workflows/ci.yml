@@ -42,3 +42,6 @@ jobs:
         run: coverage-rich report
       - name: upload coverage
         uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
+          token: c66a2830-d3c7-4ae7-a230-21aef89dcf65

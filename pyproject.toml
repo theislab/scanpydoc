@@ -29,7 +29,7 @@ test = [
     'pytest',
     'coverage',
     'coverage-rich',
-    'toml',  # coverage-rich’s dep anyconfig 0.13 needs this
+    'anyconfig[toml] >=0.14', # coverage-rich uses anyconfig
     'legacy-api-wrap',
 ]
 doc = [
