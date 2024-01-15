@@ -3,11 +3,19 @@
  */
 
 // wire up the search key combination
-addEventListener("keydown", ({ key, metaKey, ctrlKey }) => {
-    if (key === "k" && (metaKey || ctrlKey)) {
-        showSearchModal()
-    }
-})
+addEventListener(
+    "keydown",
+    ({ key, metaKey, ctrlKey }) => {
+        if (key === "k" && (metaKey || ctrlKey)) {
+            if (isModalVisible()) {
+                removeSearchModal()
+            } else {
+                showSearchModal()
+            }
+        }
+    },
+    { passive: true },
+)
 
 // start attempting to override the search popup and to wire up the search button
 setTimeout(overrideSearch, 0)
