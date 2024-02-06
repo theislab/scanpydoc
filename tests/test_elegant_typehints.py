@@ -449,3 +449,14 @@ def test_load_without_sat(make_app_setup: Callable[..., Sphinx]) -> None:
         master_doc="index",
         extensions=["sphinx.ext.autodoc", "scanpydoc.elegant_typehints"],
     )
+
+
+def test_load_error(make_app_setup: Callable[..., Sphinx]) -> None:
+    with pytest.raises(
+        RuntimeError,
+        match=r"`scanpydoc.elegant_typehints` requires `sphinx.ext.autodoc`",
+    ):
+        make_app_setup(
+            master_doc="index",
+            extensions=["scanpydoc.elegant_typehints"],
+        )
