@@ -97,12 +97,11 @@ qualname_overrides = ChainMap({}, qualname_overrides_default)
 
 def _init_vars(_app: Sphinx, config: Config) -> None:
     qualname_overrides.update(config.qualname_overrides)
-    if "sphinx_autodoc_typehints" not in config.extensions and config.annotate_defaults:
-        msg = (
-            "Can only use annotate_defaults option when using sphinx-autodoc-typehints"
-        )
-        raise ValueError(msg)
-    if config.typehints_defaults is None and config.annotate_defaults:
+    if (
+        "sphinx_autodoc_typehints" in config.extensions
+        and config.typehints_defaults is None
+        and config.annotate_defaults
+    ):
         # override default for “typehints_defaults”
         config.typehints_defaults = "braces"  # type: ignore[attr-defined]
 
@@ -117,6 +116,10 @@ class PickleableCallable:
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
+    if "sphinx.ext.autodoc" not in app.extensions:
+        msg = "`scanpydoc.elegant_typehints` requires `sphinx.ext.autodoc`."
+        raise RuntimeError(msg)
+
     app.add_config_value("qualname_overrides", default={}, rebuild="html")
     app.add_config_value("annotate_defaults", default=True, rebuild="html")
     app.connect("config-inited", _init_vars)
