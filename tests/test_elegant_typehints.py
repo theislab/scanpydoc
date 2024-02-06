@@ -21,7 +21,6 @@ from operator import attrgetter
 from collections.abc import Mapping, Callable
 
 import pytest
-from sphinx.errors import ExtensionError
 
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
 
@@ -87,6 +86,7 @@ def process_doc(app: Sphinx) -> ProcessDoc:
     ]
 
     def process(fn: Callable[..., Any], *, run_napoleon: bool = False) -> list[str]:
+        app.env.prepare_settings(getattr(fn, "__name__", str(fn)))
         lines = (inspect.getdoc(fn) or "").split("\n")
         if isinstance(fn, property):
             name = fn.fget.__name__
@@ -444,12 +444,19 @@ def test_return_nodoc(process_doc: ProcessDoc) -> None:
     assert res[2].startswith(":rtype: :sphinx_autodoc_typehints_type:")
 
 
+def test_load_without_sat(make_app_setup: Callable[..., Sphinx]) -> None:
+    make_app_setup(
+        master_doc="index",
+        extensions=["sphinx.ext.autodoc", "scanpydoc.elegant_typehints"],
+    )
+
+
 def test_load_error(make_app_setup: Callable[..., Sphinx]) -> None:
     with pytest.raises(
-        ExtensionError,
-        match=r"Can only use annotate_defaults.*when using sphinx-autodoc-typehints",
+        RuntimeError,
+        match=r"`scanpydoc.elegant_typehints` requires `sphinx.ext.autodoc`",
     ):
         make_app_setup(
-            extensions=["sphinx.ext.autodoc", "scanpydoc.elegant_typehints"],
-            annotate_defaults=True,
+            master_doc="index",
+            extensions=["scanpydoc.elegant_typehints"],
         )
