@@ -18,6 +18,7 @@ from . import metadata, _setup_sig
 
 if TYPE_CHECKING:
     from typing import Any, TypeAlias
+    from collections.abc import Iterable
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -35,13 +36,13 @@ class DLTypedField(PyTypedField):
     """
 
     #: Override the list type
-    list_type = nodes.definition_list
+    list_type: type[nodes.definition_list] = nodes.definition_list  # type: ignore[assignment]
 
     def make_field(  # type: ignore[override]
         self,
         types: dict[str, list[nodes.Node]],
         domain: str,
-        items: tuple[str, list[nodes.inline]],
+        items: Iterable[tuple[str, list[nodes.inline]]],
         env: BuildEnvironment | None = None,
         **kw: Any,  # noqa: ANN401
     ) -> nodes.field:
