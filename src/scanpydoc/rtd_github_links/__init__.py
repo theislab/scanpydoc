@@ -56,6 +56,7 @@ override the ``autosummary/base.rst`` template like this:
 .. _autosummary templates: \
    http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#customizing-templates
 """
+
 from __future__ import annotations
 
 import sys

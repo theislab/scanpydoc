@@ -2,6 +2,7 @@
 
 This module is also an extension itself which simply sets up all included extensions.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeVar
