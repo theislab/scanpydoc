@@ -34,8 +34,7 @@ if TYPE_CHECKING:
     class ProcessDoc(Protocol):  # noqa: D101
         def __call__(  # noqa: D102
             self, fn: Callable[..., Any], *, run_napoleon: bool = False
-        ) -> list[str]:
-            ...
+        ) -> list[str]: ...
 
 
 NONE_RTYPE = ":rtype: :sphinx_autodoc_typehints_type:`\\:py\\:obj\\:\\`None\\``"

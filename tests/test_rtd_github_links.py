@@ -1,4 +1,5 @@
 """Test rtd_github_links subextension."""
+
 from __future__ import annotations
 
 import re
