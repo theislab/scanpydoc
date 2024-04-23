@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 
 from sphinx import addnodes
 from docutils import nodes
-from sphinx.domains.python import PyObject, PyTypedField
+from sphinx.domains.python import PyObject, PyTypedField  # type: ignore[attr-defined]
 
 from . import metadata, _setup_sig
 
