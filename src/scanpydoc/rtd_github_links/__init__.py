@@ -128,7 +128,7 @@ def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
         return {}
 
 
-def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:  # noqa: PLR0912
+def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
     """Get a module/class/attribute and its original module by qualname.
 
     Returns `None` as `obj` if it’s an annotated field without value.
