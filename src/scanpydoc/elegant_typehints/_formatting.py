@@ -2,7 +2,16 @@ from __future__ import annotations
 
 import sys
 import inspect
-from typing import TYPE_CHECKING
+from types import GenericAlias
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast, get_args, get_origin
+
+from sphinx_autodoc_typehints import format_annotation
+
+from scanpydoc import elegant_typehints
+
+
+if TYPE_CHECKING:
+    from sphinx.config import Config
 
 
 if sys.version_info >= (3, 10):
@@ -11,13 +20,7 @@ else:  # pragma: no cover
     UnionType = None
 
 
-from scanpydoc import elegant_typehints
-
-
-if TYPE_CHECKING:
-    from typing import Any
-
-    from sphinx.config import Config
+_GenericAlias: type = type(Generic[TypeVar("_")])
 
 
 def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
@@ -42,6 +45,11 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
 
     tilde = "" if config.typehints_fully_qualified else "~"
 
+    if isinstance(annotation, (GenericAlias, _GenericAlias)):
+        args = get_args(annotation)
+        annotation = cast(type[Any], get_origin(annotation))
+    else:
+        args = None
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
     if annotation_cls.__module__ in {"typing", "types"}:
         return None
@@ -50,8 +58,15 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
     if inspect.isclass(annotation):
         full_name = f"{annotation.__module__}.{annotation.__qualname__}"
         override = elegant_typehints.qualname_overrides.get(full_name)
-        role = "exc" if issubclass(annotation_cls, BaseException) else "class"
         if override is not None:
-            return f":py:{role}:`{tilde}{override}`"
+            role = "exc" if issubclass(annotation_cls, BaseException) else "class"
+            if args is None:
+                formatted_args = ""
+            else:
+                formatted_args = ", ".join(
+                    format_annotation(arg, config) for arg in args
+                )
+                formatted_args = rf"\ \[{formatted_args}]"
+            return f":py:{role}:`{tilde}{override}`{formatted_args}"
 
     return None
