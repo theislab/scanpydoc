@@ -45,10 +45,16 @@ def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
     return make_module(
         "testmod",
         """\
+        from __future__ import annotations
+        from typing import Generic, TypeVar
+
         class Class: pass
         class SubCl(Class): pass
         class Excep(RuntimeError): pass
         class Excep2(Excep): pass
+
+        T = TypeVar('T')
+        class Gen(Generic[T]): pass
         """,
     )
 
@@ -68,6 +74,7 @@ def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
             "testmod.SubCl": "test.SubCl",
             "testmod.Excep": "test.Excep",
             "testmod.Excep2": "test.Excep2",
+            "testmod.Gen": "test.Gen",
         },
     )
 
@@ -209,14 +216,36 @@ def test_defaults_complex(process_doc: ProcessDoc) -> None:
     ]
 
 
-def test_qualname_overrides_class(app: Sphinx, testmod: ModuleType) -> None:
-    assert testmod.Class.__module__ == "testmod"
-    assert typehints_formatter(testmod.Class, app.config) == ":py:class:`~test.Class`"
+@pytest.mark.parametrize(
+    ("get", "expected"),
+    [
+        pytest.param(lambda m: m.Class, ":py:class:`~test.Class`", id="class"),
+        pytest.param(lambda m: m.Excep, ":py:exc:`~test.Excep`", id="exc"),
+        pytest.param(
+            lambda m: m.Gen[m.Class],
+            r":py:class:`~test.Gen`\ \[:py:class:`~test.Class`]",
+            id="generic",
+        ),
+    ],
+)
+def test_qualname_overrides(
+    process_doc: ProcessDoc,
+    testmod: ModuleType,
+    get: Callable[[ModuleType], object],
+    expected: str,
+) -> None:
+    def fn_test(m: object) -> None:  # pragma: no cover
+        """:param m: Test M"""
+        del m
 
+    fn_test.__annotations__["m"] = get(testmod)
+    assert fn_test.__annotations__["m"].__module__ == "testmod"
 
-def test_qualname_overrides_exception(app: Sphinx, testmod: ModuleType) -> None:
-    assert testmod.Excep.__module__ == "testmod"
-    assert typehints_formatter(testmod.Excep, app.config) == ":py:exc:`~test.Excep`"
+    assert process_doc(fn_test) == [
+        f":type m: {_escape_sat(expected)}",
+        ":param m: Test M",
+        NONE_RTYPE,
+    ]
 
 
 # These guys aren’t listed as classes in Python’s intersphinx index:
