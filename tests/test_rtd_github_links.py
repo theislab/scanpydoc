@@ -204,6 +204,20 @@ def test_get_github_url_error() -> None:
             "scanpydoc/rtd_github_links/_testdata.py",
             id="anno",
         ),
+        pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestGenericBuiltin",
+            _testdata.TestGenericBuiltin,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="generic_builtin",
+        ),
+        pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestGenericClass",
+            _testdata.TestGenericClass,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="generic_class",
+        ),
     ],
 )
 def test_get_obj_module_path(

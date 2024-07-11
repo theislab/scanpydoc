@@ -61,7 +61,7 @@ from __future__ import annotations
 
 import sys
 import inspect
-from types import ModuleType
+from types import ModuleType, GenericAlias
 from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
@@ -70,6 +70,7 @@ from dataclasses import fields, is_dataclass
 from jinja2.defaults import DEFAULT_FILTERS  # type: ignore[attr-defined]
 
 from scanpydoc import metadata, _setup_sig
+from scanpydoc._types import _GenericAlias
 
 
 if TYPE_CHECKING:
@@ -158,7 +159,7 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
                     raise e from None
         if isinstance(thing, ModuleType):  # pragma: no cover
             mod = thing
-        elif is_dataclass(obj):
+        elif is_dataclass(obj) or isinstance(thing, (GenericAlias, _GenericAlias)):
             obj = thing
         else:
             obj = thing
@@ -186,7 +187,8 @@ def _module_path(obj: _SourceObjectType, module: ModuleType) -> PurePosixPath:
     try:
         file = Path(inspect.getabsfile(obj))
     except TypeError:
-        file = Path(module.__file__ or "")
+        # Some don’t have the attribute, some have it set to None
+        file = Path(getattr(module, "__file__", None) or "")
     offset = -1 if file.name == "__init__.py" else 0
     parts = module.__name__.split(".")
     return PurePosixPath(*file.parts[offset - len(parts) :])
