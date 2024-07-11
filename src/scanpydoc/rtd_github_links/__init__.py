@@ -186,7 +186,9 @@ def _module_path(obj: _SourceObjectType, module: ModuleType) -> PurePosixPath:
     try:
         file = Path(inspect.getabsfile(obj))
     except TypeError:
-        file = Path(module.__file__ if hasattr(module, "__file__") else "")  # type: ignore
+        file = Path(
+            module.__file__ if hasattr(module, "__file__") and module.__file__ else ""
+        )
     offset = -1 if file.name == "__init__.py" else 0
     parts = module.__name__.split(".")
     return PurePosixPath(*file.parts[offset - len(parts) :])
