@@ -2,9 +2,29 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Generic, TypeVar
 from dataclasses import field, dataclass
 
 from legacy_api_wrap import legacy_api
+
+
+if TYPE_CHECKING:
+    from typing import TypeAlias
+
+
+_T = TypeVar("_T")
+
+
+class _G(Generic[_T]):
+    pass
+
+
+# make sure that TestGenericClass keeps its __module__
+_G.__module__ = "somewhere_else"
+
+
+TestGenericBuiltin: TypeAlias = list[str]
+TestGenericClass: TypeAlias = _G[int]
 
 
 @dataclass

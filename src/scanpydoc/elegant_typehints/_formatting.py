@@ -3,11 +3,12 @@ from __future__ import annotations
 import sys
 import inspect
 from types import GenericAlias
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast, get_args, get_origin
+from typing import TYPE_CHECKING, Any, cast, get_args, get_origin
 
 from sphinx_autodoc_typehints import format_annotation
 
 from scanpydoc import elegant_typehints
+from scanpydoc._types import _GenericAlias
 
 
 if TYPE_CHECKING:
@@ -18,9 +19,6 @@ if sys.version_info >= (3, 10):
     from types import UnionType
 else:  # pragma: no cover
     UnionType = None
-
-
-_GenericAlias: type = type(Generic[TypeVar("_")])
 
 
 def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
