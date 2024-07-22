@@ -43,7 +43,7 @@ This extension modifies the created type annotations in four ways:
 .. _sphinx issue 4826: https://github.com/sphinx-doc/sphinx/issues/4826
 .. _sphinx-autodoc-typehints issue 38: https://github.com/tox-dev/sphinx-autodoc-typehints/issues/38
 
-"""  # noqa: D300, D301
+"""  # noqa: D300
 
 from __future__ import annotations
 
