@@ -43,7 +43,7 @@ This extension modifies the created type annotations in four ways:
 .. _sphinx issue 4826: https://github.com/sphinx-doc/sphinx/issues/4826
 .. _sphinx-autodoc-typehints issue 38: https://github.com/tox-dev/sphinx-autodoc-typehints/issues/38
 
-"""  # noqa: D300, D301
+"""  # noqa: D300
 
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
         and config.annotate_defaults
     ):
         # override default for “typehints_defaults”
-        config.typehints_defaults = "braces"  # type: ignore[attr-defined]
+        config.typehints_defaults = "braces"
 
 
 @dataclass

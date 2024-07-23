@@ -142,7 +142,7 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
 
     # retrieve object and find original module name
     mod = sys.modules[modname]
-    obj = None if attr_path else mod
+    obj: Any = None if attr_path else mod
     del modname
     for attr_name in attr_path:
         try:
