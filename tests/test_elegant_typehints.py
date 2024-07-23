@@ -262,7 +262,7 @@ def test_qualname_overrides(
     ids=lambda p: str(p).replace("typing.", ""),
 )
 def test_typing_classes(app: Sphinx, annotation: type) -> None:
-    app.config.typehints_fully_qualified = True  # type: ignore[attr-defined]
+    app.config.typehints_fully_qualified = True
     name = (
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)

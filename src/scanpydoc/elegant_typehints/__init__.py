@@ -103,7 +103,7 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
         and config.annotate_defaults
     ):
         # override default for “typehints_defaults”
-        config.typehints_defaults = "braces"  # type: ignore[attr-defined]
+        config.typehints_defaults = "braces"
 
 
 @dataclass
