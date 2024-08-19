@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 HERE = Path(__file__).parent
 
 
-@pytest.fixture()
+@pytest.fixture
 def config() -> Config:
     config = Config()
     config.add(
@@ -46,7 +46,7 @@ def config() -> Config:
     return config
 
 
-@pytest.fixture()
+@pytest.fixture
 def _env(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr("scanpydoc.rtd_github_links.github_base_url", "x")
 

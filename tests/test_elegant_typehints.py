@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 NONE_RTYPE = ":rtype: :sphinx_autodoc_typehints_type:`\\:py\\:obj\\:\\`None\\``"
 
 
-@pytest.fixture()
+@pytest.fixture
 def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
     return make_module(
         "testmod",
@@ -59,7 +59,7 @@ def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
     return make_app_setup(
         master_doc="index",
@@ -79,7 +79,7 @@ def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def process_doc(app: Sphinx) -> ProcessDoc:
     listeners = sorted(
         (l for l in app.events.listeners["autodoc-process-docstring"]),
@@ -276,7 +276,7 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="requires Python 3.10+")
 def test_union_type(app: Sphinx) -> None:
-    union = eval("int | str")  # noqa: S307, PGH001
+    union = eval("int | str")  # noqa: S307
     assert typehints_formatter(union, app.config) is None
 
 
