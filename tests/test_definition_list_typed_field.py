@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
     app = make_app_setup()
     app.setup_extension("scanpydoc.definition_list_typed_field")

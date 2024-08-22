@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_app_setup(
     make_app: Callable[..., Sphinx], tmp_path: Path
 ) -> Callable[..., Sphinx]:
@@ -32,7 +32,7 @@ def make_app_setup(
     return make_app_setup
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_module(
     tmp_path: Path,
 ) -> Generator[Callable[[str, str], ModuleType], None, None]:
