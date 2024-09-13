@@ -28,8 +28,6 @@ dev = ['pre-commit']
 test = [
     'pytest',
     'coverage',
-    'coverage-rich',
-    'anyconfig[toml] >=0.14', # coverage-rich uses anyconfig
     'legacy-api-wrap',
     'defusedxml',  # sphinx[test] would also pull in cython
 ]
