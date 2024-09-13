@@ -33,7 +33,7 @@ test = [
     'defusedxml',  # sphinx[test] would also pull in cython
 ]
 doc = [
-    'scanpydoc[typehints,theme]',
+    'scanpydoc[typehints,myst,theme]',
     'sphinx',
     'readthedocs-sphinx-search',
 ]
@@ -100,6 +100,7 @@ python = '3.11'
 features = ['doc']
 [tool.hatch.envs.docs.scripts]
 build = 'sphinx-build -M html docs docs/_build'
+clean = 'git clean -fdX docs'
 
 [tool.hatch.envs.hatch-test]
 features = ['test', 'typehints', 'myst']

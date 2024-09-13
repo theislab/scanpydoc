@@ -13,6 +13,7 @@ Included extensions
    definition_list_typed_field
    elegant_typehints
    rtd_github_links
+   release_notes
    theme
 
 .. hidden deprecated extension(s):
