@@ -7,7 +7,7 @@ render them using the following (where ``.`` is the directory they are in):
 
     .. release-notes:: .
 
-With e.g. the files `1.2.0.md`, `1.2.1.md`, `1.3.0.rst`, and `1.3.2.rst`,
+With e.g. the files :file:`1.2.0.md`, :file:`1.2.1.md`, and :file:`1.3.0.rst`,
 this will render like the following:
 
 .. code:: restructuredtext
@@ -17,8 +17,8 @@ this will render like the following:
    Version 1.3
    ===========
 
-   .. include:: 1.3.2.rst
    .. include:: 1.3.0.rst
+
 
    _v1.2:
 
@@ -182,6 +182,6 @@ class ReleaseNotes(SphinxDirective):
 
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
-    """Add the `release-notes` directive."""
+    """Add the ``release-notes`` directive."""
     app.add_directive("release-notes", ReleaseNotes)
     return metadata
