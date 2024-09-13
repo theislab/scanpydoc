@@ -28,20 +28,20 @@ jobs:
         with:
           fetch-depth: 0
           filter: blob:none
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install .[test,typehints]
+          pip install .[test,typehints] coverage-rich 'anyconfig[toml] >=0.14'
       - name: tests
         run: coverage run -m pytest --verbose --color=yes
       - name: show coverage
         run: coverage-rich report
       - name: upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           token: c66a2830-d3c7-4ae7-a230-21aef89dcf65
