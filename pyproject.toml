@@ -27,6 +27,7 @@ dependencies = [
 dev = ['pre-commit']
 test = [
     'pytest',
+    'pytest-mock',
     'coverage',
     'legacy-api-wrap',
     'defusedxml',  # sphinx[test] would also pull in cython
