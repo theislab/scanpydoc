@@ -28,8 +28,6 @@ dev = ['pre-commit']
 test = [
     'pytest',
     'coverage',
-    'coverage-rich',
-    'anyconfig[toml] >=0.14', # coverage-rich uses anyconfig
     'legacy-api-wrap',
     'defusedxml',  # sphinx[test] would also pull in cython
 ]
@@ -100,17 +98,8 @@ features = ['doc']
 [tool.hatch.envs.docs.scripts]
 build = 'sphinx-build -M html docs docs/_build'
 
-[[tool.hatch.envs.test.matrix]]
-python = ['3.9', '3.10', '3.11', '3.12']
-[tool.hatch.envs.test]
+[tool.hatch.envs.hatch-test]
 features = ['test', 'typehints']
-[tool.hatch.envs.test.scripts]
-run = 'pytest -vv {args}'
-cov = [
-    'coverage run -m pytest -vv {args}',
-    'coverage xml',
-    'coverage-rich report',
-]
 
 [tool.pytest.ini_options]
 addopts = [
