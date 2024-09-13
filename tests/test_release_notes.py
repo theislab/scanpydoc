@@ -7,6 +7,10 @@ from typing import TYPE_CHECKING
 from textwrap import dedent
 
 import pytest
+from sphinx.errors import SphinxWarning
+from docutils.utils import new_document
+from docutils.languages import get_language
+from docutils.parsers.rst import directives
 
 
 if TYPE_CHECKING:
@@ -14,6 +18,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from collections.abc import Mapping, Callable
 
+    from pytest_mock import MockerFixture
     from sphinx.application import Sphinx
 
     Tree: TypeAlias = Mapping[str | Path, "Tree | str"]
@@ -38,15 +43,30 @@ def app(
             *(["myst_parser"] if request.param == "myst" else []),
             "scanpydoc.release_notes",
         ],
+        exclude_patterns=["[!i]*.md"],
     )
 
 
 @pytest.fixture
-def files(app: Sphinx) -> Tree:
+def index_filename(app: Sphinx) -> str:
+    return "index.md" if "myst_parser" in app.extensions else "index.rst"
+
+
+@pytest.fixture
+def index_template(app: Sphinx) -> str:
+    return (
+        "```{{release-notes}} {}\n```"
+        if "myst_parser" in app.extensions
+        else ".. release-notes:: {}"
+    )
+
+
+@pytest.fixture
+def files(app: Sphinx, index_filename: str, index_template: str) -> Tree:
     files: Tree
     if "myst_parser" in app.extensions:
         files = {
-            "index.md": "```{release-notes} .\n```",
+            index_filename: index_template.format("."),
             "1.2.0.md": "### 1.2.0",
             "1.2.1.md": "### 1.2.1",
             "1.3.0.md": "### 1.3.0",
@@ -54,7 +74,7 @@ def files(app: Sphinx) -> Tree:
         }
     else:
         files = {
-            "index.rst": ".. release-notes:: .",
+            index_filename: index_template.format("."),
             "1.2.0.rst": "1.2.0\n=====",
             "1.2.1.rst": "1.2.1\n=====",
             "1.3.0.rst": "1.3.0\n=====",
@@ -94,3 +114,46 @@ def test_release_notes(tmp_path: Path, app: Sphinx, files: Tree) -> None:
     assert (
         "\n".join(l[4:] for l in dedent(index_out).splitlines()[1:]) == expected.strip()
     )
+
+
+@pytest.mark.parametrize(
+    ("root", "files", "pattern"),
+    [
+        pytest.param(
+            "doesnt-exist.txt", {}, r"Not a directory:.*doesnt-exist.txt", id="nothing"
+        ),
+        pytest.param(
+            "file.txt", {"file.txt": "cont"}, r"Not a directory:.*file.txt", id="file"
+        ),
+    ],
+)
+def test_error_wrong_file(
+    tmp_path: Path,
+    app: Sphinx,
+    index_filename: str,
+    index_template: str,
+    root: str,
+    files: Tree,
+    pattern: str,
+) -> None:
+    mkfiles(tmp_path, {index_filename: index_template.format(root), **files})
+    app.warningiserror = True
+    with pytest.raises(SphinxWarning, match=pattern):
+        app.build()
+
+
+def test_error_no_src(
+    mocker: MockerFixture,
+    tmp_path: Path,
+    app: Sphinx,
+    files: Tree,
+) -> None:
+    if "myst_parser" not in app.extensions:
+        pytest.skip("rst parser doesn’t need this")
+    app.warningiserror = True
+    rn, _ = directives.directive("release-notes", get_language("en"), new_document(""))
+    mocker.patch.object(rn, "get_source_info", return_value=("<string>", 0))
+
+    mkfiles(tmp_path, files)
+    with pytest.raises(SphinxWarning, match=r"Cannot find relative path to: <string>"):
+        app.build()

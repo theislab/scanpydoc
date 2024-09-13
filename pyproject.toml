@@ -68,6 +68,7 @@ ignore = [
     'D103', # Test functions don’t need docstrings
     'S101', # Pytest tests use `assert`
     'RUF018', # Assignment expressions in assert are fine here
+    'PLR0913', # Tests should be able to use as many fixtures as they want
 ]
 [tool.ruff.lint.flake8-type-checking]
 strict = true
