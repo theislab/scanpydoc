@@ -35,7 +35,7 @@ jobs:
       - name: dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install .[test,typehints] coverage-rich 'anyconfig[toml] >=0.14'
+          pip install .[test,typehints,myst] coverage-rich 'anyconfig[toml] >=0.14'
       - name: tests
         run: coverage run -m pytest --verbose --color=yes
       - name: show coverage

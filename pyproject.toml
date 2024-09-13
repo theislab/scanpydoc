@@ -27,6 +27,7 @@ dependencies = [
 dev = ['pre-commit']
 test = [
     'pytest',
+    'pytest-mock',
     'coverage',
     'legacy-api-wrap',
     'defusedxml',  # sphinx[test] would also pull in cython
@@ -38,6 +39,7 @@ doc = [
 ]
 typehints = ['sphinx-autodoc-typehints>=1.15.2']
 theme = ['sphinx-book-theme>=1.1.0']
+myst = ['myst-parser']
 
 [project.entry-points.'sphinx.html_themes']
 scanpydoc = 'scanpydoc.theme'
@@ -67,6 +69,7 @@ ignore = [
     'D103', # Test functions don’t need docstrings
     'S101', # Pytest tests use `assert`
     'RUF018', # Assignment expressions in assert are fine here
+    'PLR0913', # Tests should be able to use as many fixtures as they want
 ]
 [tool.ruff.lint.flake8-type-checking]
 strict = true
@@ -99,7 +102,7 @@ features = ['doc']
 build = 'sphinx-build -M html docs docs/_build'
 
 [tool.hatch.envs.hatch-test]
-features = ['test', 'typehints']
+features = ['test', 'typehints', 'myst']
 
 [tool.pytest.ini_options]
 addopts = [

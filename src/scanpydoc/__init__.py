@@ -46,4 +46,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.setup_extension("scanpydoc.elegant_typehints")
     app.setup_extension("scanpydoc.rtd_github_links")
     app.setup_extension("scanpydoc.theme")
+    app.setup_extension("scanpydoc.release_notes")
     return metadata

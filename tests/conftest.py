@@ -25,9 +25,9 @@ if TYPE_CHECKING:
 def make_app_setup(
     make_app: Callable[..., Sphinx], tmp_path: Path
 ) -> Callable[..., Sphinx]:
-    def make_app_setup(**conf: Any) -> Sphinx:  # noqa: ANN401
+    def make_app_setup(builder: str = "html", /, **conf: Any) -> Sphinx:  # noqa: ANN401
         (tmp_path / "conf.py").write_text("")
-        return make_app(srcdir=tmp_path, confoverrides=conf)
+        return make_app(buildername=builder, srcdir=tmp_path, confoverrides=conf)
 
     return make_app_setup
 
