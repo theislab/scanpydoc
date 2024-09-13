@@ -25,3 +25,4 @@ repos:
           - pytest
           - types-docutils
           - legacy-api-wrap
+          - myst-parser
