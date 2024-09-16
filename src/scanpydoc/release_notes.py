@@ -53,7 +53,7 @@ if TYPE_CHECKING:
     from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 
 
-FULL_VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:\..*)?$")
+FULL_VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:.*)?$")
 """Regex matching a full version number including patch part, maybe with more after."""
 
 
@@ -128,8 +128,8 @@ class _BackendMyst(_Backend):
         self._myst_renderer.current_node.append(target)
         self._myst_renderer.update_section_level_state(section, 2)
         # append children to section
-        with self._myst_renderer.current_node_context(section):
-            for _, p in versions:
+        for _, p in versions:
+            with self._myst_renderer.current_node_context(section):
                 self.render_include(p)
         return target, section  # ignored, just to not change the types
 

@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from pathlib import Path
     from collections.abc import Mapping, Callable
 
-    from pytest_mock import MockerFixture
     from sphinx.application import Sphinx
 
     Tree: TypeAlias = Mapping[str | Path, "Tree | str"]
@@ -67,18 +66,16 @@ def files(app: Sphinx, index_filename: str, index_template: str) -> Tree:
     if "myst_parser" in app.extensions:
         files = {
             index_filename: index_template.format("."),
-            "1.2.0.md": "### 1.2.0",
-            "1.2.1.md": "### 1.2.1",
-            "1.3.0.md": "### 1.3.0",
-            "1.3.2.md": "### 1.3.2",
+            "1.2.0.md": "(v1.2.0)=\n### 1.2.0",
+            "1.2.1.md": "(v1.2.1)=\n### 1.2.1",
+            "1.3.0rc1.md": "(v1.3.0rc1)=\n### 1.3.0rc1",
         }
     else:
         files = {
             index_filename: index_template.format("."),
-            "1.2.0.rst": "1.2.0\n=====",
-            "1.2.1.rst": "1.2.1\n=====",
-            "1.3.0.rst": "1.3.0\n=====",
-            "1.3.2.rst": "1.3.2\n=====",
+            "1.2.0.rst": ".. _v1.2.0:\n1.2.0\n=====",
+            "1.2.1.rst": ".. _v1.2.1:\n1.2.1\n=====",
+            "1.3.0rc1.rst": ".. _v1.3.0rc1:\n1.3.0rc1\n========",
         }
     return files
 
@@ -88,20 +85,20 @@ expected = """\
 <section ids="version-1-3 v1-3" names="version\\ 1.3 v1.3">
     <title>
         Version 1.3
-    <section ids="id1" names="1.3.2">
+    <target refid="v1-3-0rc1">
+    <section ids="rc1 v1-3-0rc1" names="1.3.0rc1 v1.3.0rc1">
         <title>
-            1.3.2
-    <section ids="id2" names="1.3.0">
-        <title>
-            1.3.0
+            1.3.0rc1
 <target refid="v1-2">
 <section ids="version-1-2 v1-2" names="version\\ 1.2 v1.2">
     <title>
         Version 1.2
-    <section ids="id3" names="1.2.1">
+    <target refid="v1-2-1">
+    <section ids="v1-2-1 id1" names="1.2.1 v1.2.1">
         <title>
             1.2.1
-    <section ids="id4" names="1.2.0">
+    <target refid="v1-2-0">
+    <section ids="v1-2-0 id2" names="1.2.0 v1.2.0">
         <title>
             1.2.0
 """
@@ -143,7 +140,7 @@ def test_error_wrong_file(
 
 
 def test_error_no_src(
-    mocker: MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
     app: Sphinx,
     files: Tree,
@@ -152,7 +149,7 @@ def test_error_no_src(
         pytest.skip("rst parser doesn’t need this")
     app.warningiserror = True
     rn, _ = directives.directive("release-notes", get_language("en"), new_document(""))
-    mocker.patch.object(rn, "get_source_info", return_value=("<string>", 0))
+    monkeypatch.setattr(rn, "get_source_info", lambda *_, **__: ("<string>", 0))
 
     mkfiles(tmp_path, files)
     with pytest.raises(SphinxWarning, match=r"Cannot find relative path to: <string>"):
