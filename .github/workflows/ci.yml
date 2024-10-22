@@ -31,11 +31,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
+      - uses: hynek/setup-cached-uv@v2
+        with:
+          cache-dependency-path: pyproject.toml
       - name: dependencies
-        run: |
-          pip install --upgrade pip wheel
-          pip install .[test,typehints,myst] coverage-rich 'anyconfig[toml] >=0.14'
+        run: uv pip install .[test,typehints,myst] coverage-rich 'anyconfig[toml] >=0.14'
       - name: tests
         run: coverage run -m pytest --verbose --color=yes
       - name: show coverage
