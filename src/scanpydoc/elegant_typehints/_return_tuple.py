@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import re
-import sys
 import inspect
+from types import UnionType
 from typing import TYPE_CHECKING, Union, get_args, get_origin, get_type_hints
 from typing import Tuple as t_Tuple  # noqa: UP035
 from logging import getLogger
@@ -19,12 +19,7 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc import Options
 
 
-if sys.version_info > (3, 10):
-    from types import UnionType
-
-    UNION_TYPES = {Union, UnionType}
-else:  # pragma: no cover
-    UNION_TYPES = {Union}
+UNION_TYPES = {Union, UnionType}
 
 
 __all__ = ["process_docstring", "_parse_returns_section", "setup"]
@@ -77,7 +72,7 @@ def process_docstring(  # noqa: PLR0913
 
     idxs_ret_names = _get_idxs_ret_names(lines)
     if len(idxs_ret_names) == len(ret_types):
-        for l, rt in zip(idxs_ret_names, ret_types):
+        for l, rt in zip(idxs_ret_names, ret_types, strict=False):
             typ = format_annotation(rt, app.config)
             if (line := lines[l]).lstrip() in {":returns: :", ":return: :", ":"}:
                 transformed = f"{line[:-1]}{typ}"

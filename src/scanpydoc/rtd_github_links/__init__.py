@@ -118,10 +118,7 @@ def _infer_vars(config: Config) -> tuple[str, PurePosixPath]:
 
 
 def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
-    if sys.version_info > (3, 10):
-        from inspect import get_annotations
-    else:  # pragma: no cover
-        from get_annotations import get_annotations
+    from inspect import get_annotations
 
     try:
         return get_annotations(obj)  # type: ignore[no-any-return,arg-type,unused-ignore]
@@ -159,7 +156,7 @@ def _get_obj_module(qualname: str) -> tuple[Any, ModuleType]:
                     raise e from None
         if isinstance(thing, ModuleType):  # pragma: no cover
             mod = thing
-        elif is_dataclass(obj) or isinstance(thing, (GenericAlias, _GenericAlias)):
+        elif is_dataclass(obj) or isinstance(thing, GenericAlias | _GenericAlias):
             obj = thing
         else:
             obj = thing

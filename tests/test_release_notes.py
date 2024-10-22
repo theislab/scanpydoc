@@ -5,6 +5,7 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 from textwrap import dedent
+from functools import partial
 
 import pytest
 from sphinx.errors import SphinxWarning
@@ -14,11 +15,14 @@ from docutils.parsers.rst import directives
 
 
 if TYPE_CHECKING:
-    from typing import TypeAlias
+    from typing import Literal, TypeAlias
     from pathlib import Path
-    from collections.abc import Mapping, Callable
+    from collections.abc import Mapping
 
     from sphinx.application import Sphinx
+    from sphinx.testing.util import SphinxTestApp
+
+    from scanpydoc.testing import MakeApp
 
     Tree: TypeAlias = Mapping[str | Path, "Tree | str"]
 
@@ -33,13 +37,19 @@ def mkfiles(root: Path, tree: Tree = MappingProxyType({})) -> None:
 
 
 @pytest.fixture(params=["rst", "myst"])
-def app(
-    request: pytest.FixtureRequest, make_app_setup: Callable[..., Sphinx]
-) -> Sphinx:
-    return make_app_setup(
+def file_format(request: pytest.FixtureRequest) -> Literal["rst", "myst"]:
+    return request.param  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+def make_app_relnotes(
+    make_app_setup: MakeApp, file_format: Literal["rst", "myst"]
+) -> MakeApp:
+    return partial(
+        make_app_setup,
         "pseudoxml",
         extensions=[
-            *(["myst_parser"] if request.param == "myst" else []),
+            *(["myst_parser"] if file_format == "myst" else []),
             "scanpydoc.release_notes",
         ],
         exclude_patterns=["[!i]*.md"],
@@ -47,23 +57,30 @@ def app(
 
 
 @pytest.fixture
-def index_filename(app: Sphinx) -> str:
-    return "index.md" if "myst_parser" in app.extensions else "index.rst"
+def app(make_app_relnotes: MakeApp) -> SphinxTestApp:
+    return make_app_relnotes()
 
 
 @pytest.fixture
-def index_template(app: Sphinx) -> str:
+def index_filename(file_format: Literal["rst", "myst"]) -> str:
+    return "index.md" if file_format == "myst" else "index.rst"
+
+
+@pytest.fixture
+def index_template(file_format: Literal["rst", "myst"]) -> str:
     return (
         "```{{release-notes}} {}\n```"
-        if "myst_parser" in app.extensions
+        if file_format == "myst"
         else ".. release-notes:: {}"
     )
 
 
 @pytest.fixture
-def files(app: Sphinx, index_filename: str, index_template: str) -> Tree:
+def files(
+    file_format: Literal["rst", "myst"], index_filename: str, index_template: str
+) -> Tree:
     files: Tree
-    if "myst_parser" in app.extensions:
+    if file_format == "myst":
         files = {
             index_filename: index_template.format("."),
             "1.2.0.md": "(v1.2.0)=\n### 1.2.0",
@@ -126,15 +143,15 @@ def test_release_notes(tmp_path: Path, app: Sphinx, files: Tree) -> None:
 )
 def test_error_wrong_file(
     tmp_path: Path,
-    app: Sphinx,
+    make_app_relnotes: MakeApp,
     index_filename: str,
     index_template: str,
     root: str,
     files: Tree,
     pattern: str,
 ) -> None:
+    app = make_app_relnotes(exception_on_warning=True)
     mkfiles(tmp_path, {index_filename: index_template.format(root), **files})
-    app.warningiserror = True
     with pytest.raises(SphinxWarning, match=pattern):
         app.build()
 
@@ -142,12 +159,12 @@ def test_error_wrong_file(
 def test_error_no_src(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
-    app: Sphinx,
+    make_app_relnotes: MakeApp,
     files: Tree,
 ) -> None:
+    app = make_app_relnotes(exception_on_warning=True)
     if "myst_parser" not in app.extensions:
         pytest.skip("rst parser doesn’t need this")
-    app.warningiserror = True
     rn, _ = directives.directive("release-notes", get_language("en"), new_document(""))
     monkeypatch.setattr(rn, "get_source_info", lambda *_, **__: ("<string>", 0))
 

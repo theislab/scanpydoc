@@ -17,10 +17,9 @@ classifiers = [
     'Framework :: Sphinx :: Extension',
     'Typing :: Typed',
 ]
-requires-python = '>=3.9'
+requires-python = '>=3.10'
 dependencies = [
     'sphinx>=7.0',
-    'get-annotations; python_version < "3.10"',
 ]
 
 [project.optional-dependencies]
@@ -30,6 +29,7 @@ test = [
     'coverage',
     'legacy-api-wrap',
     'defusedxml',  # sphinx[test] would also pull in cython
+    'sphinx>=8.1.0' # https://github.com/sphinx-doc/sphinx/pull/12743
 ]
 doc = [
     'scanpydoc[typehints,myst,theme]',

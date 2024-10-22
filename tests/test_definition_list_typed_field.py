@@ -11,13 +11,13 @@ from sphinx.testing.restructuredtext import parse
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from sphinx.application import Sphinx
+
+    from scanpydoc.testing import MakeApp
 
 
 @pytest.fixture
-def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
+def app(make_app_setup: MakeApp) -> Sphinx:
     app = make_app_setup()
     app.setup_extension("scanpydoc.definition_list_typed_field")
     return app
@@ -41,7 +41,7 @@ params_code = """\
 """
 
 
-def test_apps_separate(app: Sphinx, make_app_setup: Callable[..., Sphinx]) -> None:
+def test_apps_separate(app: Sphinx, make_app_setup: MakeApp) -> None:
     app_no_setup = make_app_setup()
     assert app is not app_no_setup
     assert "scanpydoc.definition_list_typed_field" in app.extensions
@@ -97,11 +97,12 @@ def test_convert_params(
     assert isinstance(cyr := term[2], nodes.classifier)
     assert len(cyr) == len(conv_types), cyr.children
     assert all(
-        isinstance(cyr_part, conv_type) for cyr_part, conv_type in zip(cyr, conv_types)
+        isinstance(cyr_part, conv_type)
+        for cyr_part, conv_type in zip(cyr, conv_types, strict=True)
     )
 
 
-def test_load_error(make_app_setup: Callable[..., Sphinx]) -> None:
+def test_load_error(make_app_setup: MakeApp) -> None:
     with pytest.raises(RuntimeError, match=r"Please load sphinx\.ext\.napoleon before"):
         make_app_setup(
             extensions=["scanpydoc.definition_list_typed_field", "sphinx.ext.napoleon"]

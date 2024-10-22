@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 import inspect
 from types import GenericAlias
 from typing import TYPE_CHECKING, Any, cast, get_args, get_origin
@@ -13,12 +12,6 @@ from scanpydoc._types import _GenericAlias
 
 if TYPE_CHECKING:
     from sphinx.config import Config
-
-
-if sys.version_info >= (3, 10):
-    from types import UnionType
-else:  # pragma: no cover
-    UnionType = None
 
 
 def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
@@ -43,7 +36,7 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
 
     tilde = "" if config.typehints_fully_qualified else "~"
 
-    if isinstance(annotation, (GenericAlias, _GenericAlias)):
+    if isinstance(annotation, GenericAlias | _GenericAlias):
         args = get_args(annotation)
         annotation = cast(type[Any], get_origin(annotation))
     else:

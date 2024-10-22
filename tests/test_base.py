@@ -11,17 +11,17 @@ import scanpydoc
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     import pytest
     from sphinx.application import Sphinx
+
+    from scanpydoc.testing import MakeApp
 
 
 DEPRECATED = frozenset({"scanpydoc.autosummary_generate_imported"})
 
 
 def test_all_get_installed(
-    monkeypatch: pytest.MonkeyPatch, make_app_setup: Callable[..., Sphinx]
+    monkeypatch: pytest.MonkeyPatch, make_app_setup: MakeApp
 ) -> None:
     setups_seen: set[str] = set()
     setups_called: dict[str, Sphinx] = {}
