@@ -30,6 +30,7 @@ test = [
     'coverage',
     'legacy-api-wrap',
     'defusedxml',  # sphinx[test] would also pull in cython
+    'sphinx>=8.1.0' # https://github.com/sphinx-doc/sphinx/pull/12743
 ]
 doc = [
     'scanpydoc[typehints,myst,theme]',

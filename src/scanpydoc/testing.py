@@ -19,6 +19,6 @@ class MakeApp(Protocol):
         builder: str = "html",
         /,
         *,
-        warningiserror: bool = False,
+        exception_on_warning: bool = False,
         **conf: Any,  # noqa: ANN401
     ) -> SphinxTestApp: ...

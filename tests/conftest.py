@@ -29,7 +29,7 @@ def make_app_setup(make_app: type[SphinxTestApp], tmp_path: Path) -> MakeApp:
         builder: str = "html",
         /,
         *,
-        warningiserror: bool = False,
+        exception_on_warning: bool = False,
         **conf: Any,  # noqa: ANN401
     ) -> SphinxTestApp:
         (tmp_path / "conf.py").write_text("")
@@ -38,8 +38,8 @@ def make_app_setup(make_app: type[SphinxTestApp], tmp_path: Path) -> MakeApp:
             buildername=builder,
             srcdir=tmp_path,
             confoverrides=conf,
-            warningiserror=warningiserror,
-            exception_on_warning=warningiserror,
+            warningiserror=exception_on_warning,
+            exception_on_warning=exception_on_warning,
         )
 
     return make_app_setup
