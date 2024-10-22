@@ -12,11 +12,12 @@ from sphinx.testing.restructuredtext import parse
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-    from sphinx.testing.util import SphinxTestApp
+
+    from scanpydoc.testing import MakeApp
 
 
 @pytest.fixture
-def app(make_app_setup: type[SphinxTestApp]) -> Sphinx:
+def app(make_app_setup: MakeApp) -> Sphinx:
     app = make_app_setup()
     app.setup_extension("scanpydoc.definition_list_typed_field")
     return app
@@ -40,7 +41,7 @@ params_code = """\
 """
 
 
-def test_apps_separate(app: Sphinx, make_app_setup: type[SphinxTestApp]) -> None:
+def test_apps_separate(app: Sphinx, make_app_setup: MakeApp) -> None:
     app_no_setup = make_app_setup()
     assert app is not app_no_setup
     assert "scanpydoc.definition_list_typed_field" in app.extensions
@@ -100,7 +101,7 @@ def test_convert_params(
     )
 
 
-def test_load_error(make_app_setup: type[SphinxTestApp]) -> None:
+def test_load_error(make_app_setup: MakeApp) -> None:
     with pytest.raises(RuntimeError, match=r"Please load sphinx\.ext\.napoleon before"):
         make_app_setup(
             extensions=["scanpydoc.definition_list_typed_field", "sphinx.ext.napoleon"]

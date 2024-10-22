@@ -5,6 +5,7 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 from textwrap import dedent
+from functools import partial
 
 import pytest
 from sphinx.errors import SphinxWarning
@@ -21,6 +22,8 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
 
+    from scanpydoc.testing import MakeApp
+
     Tree: TypeAlias = Mapping[str | Path, "Tree | str"]
 
 
@@ -34,8 +37,11 @@ def mkfiles(root: Path, tree: Tree = MappingProxyType({})) -> None:
 
 
 @pytest.fixture(params=["rst", "myst"])
-def app(request: pytest.FixtureRequest, make_app_setup: type[SphinxTestApp]) -> Sphinx:
-    return make_app_setup(
+def make_app_relnotes(
+    request: pytest.FixtureRequest, make_app_setup: MakeApp
+) -> MakeApp:
+    return partial(
+        make_app_setup,
         "pseudoxml",
         extensions=[
             *(["myst_parser"] if request.param == "myst" else []),
@@ -43,6 +49,11 @@ def app(request: pytest.FixtureRequest, make_app_setup: type[SphinxTestApp]) -> 
         ],
         exclude_patterns=["[!i]*.md"],
     )
+
+
+@pytest.fixture
+def app(make_app_relnotes: MakeApp) -> SphinxTestApp:
+    return make_app_relnotes()
 
 
 @pytest.fixture
@@ -125,15 +136,15 @@ def test_release_notes(tmp_path: Path, app: Sphinx, files: Tree) -> None:
 )
 def test_error_wrong_file(
     tmp_path: Path,
-    app: Sphinx,
+    make_app_relnotes: MakeApp,
     index_filename: str,
     index_template: str,
     root: str,
     files: Tree,
     pattern: str,
 ) -> None:
+    app = make_app_relnotes(warningiserror=True)
     mkfiles(tmp_path, {index_filename: index_template.format(root), **files})
-    app.warningiserror = True
     with pytest.raises(SphinxWarning, match=pattern):
         app.build()
 
@@ -141,12 +152,12 @@ def test_error_wrong_file(
 def test_error_no_src(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
-    app: Sphinx,
+    make_app_relnotes: MakeApp,
     files: Tree,
 ) -> None:
+    app = make_app_relnotes(warningiserror=True)
     if "myst_parser" not in app.extensions:
         pytest.skip("rst parser doesn’t need this")
-    app.warningiserror = True
     rn, _ = directives.directive("release-notes", get_language("en"), new_document(""))
     monkeypatch.setattr(rn, "get_source_info", lambda *_, **__: ("<string>", 0))
 

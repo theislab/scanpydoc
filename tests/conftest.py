@@ -18,19 +18,31 @@ if TYPE_CHECKING:
     from pathlib import Path
     from collections.abc import Callable, Generator
 
-    from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
+
+    from scanpydoc.testing import MakeApp
 
 
 @pytest.fixture
-def make_app_setup(
-    make_app: type[SphinxTestApp], tmp_path: Path
-) -> type[SphinxTestApp]:
-    def make_app_setup(builder: str = "html", /, **conf: Any) -> Sphinx:  # noqa: ANN401
+def make_app_setup(make_app: type[SphinxTestApp], tmp_path: Path) -> MakeApp:
+    def make_app_setup(
+        builder: str = "html",
+        /,
+        *,
+        warningiserror: bool = False,
+        **conf: Any,  # noqa: ANN401
+    ) -> SphinxTestApp:
         (tmp_path / "conf.py").write_text("")
-        return make_app(buildername=builder, srcdir=tmp_path, confoverrides=conf)
+        conf.setdefault("suppress_warnings", []).append("app.add_node")
+        return make_app(
+            buildername=builder,
+            srcdir=tmp_path,
+            confoverrides=conf,
+            warningiserror=warningiserror,
+            exception_on_warning=warningiserror,
+        )
 
-    return make_app_setup  # type: ignore[return-value]
+    return make_app_setup
 
 
 @pytest.fixture

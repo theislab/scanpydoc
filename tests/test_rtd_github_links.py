@@ -29,8 +29,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from _pytest.monkeypatch import MonkeyPatch
-    from sphinx.testing.util import SphinxTestApp
 
+    from scanpydoc.testing import MakeApp
     from scanpydoc.rtd_github_links._linkcode import Domain, DomainInfo
 
 
@@ -111,7 +111,7 @@ def test_infer_vars_error(config: Config, setup: list[str], pattern: str) -> Non
         _infer_vars(config)
 
 
-def test_app(monkeypatch: MonkeyPatch, make_app_setup: type[SphinxTestApp]) -> None:
+def test_app(monkeypatch: MonkeyPatch, make_app_setup: MakeApp) -> None:
     filters: dict[str, Callable[..., object]] = {}
     monkeypatch.setattr("scanpydoc.rtd_github_links._init_vars", lambda *_: None)
     monkeypatch.setattr("scanpydoc.rtd_github_links.DEFAULT_FILTERS", filters)
