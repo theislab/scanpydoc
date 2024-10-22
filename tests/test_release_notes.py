@@ -16,9 +16,10 @@ from docutils.parsers.rst import directives
 if TYPE_CHECKING:
     from typing import TypeAlias
     from pathlib import Path
-    from collections.abc import Mapping, Callable
+    from collections.abc import Mapping
 
     from sphinx.application import Sphinx
+    from sphinx.testing.util import SphinxTestApp
 
     Tree: TypeAlias = Mapping[str | Path, "Tree | str"]
 
@@ -33,9 +34,7 @@ def mkfiles(root: Path, tree: Tree = MappingProxyType({})) -> None:
 
 
 @pytest.fixture(params=["rst", "myst"])
-def app(
-    request: pytest.FixtureRequest, make_app_setup: Callable[..., Sphinx]
-) -> Sphinx:
+def app(request: pytest.FixtureRequest, make_app_setup: type[SphinxTestApp]) -> Sphinx:
     return make_app_setup(
         "pseudoxml",
         extensions=[

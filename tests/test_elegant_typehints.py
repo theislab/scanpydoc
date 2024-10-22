@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from typing import Protocol
 
     from sphinx.application import Sphinx
+    from sphinx.testing.util import SphinxTestApp
 
     class ProcessDoc(Protocol):  # noqa: D101
         def __call__(  # noqa: D102
@@ -60,7 +61,7 @@ def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
 
 
 @pytest.fixture
-def app(make_app_setup: Callable[..., Sphinx]) -> Sphinx:
+def app(make_app_setup: type[SphinxTestApp]) -> Sphinx:
     return make_app_setup(
         master_doc="index",
         extensions=[
@@ -472,14 +473,14 @@ def test_return_nodoc(process_doc: ProcessDoc) -> None:
     assert res[2].startswith(":rtype: :sphinx_autodoc_typehints_type:")
 
 
-def test_load_without_sat(make_app_setup: Callable[..., Sphinx]) -> None:
+def test_load_without_sat(make_app_setup: type[SphinxTestApp]) -> None:
     make_app_setup(
         master_doc="index",
         extensions=["sphinx.ext.autodoc", "scanpydoc.elegant_typehints"],
     )
 
 
-def test_load_error(make_app_setup: Callable[..., Sphinx]) -> None:
+def test_load_error(make_app_setup: type[SphinxTestApp]) -> None:
     with pytest.raises(
         RuntimeError,
         match=r"`scanpydoc.elegant_typehints` requires `sphinx.ext.autodoc`",

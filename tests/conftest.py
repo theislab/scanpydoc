@@ -19,17 +19,18 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Generator
 
     from sphinx.application import Sphinx
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.fixture
 def make_app_setup(
-    make_app: Callable[..., Sphinx], tmp_path: Path
-) -> Callable[..., Sphinx]:
+    make_app: type[SphinxTestApp], tmp_path: Path
+) -> type[SphinxTestApp]:
     def make_app_setup(builder: str = "html", /, **conf: Any) -> Sphinx:  # noqa: ANN401
         (tmp_path / "conf.py").write_text("")
         return make_app(buildername=builder, srcdir=tmp_path, confoverrides=conf)
 
-    return make_app_setup
+    return make_app_setup  # type: ignore[return-value]
 
 
 @pytest.fixture
