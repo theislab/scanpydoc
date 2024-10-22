@@ -3,19 +3,9 @@
 from __future__ import annotations
 
 import re
-import sys
 import inspect
 from io import StringIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Union,
-    AnyStr,
-    NoReturn,
-    Optional,
-    cast,
-    get_origin,
-)
+from typing import TYPE_CHECKING, Any, AnyStr, NoReturn, cast, get_origin
 from pathlib import Path
 from operator import attrgetter
 from collections.abc import Mapping, Callable
@@ -258,8 +248,8 @@ def test_qualname_overrides(
         AnyStr,
         NoReturn,
         Callable[[int], None],
-        Union[int, str],
-        Union[int, str, None],
+        int | str,
+        int | str | None,
     ],
     ids=lambda p: str(p).replace("typing.", ""),
 )
@@ -276,7 +266,6 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
     assert output is None or output.startswith(f":py:data:`typing.{name}")
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason="requires Python 3.10+")
 def test_union_type(app: Sphinx) -> None:
     union = eval("int | str")  # noqa: S307
     assert typehints_formatter(union, app.config) is None
@@ -391,7 +380,7 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
     ("return_ann", "foo_rendered"),
     [
         pytest.param(tuple[str, int], ":py:class:`str`", id="tuple"),
-        pytest.param(Optional[tuple[str, int]], ":py:class:`str`", id="tuple | None"),
+        pytest.param(tuple[str, int] | None, ":py:class:`str`", id="tuple | None"),
         pytest.param(
             tuple[Mapping[str, float], int],
             r":py:class:`~collections.abc.Mapping`\ \["
@@ -399,7 +388,7 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
             "]",
             id="complex",
         ),
-        pytest.param(Optional[int], None, id="int | None"),
+        pytest.param(int | None, None, id="int | None"),
     ],
 )
 def test_return_tuple(

@@ -97,7 +97,8 @@ def test_convert_params(
     assert isinstance(cyr := term[2], nodes.classifier)
     assert len(cyr) == len(conv_types), cyr.children
     assert all(
-        isinstance(cyr_part, conv_type) for cyr_part, conv_type in zip(cyr, conv_types)
+        isinstance(cyr_part, conv_type)
+        for cyr_part, conv_type in zip(cyr, conv_types, strict=True)
     )
 
 
