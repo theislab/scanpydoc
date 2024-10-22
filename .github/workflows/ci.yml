@@ -35,7 +35,7 @@ jobs:
         with:
           cache-dependency-path: pyproject.toml
       - name: dependencies
-        run: uv pip install .[test,typehints,myst] coverage-rich 'anyconfig[toml] >=0.14'
+        run: uv pip install --system .[test,typehints,myst] coverage-rich 'anyconfig[toml] >=0.14'
       - name: tests
         run: coverage run -m pytest --verbose --color=yes
       - name: show coverage
