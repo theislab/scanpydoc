@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 UNION_TYPES = {Union, UnionType}
 
 
-__all__ = ["process_docstring", "_parse_returns_section", "setup"]
+__all__ = ["_parse_returns_section", "process_docstring", "setup"]
 
 logger = getLogger(__name__)
 re_ret = re.compile("^:returns?: ")
