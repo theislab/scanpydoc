@@ -72,9 +72,9 @@ if TYPE_CHECKING:
 
 
 __all__ = [
+    "example_func_anonymous_tuple",
     "example_func_prose",
     "example_func_tuple",
-    "example_func_anonymous_tuple",
     "setup",
 ]
 
