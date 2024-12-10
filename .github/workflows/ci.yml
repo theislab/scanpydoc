@@ -35,7 +35,8 @@ jobs:
         with:
           cache-dependency-path: pyproject.toml
       - name: dependencies
-        run: uv pip install --system .[test,typehints,myst] 'coverage-rich !=0.2.0' 'anyconfig[toml] >=0.14'
+        # TODO: remove typer constraint after fixing https://github.com/WaylonWalker/coverage-rich/issues/4
+        run: uv pip install --system .[test,typehints,myst] coverage-rich 'typer <0.15' 'anyconfig[toml] >=0.14'
       - name: tests
         run: coverage run -m pytest --verbose --color=yes
       - name: show coverage
