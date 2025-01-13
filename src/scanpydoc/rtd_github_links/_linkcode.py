@@ -55,4 +55,4 @@ def linkcode_resolve(domain: Domain, info: DomainInfo) -> str | None:
     info = cast(PyInfo, info)
     if not info["module"]:
         return None
-    return github_url(f'{info["module"]}.{info["fullname"]}')
+    return github_url(f"{info['module']}.{info['fullname']}")
