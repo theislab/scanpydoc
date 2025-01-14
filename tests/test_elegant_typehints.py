@@ -269,16 +269,17 @@ def test_resolve(app: Sphinx) -> None:
     assert resolved["reftitle"] == "(in TestProj v1)"
 
 
-def test_resolve_failure(app: Sphinx) -> None:
+@pytest.mark.parametrize("qualname", ["testmod.Class", "nonexistent.Class"])
+def test_resolve_failure(app: Sphinx, qualname: str) -> None:
     from docutils.nodes import TextElement
     from sphinx.addnodes import pending_xref
 
     app.setup_extension("sphinx.ext.intersphinx")
-    node = pending_xref(refdomain="py", reftarget="nonexistent.Class", reftype="class")
+    node = pending_xref(refdomain="py", reftarget=qualname, reftype="class")
 
     resolved = _last_resolve(app, app.env, node, TextElement())
     assert resolved is None
-    assert node["reftarget"] == "nonexistent.Class", "reftarget got changed"
+    assert node["reftarget"] == qualname_overrides.get(qualname, qualname)
 
 
 # These guys aren’t listed as classes in Python’s intersphinx index:
