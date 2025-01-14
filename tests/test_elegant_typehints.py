@@ -254,18 +254,23 @@ def test_resolve(app: Sphinx) -> None:
         "test.Class": ("TestProj", "1", "https://x.com", "Class"),
     }
     # Node contains name from code
-    node = pending_xref(
-        refdoc="whatever",
-        refdomain="py",
-        reftarget="testmod.Class",
-        refspecific="False",
-        reftype="class",
-    )
+    node = pending_xref(refdomain="py", reftarget="testmod.Class", reftype="class")
 
     resolved = _last_resolve(app, app.env, node, TextElement())
     assert isinstance(resolved, reference)
     assert resolved["refuri"] == "https://x.com"
     assert resolved["reftitle"] == "(in TestProj v1)"
+
+
+def test_resolve_failure(app: Sphinx) -> None:
+    from docutils.nodes import TextElement
+    from sphinx.addnodes import pending_xref
+
+    app.setup_extension("sphinx.ext.intersphinx")
+    node = pending_xref(refdomain="py", reftarget="testmod.Class", reftype="class")
+
+    resolved = _last_resolve(app, app.env, node, TextElement())
+    assert resolved is None
 
 
 # These guys aren’t listed as classes in Python’s intersphinx index:
