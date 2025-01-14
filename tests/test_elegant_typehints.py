@@ -12,13 +12,14 @@ from collections.abc import Mapping, Callable
 
 import pytest
 
-from scanpydoc.elegant_typehints import _last_resolve
+from scanpydoc.elegant_typehints import _last_resolve, qualname_overrides
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
 
 
 if TYPE_CHECKING:
     from types import ModuleType
     from typing import Protocol
+    from collections.abc import Generator
 
     from sphinx.application import Sphinx
 
@@ -31,6 +32,12 @@ if TYPE_CHECKING:
 
 
 NONE_RTYPE = ":rtype: :sphinx_autodoc_typehints_type:`\\:py\\:obj\\:\\`None\\``"
+
+
+@pytest.fixture(autouse=True)
+def _reset_qualname_overrides() -> Generator[None, None, None]:
+    yield
+    qualname_overrides.clear()
 
 
 @pytest.fixture
