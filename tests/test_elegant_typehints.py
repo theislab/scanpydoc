@@ -274,10 +274,11 @@ def test_resolve_failure(app: Sphinx) -> None:
     from sphinx.addnodes import pending_xref
 
     app.setup_extension("sphinx.ext.intersphinx")
-    node = pending_xref(refdomain="py", reftarget="testmod.Class", reftype="class")
+    node = pending_xref(refdomain="py", reftarget="nonexistent.Class", reftype="class")
 
     resolved = _last_resolve(app, app.env, node, TextElement())
     assert resolved is None
+    assert node["reftarget"] == "nonexistent.Class", "reftarget got changed"
 
 
 # These guys aren’t listed as classes in Python’s intersphinx index:
