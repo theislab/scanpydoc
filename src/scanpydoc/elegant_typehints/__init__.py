@@ -118,11 +118,14 @@ class PickleableCallable:
 
 # https://www.sphinx-doc.org/en/master/extdev/event_callbacks.html#event-missing-reference
 def _last_resolve(
-    app: Sphinx,  # noqa: ARG001
+    app: Sphinx,
     env: BuildEnvironment,
     node: pending_xref,
     contnode: TextElement,
 ) -> reference | None:
+    if "sphinx.ext.intersphinx" not in app.extensions:
+        return None
+
     from sphinx.ext.intersphinx import resolve_reference_detect_inventory
 
     if (qualname := qualname_overrides.get(node["reftarget"])) is None:
