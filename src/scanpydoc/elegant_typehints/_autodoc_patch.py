@@ -12,29 +12,32 @@ if TYPE_CHECKING:
 
 
 def dir_head_adder(
-    qualname_overrides: Mapping[str, str],
+    qualname_overrides: Mapping[tuple[str | None, str], tuple[str | None, str]],
     orig: Callable[[ClassDocumenter, str], None],
 ) -> Callable[[ClassDocumenter, str], None]:
     @wraps(orig)
     def add_directive_header(self: ClassDocumenter, sig: str) -> None:
         orig(self, sig)
-        lines: StringList = self.directive.result
-        role, direc = (
-            ("exc", "exception")
+        lines = self.directive.result
+        inferred_role, direc = (
+            ("py:exc", "py:exception")
             if isinstance(self.object, type) and issubclass(self.object, BaseException)
-            else ("class", "class")
+            else ("py:class", "py:class")
         )
-        for old, new in qualname_overrides.items():
+        for (old_role, old_name), (new_role, new_name) in qualname_overrides.items():
+            role = inferred_role if new_role is None else new_role
             # Currently, autodoc doesn’t link to bases using :exc:
-            lines.replace(f":class:`{old}`", f":{role}:`{new}`")
+            lines.replace(
+                f":{old_role or 'py:class'}:`{old_name}`", f":{role}:`{new_name}`"
+            )
             # But maybe in the future it will
-            lines.replace(f":{role}:`{old}`", f":{role}:`{new}`")
-            old_mod, old_cls = old.rsplit(".", 1)
-            new_mod, new_cls = new.rsplit(".", 1)
+            lines.replace(f":{role}:`{old_name}`", f":{role}:`{new_name}`")
+            old_mod, old_cls = old_name.rsplit(".", 1)
+            new_mod, new_cls = new_name.rsplit(".", 1)
             replace_multi_suffix(
                 lines,
-                (f".. py:{direc}:: {old_cls}", f"   :module: {old_mod}"),
-                (f".. py:{direc}:: {new_cls}", f"   :module: {new_mod}"),
+                (f".. {direc}:: {old_cls}", f"   :module: {old_mod}"),
+                (f".. {direc}:: {new_cls}", f"   :module: {new_mod}"),
             )
 
     return add_directive_header

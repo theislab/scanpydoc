@@ -279,7 +279,12 @@ def test_resolve_failure(app: Sphinx, qualname: str) -> None:
 
     resolved = _last_resolve(app, app.env, node, TextElement())
     assert resolved is None
-    assert node["reftarget"] == qualname_overrides.get(qualname, qualname)
+    type_ex, target_ex = qualname_overrides.get(
+        ("py:class", qualname), (None, qualname)
+    )
+    if type_ex is not None:
+        assert node["refdomain"], node["reftype"] == type_ex.split(":", 1)
+    assert node["reftarget"] == target_ex
 
 
 # These guys aren’t listed as classes in Python’s intersphinx index:
