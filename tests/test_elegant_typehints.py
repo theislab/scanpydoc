@@ -12,12 +12,14 @@ from collections.abc import Mapping, Callable
 
 import pytest
 
+from scanpydoc.elegant_typehints import _last_resolve, qualname_overrides
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
 
 
 if TYPE_CHECKING:
     from types import ModuleType
     from typing import Protocol
+    from collections.abc import Generator
 
     from sphinx.application import Sphinx
 
@@ -30,6 +32,12 @@ if TYPE_CHECKING:
 
 
 NONE_RTYPE = ":rtype: :sphinx_autodoc_typehints_type:`\\:py\\:obj\\:\\`None\\``"
+
+
+@pytest.fixture(autouse=True)
+def _reset_qualname_overrides() -> Generator[None, None, None]:
+    yield
+    qualname_overrides.clear()
 
 
 @pytest.fixture
@@ -238,6 +246,40 @@ def test_qualname_overrides(
         ":param m: Test M",
         NONE_RTYPE,
     ]
+
+
+def test_resolve(app: Sphinx) -> None:
+    """Test that qualname_overrides affects _last_resolve as expected."""
+    from docutils.nodes import TextElement, reference
+    from sphinx.addnodes import pending_xref
+    from sphinx.ext.intersphinx import InventoryAdapter
+
+    app.setup_extension("sphinx.ext.intersphinx")
+
+    # Inventory contains documented name
+    InventoryAdapter(app.env).main_inventory["py:class"] = {
+        "test.Class": ("TestProj", "1", "https://x.com", "Class"),
+    }
+    # Node contains name from code
+    node = pending_xref(refdomain="py", reftarget="testmod.Class", reftype="class")
+
+    resolved = _last_resolve(app, app.env, node, TextElement())
+    assert isinstance(resolved, reference)
+    assert resolved["refuri"] == "https://x.com"
+    assert resolved["reftitle"] == "(in TestProj v1)"
+
+
+@pytest.mark.parametrize("qualname", ["testmod.Class", "nonexistent.Class"])
+def test_resolve_failure(app: Sphinx, qualname: str) -> None:
+    from docutils.nodes import TextElement
+    from sphinx.addnodes import pending_xref
+
+    app.setup_extension("sphinx.ext.intersphinx")
+    node = pending_xref(refdomain="py", reftarget=qualname, reftype="class")
+
+    resolved = _last_resolve(app, app.env, node, TextElement())
+    assert resolved is None
+    assert node["reftarget"] == qualname_overrides.get(qualname, qualname)
 
 
 # These guys aren’t listed as classes in Python’s intersphinx index:

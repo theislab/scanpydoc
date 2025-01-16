@@ -68,7 +68,10 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from sphinx.config import Config
+    from docutils.nodes import TextElement, reference
+    from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 __all__ = [
@@ -113,6 +116,24 @@ class PickleableCallable:
     __call__ = property(lambda self: self.func)
 
 
+# https://www.sphinx-doc.org/en/master/extdev/event_callbacks.html#event-missing-reference
+def _last_resolve(
+    app: Sphinx,
+    env: BuildEnvironment,
+    node: pending_xref,
+    contnode: TextElement,
+) -> reference | None:
+    if "sphinx.ext.intersphinx" not in app.extensions:
+        return None
+
+    from sphinx.ext.intersphinx import resolve_reference_detect_inventory
+
+    if (qualname := qualname_overrides.get(node["reftarget"])) is None:
+        return None
+    node["reftarget"] = qualname
+    return resolve_reference_detect_inventory(env, node, contnode)
+
+
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
@@ -123,6 +144,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("qualname_overrides", default={}, rebuild="html")
     app.add_config_value("annotate_defaults", default=True, rebuild="html")
     app.connect("config-inited", _init_vars)
+    # Add 1 to priority to run after sphinx.ext.intersphinx
+    app.connect("missing-reference", _last_resolve, priority=501)
 
     from ._formatting import typehints_formatter
 
