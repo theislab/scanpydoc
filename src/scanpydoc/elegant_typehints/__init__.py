@@ -8,7 +8,8 @@ This extension modifies the created type annotations in four ways:
    that overrides automatically created links. It is used like this::
 
        qualname_overrides = {
-           "pandas.core.frame.DataFrame": "pandas.DataFrame",
+           "pandas.core.frame.DataFrame": "pandas.DataFrame",  # fix qualname
+           "numpy.int64": ("py:data", "numpy.int64"),  # fix role
            ...,
        }
 
@@ -47,7 +48,7 @@ This extension modifies the created type annotations in four ways:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from pathlib import Path
 from collections import ChainMap
 from dataclasses import dataclass
@@ -55,6 +56,7 @@ from dataclasses import dataclass
 from sphinx.ext.autodoc import ClassDocumenter
 
 from scanpydoc import metadata, _setup_sig
+from scanpydoc.elegant_typehints._role_mapping import RoleMapping
 
 from .example import (
     example_func_prose,
@@ -95,11 +97,14 @@ qualname_overrides_default = {
     "scipy.sparse.csr.csr_matrix": "scipy.sparse.csr_matrix",
     "scipy.sparse.csc.csc_matrix": "scipy.sparse.csc_matrix",
 }
-qualname_overrides = ChainMap({}, qualname_overrides_default)
+qualname_overrides = ChainMap(
+    RoleMapping(),
+    RoleMapping.from_user(qualname_overrides_default),  # type: ignore[arg-type]
+)
 
 
 def _init_vars(_app: Sphinx, config: Config) -> None:
-    qualname_overrides.update(config.qualname_overrides)
+    cast(RoleMapping, qualname_overrides.maps[0]).update_user(config.qualname_overrides)
     if (
         "sphinx_autodoc_typehints" in config.extensions
         and config.typehints_defaults is None
@@ -128,9 +133,15 @@ def _last_resolve(
 
     from sphinx.ext.intersphinx import resolve_reference_detect_inventory
 
-    if (qualname := qualname_overrides.get(node["reftarget"])) is None:
+    if (
+        ref := qualname_overrides.get(
+            (f"{node['refdomain']}:{node['reftype']}", node["reftarget"])
+        )
+    ) is None:
         return None
-    node["reftarget"] = qualname
+    role, node["reftarget"] = ref
+    if role is not None:
+        node["refdomain"], node["reftype"] = role.split(":", 1)
     return resolve_reference_detect_inventory(env, node, contnode)
 
 

@@ -48,9 +48,8 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
     # Only if this is a real class we override sphinx_autodoc_typehints
     if inspect.isclass(annotation):
         full_name = f"{annotation.__module__}.{annotation.__qualname__}"
-        override = elegant_typehints.qualname_overrides.get(full_name)
+        override = elegant_typehints.qualname_overrides.get((None, full_name))
         if override is not None:
-            role = "exc" if issubclass(annotation_cls, BaseException) else "class"
             if args is None:
                 formatted_args = ""
             else:
@@ -58,6 +57,13 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
                     format_annotation(arg, config) for arg in args
                 )
                 formatted_args = rf"\ \[{formatted_args}]"
-            return f":py:{role}:`{tilde}{override}`{formatted_args}"
+            role, qualname = override
+            if role is None:
+                role = (
+                    "py:exc"
+                    if issubclass(annotation_cls, BaseException)
+                    else "py:class"
+                )
+            return f":{role}:`{tilde}{qualname}`{formatted_args}"
 
     return None
