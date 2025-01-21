@@ -73,7 +73,7 @@ def app(make_app_setup: MakeApp) -> Sphinx:
             "testmod.Class": "test.Class",
             "testmod.SubCl": "test.SubCl",
             "testmod.Excep": "test.Excep",
-            "testmod.Excep2": "test.Excep2",
+            "testmod.Excep2": ("py:exc", "test.Excep2"),
             "testmod.Gen": "test.Gen",
         },
     )
@@ -248,7 +248,11 @@ def test_qualname_overrides(
     ]
 
 
-def test_resolve(app: Sphinx) -> None:
+@pytest.mark.parametrize(
+    ("qualname", "docname"),
+    [("testmod.Class", "test.Class"), ("testmod.Excep2", "test.Excep2")],
+)
+def test_resolve(app: Sphinx, qualname: str, docname: str) -> None:
     """Test that qualname_overrides affects _last_resolve as expected."""
     from docutils.nodes import TextElement, reference
     from sphinx.addnodes import pending_xref
@@ -258,10 +262,10 @@ def test_resolve(app: Sphinx) -> None:
 
     # Inventory contains documented name
     InventoryAdapter(app.env).main_inventory["py:class"] = {
-        "test.Class": ("TestProj", "1", "https://x.com", "Class"),
+        docname: ("TestProj", "1", "https://x.com", docname.split(".")[-1]),
     }
     # Node contains name from code
-    node = pending_xref(refdomain="py", reftarget="testmod.Class", reftype="class")
+    node = pending_xref(refdomain="py", reftarget=qualname, reftype="class")
 
     resolved = _last_resolve(app, app.env, node, TextElement())
     assert isinstance(resolved, reference)
