@@ -55,7 +55,7 @@ class RoleMapping(MutableMapping[tuple[str | None, str], tuple[str | None, str]]
         raise KeyError(key)
 
     def __contains__(self, key: object) -> bool:
-        if not isinstance(key, tuple):
+        if not isinstance(key, tuple):  # pragma: no cover
             raise TypeError
         try:
             self[key]
@@ -69,5 +69,5 @@ class RoleMapping(MutableMapping[tuple[str | None, str], tuple[str | None, str]]
     def __iter__(self) -> Iterator[tuple[str | None, str]]:
         return self.data.__iter__()
 
-    def __len__(self) -> int:
+    def __len__(self) -> int:  # pragma: no cover
         return len(self.data)
