@@ -32,6 +32,8 @@ def dir_head_adder(
             )
             # But maybe in the future it will
             lines.replace(f":{role}:`{old_name}`", f":{role}:`{new_name}`")
+            if any("." not in name for name in (old_name, new_name)):
+                continue  # pragma: no cover
             old_mod, old_cls = old_name.rsplit(".", 1)
             new_mod, new_cls = new_name.rsplit(".", 1)
             replace_multi_suffix(
