@@ -5,12 +5,26 @@ from __future__ import annotations
 import re
 import inspect
 from io import StringIO
-from typing import TYPE_CHECKING, Any, AnyStr, NoReturn, cast, get_origin
+from typing import TYPE_CHECKING, Any, AnyStr, NoReturn, NamedTuple, cast, get_origin
 from pathlib import Path
 from operator import attrgetter
 from collections.abc import Mapping, Callable
+from importlib.metadata import version
 
 import pytest
+from packaging.version import Version
+
+
+if TYPE_CHECKING or Version(version("sphinx")) >= Version("8.2"):
+    from sphinx.util.inventory import _InventoryItem
+else:
+
+    class _InventoryItem(NamedTuple):
+        project_name: str
+        project_version: str
+        uri: str
+        display_name: str
+
 
 from scanpydoc.elegant_typehints import _last_resolve, qualname_overrides
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
@@ -262,7 +276,12 @@ def test_resolve(app: Sphinx, qualname: str, docname: str) -> None:
 
     # Inventory contains documented name
     InventoryAdapter(app.env).main_inventory["py:class"] = {
-        docname: ("TestProj", "1", "https://x.com", docname.split(".")[-1]),
+        docname: _InventoryItem(
+            project_name="TestProj",
+            project_version="1",
+            uri="https://x.com",
+            display_name=docname.split(".")[-1],
+        ),
     }
     # Node contains name from code
     node = pending_xref(refdomain="py", reftarget=qualname, reftype="class")
