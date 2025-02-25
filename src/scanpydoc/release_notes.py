@@ -143,7 +143,7 @@ class _BackendMyst(_Backend):
         d = MockIncludeDirective(
             renderer=self._myst_renderer,
             name=type(self).__name__,
-            klass=Include,  # type: ignore[arg-type]  # wrong type hint
+            klass=Include,
             arguments=[str(path.relative_to(parent_dir))],
             options={},
             body=[],
