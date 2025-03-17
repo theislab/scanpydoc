@@ -38,7 +38,7 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
 
     if isinstance(annotation, GenericAlias | _GenericAlias):
         args = get_args(annotation)
-        annotation = cast(type[Any], get_origin(annotation))
+        annotation = cast("type[Any]", get_origin(annotation))
     else:
         args = None
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)

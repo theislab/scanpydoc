@@ -104,7 +104,9 @@ qualname_overrides = ChainMap(
 
 
 def _init_vars(_app: Sphinx, config: Config) -> None:
-    cast(RoleMapping, qualname_overrides.maps[0]).update_user(config.qualname_overrides)
+    cast("RoleMapping", qualname_overrides.maps[0]).update_user(
+        config.qualname_overrides
+    )
     if (
         "sphinx_autodoc_typehints" in config.extensions
         and config.typehints_defaults is None
