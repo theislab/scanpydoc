@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 import inspect
-from io import StringIO
 from typing import TYPE_CHECKING, Any, AnyStr, NoReturn, NamedTuple, cast, get_origin
 from pathlib import Path
 from operator import attrgetter
@@ -31,6 +30,7 @@ from scanpydoc.elegant_typehints._formatting import typehints_formatter
 
 
 if TYPE_CHECKING:
+    from io import StringIO
     from types import ModuleType
     from typing import Protocol
     from collections.abc import Generator
@@ -363,7 +363,7 @@ def test_autodoc(
     )
     app.build()
     out = Path(app.outdir, "index.html").read_text()
-    assert not (ws := cast(StringIO, app._warning).getvalue()), ws  # noqa: SLF001
+    assert not (ws := cast("StringIO", app._warning).getvalue()), ws  # noqa: SLF001
     assert re.search(
         r'<(code|span)?[^>]*><span class="pre">test\.</span></(code|span)>'
         f'<(code|span)?[^>]*><span class="pre">{sub}</span></(code|span)>',
@@ -401,7 +401,7 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
     app.build()
 
     out = Path(app.outdir, "index.html").read_text()
-    buf = cast(StringIO, app._warning)  # noqa: SLF001
+    buf = cast("StringIO", app._warning)  # noqa: SLF001
     warnings = [
         w
         for w in buf.getvalue().splitlines()

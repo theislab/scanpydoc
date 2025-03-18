@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from types import GenericAlias
-from typing import TYPE_CHECKING, Any, cast, get_args, get_origin
+from typing import TYPE_CHECKING, cast, get_args, get_origin
 
 from sphinx_autodoc_typehints import format_annotation
 
@@ -11,6 +11,8 @@ from scanpydoc._types import _GenericAlias
 
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.config import Config
 
 
@@ -38,7 +40,7 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
 
     if isinstance(annotation, GenericAlias | _GenericAlias):
         args = get_args(annotation)
-        annotation = cast(type[Any], get_origin(annotation))
+        annotation = cast("type[Any]", get_origin(annotation))
     else:
         args = None
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
