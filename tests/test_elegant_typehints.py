@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 import inspect
-from io import StringIO
 from typing import TYPE_CHECKING, Any, AnyStr, NoReturn, NamedTuple, cast, get_origin
 from pathlib import Path
 from operator import attrgetter
@@ -31,6 +30,7 @@ from scanpydoc.elegant_typehints._formatting import typehints_formatter
 
 
 if TYPE_CHECKING:
+    from io import StringIO
     from types import ModuleType
     from typing import Protocol
     from collections.abc import Generator
