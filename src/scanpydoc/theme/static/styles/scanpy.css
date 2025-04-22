@@ -31,71 +31,21 @@ dl.citation > dt {
     outline: 2px solid var(--pst-color-link-hover);
 }
 
-/* Make the readthedocs-sphinx-search popup adapt to the theme */
-/*backdrop*/
-html[data-theme] .search__backdrop {
-    z-index: 1020;
-    backdrop-filter: saturate(150%) blur(20px);
-}
-/*container*/
-html[data-theme] :is(.search__outer, .rtd__search__credits) {
-    font-family: var(--pst-font-family-base);
-    color: var(--pst-color-text-base);
-    background-color: var(--pst-color-background);
-    border-color: var(--pst-color-border);
-}
-html[data-theme] .search__outer {
-    border-top-left-radius: var(--bs-border-radius);
-    border-top-right-radius: var(--bs-border-radius);
-}
-html[data-theme] .rtd__search__credits {
-    border-bottom-left-radius: var(--bs-border-radius);
-    border-bottom-right-radius: var(--bs-border-radius);
-}
-html[data-theme] .rtd__search__credits a {
-    color: var(--pst-color-link);
-}
-/*icons*/
-html[data-theme] .search__outer::before {
-    /* this can’t be put on .search__outer__input, as <input/> supports no ::before */
-    position: absolute;
-    padding: 0.4em 0.3em;
-    content: "\f002"; /* fa-magnifying-glass */
-    font: var(--fa-font-solid);
-    color: var(--pst-color-text-muted);
-}
-html[data-theme] .search__cross__img polygon {
-    fill: currentcolor;
-}
-/*input*/
-html[data-theme] .search__outer__input {
-    color: var(--pst-color-text-base);
-    background-image: none; /* hide the default search icon */
-    background-color: transparent;
-    border-bottom-color: var(--pst-color-border);
-}
-html[data-theme] .search__outer .bar::before,
-html[data-theme] .search__outer .bar::after {
-    background-color: var(--pst-color-accent);
-}
-/*results*/
-html[data-theme] :is(.search__result__subheading span, .search__result__single) {
-    border-bottom-color: var(--pst-color-border);
-}
-html[data-theme] .search__result__single:last-of-type {
-    border-bottom-width: 0;
-}
-html[data-theme] :is(.outer_div_page_results:hover, .search__result__box .active) {
-    background-color: var(--pst-color-accent-bg);
-}
-html[data-theme]
-    :is(.search__error__box, .search__result__subheading, .search__result__content) {
-    color: var(--pst-color-text-base);
-}
-html[data-theme]
-    .search__outer
-    :is(.search__result__content, .search__result__title)
-    span {
-    border-bottom-color: var(--pst-color-border);
-    background-color: var(--pst-color-target);
+/* Make the readthedocs search popup adapt to the theme */
+:root {
+    --readthedocs-search-backdrop-color: var(--pst-color-shadow);
+    --readthedocs-search-color: var(--pst-color-text-base);
+    --readthedocs-search-content-background-color: var(--pst-color-background);
+    --readthedocs-search-content-border-color: var(--pst-color-border);
+    --readthedocs-search-filters-border-color: var(--pst-color-border);
+    --readthedocs-search-font-family: var(--pst-font-family-base);
+    --readthedocs-search-font-size: var(--pst-font-size-base);
+    --readthedocs-search-footer-background-color: var(--pst-color-on-background);
+    --readthedocs-search-footer-code-background-color: var(--pst-color-surface);
+    --readthedocs-search-footer-code-border-color: var(--pst-color-border);
+    --readthedocs-search-input-background-color: var(--pst-color-surface);
+    --readthedocs-search-result-section-border-color: var(--pst-color-border);
+    --readthedocs-search-result-section-color: var(--pst-color-link);
+    --readthedocs-search-result-section-highlight-color: var(--pst-color-accent);
+    --readthedocs-search-result-section-subheading-color: var(--pst-color-text-muted);
 }
