@@ -34,7 +34,6 @@ test = [
 doc = [
     'scanpydoc[typehints,myst,theme]',
     'sphinx',
-    'readthedocs-sphinx-search',
 ]
 typehints = ['sphinx-autodoc-typehints>=1.15.2']
 theme = ['sphinx-book-theme>=1.1.0']

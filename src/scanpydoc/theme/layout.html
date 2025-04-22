@@ -10,9 +10,10 @@
     {% endif %}
 {%- endblock -%}
 
-<!-- Styles that come last -->
+<!-- Styles that come last and meta tags -->
 {%- block extrahead -%}
     {{ super() }}
+    <meta name="readthedocs-addons-api-version" content="1" />
     {% if theme_accent_color %}
         <!-- prettier-ignore-start -->
         <style>
