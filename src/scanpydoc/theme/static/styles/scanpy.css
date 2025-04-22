@@ -31,7 +31,9 @@ dl.citation > dt {
     outline: 2px solid var(--pst-color-link-hover);
 }
 
-/* Make the readthedocs search popup adapt to the theme */
+/* Make the readthedocs search popup adapt to the theme.
+ * Might break again soon: https://github.com/readthedocs/addons/issues/570
+ */
 :root {
     --readthedocs-search-backdrop-color: var(--pst-color-shadow);
     --readthedocs-search-color: var(--pst-color-text-base);
