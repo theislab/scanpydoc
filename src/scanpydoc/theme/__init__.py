@@ -70,7 +70,6 @@ The following configuration values are optional:
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 from pathlib import Path
 
@@ -90,7 +89,6 @@ def setup(app: Sphinx) -> dict[str, bool]:  # pragma: no cover
     app.add_html_theme("scanpydoc", str(HERE))
 
     # if we’re on ReadTheDocs, hide the pydata-sphinx-theme search popup
-    if os.environ.get("READTHEDOCS_VERSION", ""):  # pragma: no cover
-        app.add_js_file("scripts/rtd-sphinx-search.js", loading_method="defer")
+    app.add_js_file("scripts/rtd-sphinx-search.js", loading_method="defer")
 
     return dict(parallel_read_safe=True, parallel_write_safe=True)
