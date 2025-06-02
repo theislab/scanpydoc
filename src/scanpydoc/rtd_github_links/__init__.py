@@ -171,7 +171,7 @@ def _get_linenos(obj: _SourceObjectType) -> tuple[int, int] | tuple[None, None]:
     """Get an object’s line numbers."""
     try:
         lines, start = inspect.getsourcelines(obj)
-    except TypeError:
+    except (TypeError, OSError):
         return None, None
     else:
         return start, start + len(lines) - 1
