@@ -150,8 +150,9 @@ def test_as_function(
     assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
 
 
-def test_no_line_nos_for_builtin_source() -> None:
-    start, end = _get_linenos(Mapping)
+@pytest.mark.parametrize("cls", [dict, Mapping])
+def test_no_line_nos_for_unavailable_source(cls: type) -> None:
+    start, end = _get_linenos(cls)
     assert start is end is None
 
 
