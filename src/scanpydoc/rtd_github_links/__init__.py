@@ -171,6 +171,10 @@ def _get_linenos(obj: _SourceObjectType) -> tuple[int, int] | tuple[None, None]:
     """Get an object’s line numbers."""
     try:
         lines, start = inspect.getsourcelines(obj)
+    # https://github.com/python/cpython/blob/main/Lib/inspect.py#L949-L1006
+    # means an OSError is raised if the source is not found,
+    # as is the case with collections.abc.Mapping.
+    # A TypeError indicates a builtin class.
     except (TypeError, OSError):
         return None, None
     else:
