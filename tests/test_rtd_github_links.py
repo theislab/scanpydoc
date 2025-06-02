@@ -8,6 +8,7 @@ import textwrap
 from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
 from importlib import import_module
+from collections.abc import Mapping
 
 import pytest
 from sphinx.config import Config
@@ -147,6 +148,12 @@ def test_as_function(
     obj = getattr(import_module(f"scanpydoc.{module}"), name)
     s, e = _get_linenos(obj)
     assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
+
+
+@pytest.mark.parametrize("cls", [dict, Mapping])
+def test_no_line_nos_for_unavailable_source(cls: type) -> None:
+    start, end = _get_linenos(cls)
+    assert start is end is None
 
 
 def test_get_github_url_only_annotation(prefix: PurePosixPath) -> None:
