@@ -53,6 +53,7 @@ ignore = [
     'D407',   # We’re not using Numpydoc style
     'FIX002', # TODOs are OK
     'PD',     # False positives
+    'PLC0415', # Non-top-level imports are OK
     'COM812', # Conflicts with formatting
     'ISC001', # Conflicts with formatting
 ]
