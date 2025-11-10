@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import sys
 import textwrap
 from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
@@ -149,7 +150,19 @@ def test_as_function(
     assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
 
 
-@pytest.mark.parametrize("cls", [dict, Mapping])
+@pytest.mark.parametrize(
+    "cls",
+    [
+        pytest.param(dict, id="dict"),
+        pytest.param(
+            Mapping,
+            marks=pytest.mark.skipif(
+                sys.version_info >= (3, 13),
+                reason="In Python 3.13+, Mapping is a regular class",
+            ),
+        ),
+    ],
+)
 def test_no_line_nos_for_unavailable_source(cls: type) -> None:
     start, end = _get_linenos(cls)
     assert start is end is None
