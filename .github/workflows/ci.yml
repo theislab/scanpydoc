@@ -45,10 +45,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0, filter: "blob:none" }
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.env.python-version }}
-      - uses: astral-sh/setup-uv@v7
       - name: dependencies
         # TODO: remove typer constraint after fixing https://github.com/WaylonWalker/coverage-rich/issues/4
         run: uv pip install --system .[test,typehints,myst] coverage-rich 'typer <0.14' 'anyconfig[toml] >=0.14'
