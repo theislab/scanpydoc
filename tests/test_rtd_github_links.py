@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-import sys
 import textwrap
 from typing import TYPE_CHECKING
 from pathlib import Path, PurePosixPath
@@ -166,8 +165,7 @@ def test_get_github_url_only_annotation(prefix: PurePosixPath) -> None:
 def test_get_github_url_error() -> None:
     with pytest.raises(KeyError) as exc_info:
         github_url("test.nonexistant.Thingamajig")
-    if sys.version_info >= (3, 11):
-        assert exc_info.value.__notes__[0] == "Qualname: 'test.nonexistant.Thingamajig'"
+    assert exc_info.value.__notes__[0] == "Qualname: 'test.nonexistant.Thingamajig'"
 
 
 @pytest.mark.parametrize(
@@ -224,6 +222,20 @@ def test_get_github_url_error() -> None:
             _testdata,
             "scanpydoc/rtd_github_links/_testdata.py",
             id="generic_class",
+        ),
+        pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestGenericBuiltinOld",
+            _testdata.TestGenericBuiltinOld,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="generic_builtin_old",
+        ),
+        pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestGenericClassOld",
+            _testdata.TestGenericClassOld,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="generic_class_old",
         ),
     ],
 )

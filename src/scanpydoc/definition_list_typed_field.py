@@ -20,13 +20,13 @@ from . import metadata, _setup_sig
 
 
 if TYPE_CHECKING:
-    from typing import Any, TypeAlias
+    from typing import Any
     from collections.abc import Iterable
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
-    TextLikeNode: TypeAlias = nodes.Text | nodes.TextElement
+    type TextLikeNode = nodes.Text | nodes.TextElement
 
 
 class DLTypedField(PyTypedField):

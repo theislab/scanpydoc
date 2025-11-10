@@ -5,8 +5,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 from pathlib import PurePosixPath
-from datetime import datetime
-from datetime import timezone as tz
+from datetime import UTC, datetime
 from importlib.metadata import metadata
 
 from jinja2.tests import TESTS
@@ -42,7 +41,7 @@ intersphinx_mapping = dict(
 meta = metadata("scanpydoc")
 project = meta["name"]
 author = meta["author-email"].split(" <")[0]
-copyright = f"{datetime.now(tz=tz.utc):%Y}, {author}."  # noqa: A001
+copyright = f"{datetime.now(tz=UTC):%Y}, {author}."  # noqa: A001
 version = release = meta["version"]
 
 master_doc = "index"

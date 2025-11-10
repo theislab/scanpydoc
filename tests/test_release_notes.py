@@ -15,7 +15,7 @@ from docutils.parsers.rst import directives
 
 
 if TYPE_CHECKING:
-    from typing import Literal, TypeAlias
+    from typing import Literal
     from pathlib import Path
     from collections.abc import Mapping
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from scanpydoc.testing import MakeApp
 
-    Tree: TypeAlias = Mapping[str | Path, "Tree | str"]
+    type Tree = Mapping[str | Path, "Tree | str"]
 
 
 def mkfiles(root: Path, tree: Tree = MappingProxyType({})) -> None:

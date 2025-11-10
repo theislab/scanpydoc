@@ -13,12 +13,7 @@ from . import _setup_sig
 
 
 if TYPE_CHECKING:
-    import sys
-
-    if sys.version_info >= (3, 11):
-        from typing import Never
-    else:  # pragma: no cover
-        from typing import NoReturn as Never
+    from typing import Never
 
     from sphinx.application import Sphinx
 

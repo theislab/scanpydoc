@@ -50,7 +50,7 @@ class RoleMapping(MutableMapping[tuple[str | None, str], tuple[str | None, str]]
         for known_role in chain([None], {r for r, _ in self}):
             try:
                 return self.data[known_role, key[1]]
-            except KeyError:  # noqa: PERF203
+            except KeyError:
                 pass
         raise KeyError(key)
 
