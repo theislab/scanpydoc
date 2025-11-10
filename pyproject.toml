@@ -120,7 +120,7 @@ source_pkgs = ['scanpydoc']
 concurrency = [ "multiprocessing" ]
 parallel = true
 [tool.coverage.paths]
-scanpydoc = ['src/scanpydoc']
+source = ['src']
 [tool.coverage.report]
 exclude_lines = [
   'no cov',
