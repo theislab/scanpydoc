@@ -54,7 +54,7 @@ jobs:
           hatch -v env create ${{ matrix.env.name }}
       - name: Run tests
         run: |
-          hatch run ${{ matrix.env.name }}:run-cov -v --color=yes -n auto
+          hatch run ${{ matrix.env.name }}:run-cov -v --color=yes -n auto --junitxml=test-data/test-results.xml
           hatch run ${{ matrix.env.name }}:cov-combine
           hatch run ${{ matrix.env.name }}:coverage xml
       - name: upload coverage
