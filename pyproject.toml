@@ -94,7 +94,7 @@ version-file = 'src/scanpydoc/_version.py'
 [tool.hatch.envs.default]
 dependencies = ['types-docutils']
 [tool.hatch.envs.docs]
-python = '3.11'
+python = '3.13'
 features = ['doc']
 [tool.hatch.envs.docs.scripts]
 build = 'sphinx-build -M html docs docs/_build'
@@ -102,6 +102,8 @@ clean = 'git clean -fdX docs'
 
 [tool.hatch.envs.hatch-test]
 features = ['test', 'typehints', 'myst']
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ['3.12', '3.14']
 
 [tool.pytest.ini_options]
 addopts = [
