@@ -150,7 +150,19 @@ def test_as_function(
     assert github_url(f"scanpydoc.{module}.{name}") == f"{prefix}/{obj_path}#L{s}-L{e}"
 
 
-@pytest.mark.parametrize("cls", [dict, Mapping])
+@pytest.mark.parametrize(
+    "cls",
+    [
+        pytest.param(dict, id="dict"),
+        pytest.param(
+            Mapping,
+            marks=pytest.mark.skipif(
+                sys.version_info >= (3, 13),
+                reason="In Python 3.13+, Mapping is a regular class",
+            ),
+        ),
+    ],
+)
 def test_no_line_nos_for_unavailable_source(cls: type) -> None:
     start, end = _get_linenos(cls)
     assert start is end is None
@@ -166,8 +178,7 @@ def test_get_github_url_only_annotation(prefix: PurePosixPath) -> None:
 def test_get_github_url_error() -> None:
     with pytest.raises(KeyError) as exc_info:
         github_url("test.nonexistant.Thingamajig")
-    if sys.version_info >= (3, 11):
-        assert exc_info.value.__notes__[0] == "Qualname: 'test.nonexistant.Thingamajig'"
+    assert exc_info.value.__notes__[0] == "Qualname: 'test.nonexistant.Thingamajig'"
 
 
 @pytest.mark.parametrize(
@@ -224,6 +235,20 @@ def test_get_github_url_error() -> None:
             _testdata,
             "scanpydoc/rtd_github_links/_testdata.py",
             id="generic_class",
+        ),
+        pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestGenericBuiltinOld",
+            _testdata.TestGenericBuiltinOld,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="generic_builtin_old",
+        ),
+        pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestGenericClassOld",
+            _testdata.TestGenericClassOld,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="generic_class_old",
         ),
     ],
 )

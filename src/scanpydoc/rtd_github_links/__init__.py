@@ -75,10 +75,10 @@ from scanpydoc._types import _GenericAlias
 
 if TYPE_CHECKING:
     from types import CodeType, FrameType, MethodType, FunctionType, TracebackType
-    from typing import Any, TypeAlias
+    from typing import Any
     from collections.abc import Callable
 
-    _SourceObjectType: TypeAlias = (
+    type _SourceObjectType = (
         ModuleType
         | type[Any]
         | MethodType
@@ -211,8 +211,7 @@ def github_url(qualname: str) -> str:
     try:
         obj, module = _get_obj_module(qualname)
     except Exception as e:
-        if sys.version_info >= (3, 11):
-            e.add_note(f"Qualname: {qualname!r}")
+        e.add_note(f"Qualname: {qualname!r}")
         raise
     assert rtd_links_prefix is not None  # noqa: S101
     path = rtd_links_prefix / _module_path(obj, module)

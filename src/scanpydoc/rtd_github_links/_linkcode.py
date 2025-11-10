@@ -20,10 +20,10 @@ class JSInfo(TypedDict):
 
 
 if TYPE_CHECKING:
-    from typing import Literal, TypeAlias
+    from typing import Literal
 
     Domain = Literal["py", "c", "cpp", "javascript"]
-    DomainInfo: TypeAlias = PyInfo | CInfo | JSInfo
+    type DomainInfo = PyInfo | CInfo | JSInfo
 
 
 @overload

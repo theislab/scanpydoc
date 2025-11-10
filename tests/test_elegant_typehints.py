@@ -67,8 +67,10 @@ def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
         class Excep(RuntimeError): pass
         class Excep2(Excep): pass
 
-        T = TypeVar('T')
-        class Gen(Generic[T]): pass
+        class Gen[T]: pass
+
+        _T = TypeVar('T')
+        class GenOld(Generic[_T]): pass
         """,
     )
 
@@ -89,6 +91,7 @@ def app(make_app_setup: MakeApp) -> Sphinx:
             "testmod.Excep": "test.Excep",
             "testmod.Excep2": ("py:exc", "test.Excep2"),
             "testmod.Gen": "test.Gen",
+            "testmod.GenOld": "test.GenOld",
         },
     )
 
@@ -131,8 +134,14 @@ def test_app(app: Sphinx) -> None:
     assert "testmod.Class" in app.config.qualname_overrides
 
 
-def test_default(app: Sphinx) -> None:
-    assert typehints_formatter(str, app.config) is None
+@pytest.mark.parametrize("annotation", [str, int | str], ids=["type", "union"])
+def test_default(app: Sphinx, annotation: object) -> None:
+    assert typehints_formatter(annotation, app.config) is None
+
+
+def test_typealiastype(app: Sphinx) -> None:
+    type Foo = int  # pyright: ignore[reportGeneralTypeIssues]
+    assert typehints_formatter(Foo, app.config) == ":py:class:`int`"
 
 
 def _escape_sat(rst: str) -> str:
@@ -240,6 +249,11 @@ def test_defaults_complex(process_doc: ProcessDoc) -> None:
             r":py:class:`~test.Gen`\ \[:py:class:`~test.Class`]",
             id="generic",
         ),
+        pytest.param(
+            lambda m: m.GenOld[m.Class],
+            r":py:class:`~test.GenOld`\ \[:py:class:`~test.Class`]",
+            id="generic-old",
+        ),
     ],
 )
 def test_qualname_overrides(
@@ -329,16 +343,9 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
         getattr(annotation, "_name", None)
         or getattr(annotation, "__name__", None)
         or getattr(get_origin(annotation), "_name", None)
-        # 3.6 _Any and _Union
-        or annotation.__class__.__name__[1:]
     )
     output = typehints_formatter(annotation, app.config)
     assert output is None or output.startswith(f":py:data:`typing.{name}")
-
-
-def test_union_type(app: Sphinx) -> None:
-    union = eval("int | str")  # noqa: S307
-    assert typehints_formatter(union, app.config) is None
 
 
 @pytest.mark.parametrize(

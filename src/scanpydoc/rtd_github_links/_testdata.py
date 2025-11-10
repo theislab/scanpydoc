@@ -12,19 +12,25 @@ if TYPE_CHECKING:
     from typing import TypeAlias
 
 
+class _G[T]:
+    pass
+
+
 _T = TypeVar("_T")
 
 
-class _G(Generic[_T]):
+class _G_Old(Generic[_T]):  # noqa: N801, UP046
     pass
 
 
 # make sure that TestGenericClass keeps its __module__
-_G.__module__ = "somewhere_else"
+_G.__module__ = _G_Old.__module__ = "somewhere_else"
 
 
-TestGenericBuiltin: TypeAlias = list[str]
-TestGenericClass: TypeAlias = _G[int]
+type TestGenericBuiltin = list[str]
+type TestGenericClass = _G[int]
+TestGenericBuiltinOld: TypeAlias = list[str]  # noqa: UP040
+TestGenericClassOld: TypeAlias = _G_Old[int]  # noqa: UP040
 
 
 @dataclass

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from types import GenericAlias
-from typing import TYPE_CHECKING, cast, get_args, get_origin
+from typing import TYPE_CHECKING, TypeAliasType, cast, get_args, get_origin
 
 from sphinx_autodoc_typehints import format_annotation
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
 
 
-def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
+def typehints_formatter(annotation: object, config: Config) -> str | None:
     """Generate reStructuredText containing links to the types.
 
     Can be used as ``typehints_formatter`` for :mod:`sphinx_autodoc_typehints`,
@@ -33,6 +33,9 @@ def typehints_formatter(annotation: type[Any], config: Config) -> str | None:
     -------
     reStructuredText describing the type
     """
+    if isinstance(annotation, TypeAliasType):
+        return format_annotation(annotation.__value__, config)
+
     if inspect.isclass(annotation) and annotation.__module__ == "builtins":
         return None
 

@@ -17,7 +17,7 @@ classifiers = [
     'Framework :: Sphinx :: Extension',
     'Typing :: Typed',
 ]
-requires-python = '>=3.10'
+requires-python = '>=3.12'
 dependencies = [
     'sphinx>=7.0',
 ]
@@ -94,7 +94,7 @@ version-file = 'src/scanpydoc/_version.py'
 [tool.hatch.envs.default]
 dependencies = ['types-docutils']
 [tool.hatch.envs.docs]
-python = '3.11'
+python = '3.13'
 features = ['doc']
 [tool.hatch.envs.docs.scripts]
 build = 'sphinx-build -M html docs docs/_build'
@@ -102,6 +102,8 @@ clean = 'git clean -fdX docs'
 
 [tool.hatch.envs.hatch-test]
 features = ['test', 'typehints', 'myst']
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ['3.12', '3.14']
 
 [tool.pytest.ini_options]
 addopts = [
@@ -115,8 +117,10 @@ filterwarnings = [
 
 [tool.coverage.run]
 source_pkgs = ['scanpydoc']
+concurrency = ['multiprocessing']
+patch = ['subprocess']
 [tool.coverage.paths]
-scanpydoc = ['src/scanpydoc']
+source = ['src']
 [tool.coverage.report]
 exclude_lines = [
   'no cov',

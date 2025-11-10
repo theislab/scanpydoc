@@ -26,3 +26,4 @@ repos:
           - types-docutils
           - legacy-api-wrap
           - myst-parser
+          - sphinx-autodoc-typehints
