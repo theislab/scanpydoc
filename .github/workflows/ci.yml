@@ -48,18 +48,29 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.env.python-version }}
-      - name: dependencies
-        # TODO: remove typer constraint after fixing https://github.com/WaylonWalker/coverage-rich/issues/4
-        run: uv pip install --system .[test,typehints,myst] coverage-rich 'typer <0.14' 'anyconfig[toml] >=0.14'
-      - name: tests
-        run: coverage run -m pytest --verbose --color=yes
-      - name: show coverage
-        run: coverage-rich report
+      - name: Install dependencies
+        run: |
+          uv tool install hatch
+          hatch -v env create ${{ matrix.env.name }}
+      - name: Run tests
+        run: |
+          hatch run ${{ matrix.env.name }}:run-cov -v --color=yes -n auto
+          hatch run ${{ matrix.env.name }}:cov-combine
+          hatch run ${{ matrix.env.name }}:coverage xml
       - name: upload coverage
+        if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v5
         with:
-          fail_ci_if_error: true
           token: c66a2830-d3c7-4ae7-a230-21aef89dcf65
+          flags: ${{ matrix.env.name }}
+          fail_ci_if_error: true
+      - name: Upload test results
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: c66a2830-d3c7-4ae7-a230-21aef89dcf65
+          flags: ${{ matrix.env.name }}
+          fail_ci_if_error: true
 
   check:
     if: always()
