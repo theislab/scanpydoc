@@ -117,8 +117,8 @@ filterwarnings = [
 
 [tool.coverage.run]
 source_pkgs = ['scanpydoc']
-concurrency = [ "multiprocessing" ]
-parallel = true
+concurrency = ['multiprocessing']
+patch = ['subprocess']
 [tool.coverage.paths]
 source = ['src']
 [tool.coverage.report]
