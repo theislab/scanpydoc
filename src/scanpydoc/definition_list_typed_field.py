@@ -98,12 +98,10 @@ class DLTypedField(PyTypedField):
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Replace :class:`~sphinx.domains.python.PyTypedField` with ours."""
-    napoleon_requested = "sphinx.ext.napoleon" in app.config.extensions
-    napoleon_loaded = next(
-        (True for ft in PyObject.doc_field_types if ft.name == "keyword"),
-        False,
-    )
-    if napoleon_requested and not napoleon_loaded:
+    if (
+        "sphinx.ext.napoleon" in app.config.extensions
+        and "sphinx.ext.napoleon" not in app.extensions
+    ):
         msg = f"Please load sphinx.ext.napoleon before {__name__}"
         raise RuntimeError(msg)
 
