@@ -102,9 +102,12 @@ clean = 'git clean -fdX {args:docs}'
 open = 'python3 -m webbrowser -t docs/_build/html/index.html'
 
 [tool.hatch.envs.hatch-test]
+dependencies = ['ipykernel', 'pytest-cov'] # VS Code integration
 features = ['test', 'typehints', 'myst']
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ['3.12', '3.14']
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ['3.14']
 
 [tool.pytest]
 addopts = [

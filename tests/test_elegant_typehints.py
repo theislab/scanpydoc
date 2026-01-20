@@ -80,12 +80,8 @@ def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
 
 
 @pytest.fixture
-def app(make_app_setup: MakeApp, app_params: _AppParams) -> Sphinx:
-    def builder(buildername: str = "html", **_: object) -> str:
-        return buildername  # make sure there are no conflicts
-
+def app(make_app_setup: MakeApp) -> Sphinx:
     return make_app_setup(
-        builder(*app_params.args, **app_params.kwargs),
         master_doc="index",
         extensions=[
             "sphinx.ext.autodoc",
@@ -356,9 +352,25 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
     assert output is None or output.startswith(f":py:data:`typing.{name}")
 
 
-@pytest.mark.xfail(
-    Version(version("sphinx")) >= Version("9"),
-    reason="Sphinx 9+ uses different autodoc implementation.",
+@pytest.mark.parametrize(
+    "legacy_autodoc",
+    [
+        pytest.param(
+            True,
+            id="legacy",
+            marks=pytest.mark.sphinx(
+                confoverrides=dict(autodoc_use_legacy_class_based=True)
+            ),
+        ),
+        pytest.param(
+            False,
+            id="latest",
+            marks=pytest.mark.xfail(
+                Version(version("sphinx")) >= Version("9"),
+                reason="Sphinx 9+ uses different autodoc implementation.",
+            ),
+        ),
+    ],
 )
 @pytest.mark.parametrize(
     ("direc", "base", "sub"),
@@ -368,9 +380,11 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
     ],
 )
 def test_autodoc(
+    *,
     subtests: pytest.Subtests,
     app: Sphinx,
     testmod: ModuleType,  # noqa: ARG001
+    legacy_autodoc: bool,
     direc: str,
     base: str,
     sub: str,
@@ -382,6 +396,7 @@ def test_autodoc(
    :show-inheritance:
 """,
     )
+    assert app.config.autodoc_use_legacy_class_based is legacy_autodoc
     app.build()
     out = Path(app.outdir, "index.html").read_text()
     with subtests.test("no warnings"):
