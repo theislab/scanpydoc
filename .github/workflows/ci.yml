@@ -39,6 +39,8 @@ jobs:
   test:
     needs: get-environments
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # for codecov OIDC
     strategy:
       matrix:
         env: ${{ fromJSON(needs.get-environments.outputs.envs) }}
