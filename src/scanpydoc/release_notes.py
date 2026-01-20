@@ -138,6 +138,9 @@ class _BackendMyst(_Backend):
         from docutils.parsers.rst.directives.misc import Include
 
         srcfile, lineno = self.instance.get_source_info()
+        if srcfile is None or lineno is None:
+            msg = "Could not determine source info."
+            raise self.instance.error(msg)
         parent_dir = Path(srcfile).parent
 
         d = MockIncludeDirective(
@@ -167,8 +170,8 @@ class ReleaseNotes(SphinxDirective):
         dir_ = Path(self.arguments[0])
         # resolve relative dir
         if not dir_.is_absolute():
-            src_file = Path(self.get_source_info()[0])
-            if not src_file.is_file():
+            src_file = Path(s) if (s := self.get_source_info()[0]) else None
+            if not src_file or not src_file.is_file():
                 msg = f"Cannot find relative path to: {src_file}"
                 raise self.error(msg)
             dir_ = src_file.parent / self.arguments[0]
