@@ -138,7 +138,7 @@ class _BackendMyst(_Backend):
         from docutils.parsers.rst.directives.misc import Include
 
         srcfile, lineno = self.instance.get_source_info()
-        if srcfile is None or lineno is None:
+        if srcfile is None or lineno is None:  # pragma: no cover
             msg = "Could not determine source info."
             raise self.instance.error(msg)
         parent_dir = Path(srcfile).parent
