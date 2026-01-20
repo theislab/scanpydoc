@@ -92,20 +92,24 @@ source = 'vcs'
 version-file = 'src/scanpydoc/_version.py'
 
 [tool.hatch.envs.default]
+installer = 'uv'
 dependencies = ['types-docutils']
 [tool.hatch.envs.docs]
-python = '3.13'
 features = ['doc']
 [tool.hatch.envs.docs.scripts]
-build = 'sphinx-build -M html docs docs/_build'
-clean = 'git clean -fdX docs'
+build = 'sphinx-build -M html docs docs/_build -W {args}'
+clean = 'git clean -fdX {args:docs}'
+open = 'python3 -m webbrowser -t docs/_build/html/index.html'
 
 [tool.hatch.envs.hatch-test]
+extra-dependencies = ['ipykernel', 'pytest-cov'] # VS Code integration
 features = ['test', 'typehints', 'myst']
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ['3.12', '3.14']
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ['3.14']
 
-[tool.pytest.ini_options]
+[tool.pytest]
 addopts = [
     '--import-mode=importlib',
     '-psphinx.testing.fixtures',
@@ -113,6 +117,9 @@ addopts = [
 filterwarnings = [
     'error',
     'ignore:The frontend.Option:DeprecationWarning',
+    'ignore::sphinx.deprecation.RemovedInSphinx11Warning:myst_parser',
+    # https://github.com/sphinx-doc/sphinx/issues/14270
+    'ignore:The mapping interface for autodoc options objects is deprecated:sphinx.deprecation.RemovedInSphinx11Warning',
 ]
 
 [tool.coverage.run]

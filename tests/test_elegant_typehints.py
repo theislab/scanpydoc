@@ -39,6 +39,10 @@ if TYPE_CHECKING:
 
     from scanpydoc.testing import MakeApp
 
+    class _AppParams(NamedTuple):
+        args: tuple[Any, ...]
+        kwargs: dict[str, Any]
+
     class ProcessDoc(Protocol):  # noqa: D101
         def __call__(  # noqa: D102
             self, fn: Callable[..., Any], *, run_napoleon: bool = False
@@ -349,35 +353,64 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
 
 
 @pytest.mark.parametrize(
+    "legacy_autodoc",
+    [
+        pytest.param(
+            True,
+            id="legacy",
+            marks=pytest.mark.sphinx(
+                confoverrides=dict(autodoc_use_legacy_class_based=True)
+            ),
+        ),
+        pytest.param(
+            False,
+            id="latest",
+            marks=pytest.mark.xfail(
+                Version(version("sphinx")) >= Version("9"),
+                reason="Sphinx 9+ uses different autodoc implementation.",
+            ),
+        ),
+    ],
+)
+@pytest.mark.parametrize(
     ("direc", "base", "sub"),
     [
-        ("autoclass", "Class", "SubCl"),
-        ("autoexception", "Excep", "Excep2"),
+        pytest.param("autoclass", "Class", "SubCl", id="class"),
+        pytest.param("autoexception", "Excep", "Excep2", id="exception"),
     ],
 )
 def test_autodoc(
+    *,
+    subtests: pytest.Subtests,
     app: Sphinx,
     testmod: ModuleType,  # noqa: ARG001
+    legacy_autodoc: bool,
     direc: str,
     base: str,
     sub: str,
 ) -> None:
+    """Test that autodoc respects qualname_overrides after patching it."""
     Path(app.srcdir, "index.rst").write_text(
         f"""\
 .. {direc}:: testmod.{sub}
    :show-inheritance:
 """,
     )
+    assert app.config.autodoc_use_legacy_class_based is legacy_autodoc
     app.build()
     out = Path(app.outdir, "index.html").read_text()
-    assert not (ws := cast("StringIO", app._warning).getvalue()), ws  # noqa: SLF001
-    assert re.search(
-        r'<(code|span)?[^>]*><span class="pre">test\.</span></(code|span)>'
-        f'<(code|span)?[^>]*><span class="pre">{sub}</span></(code|span)>',
-        out,
-    ), out
-    assert f'<a class="headerlink" href="#test.{sub}"' in out, out
-    assert re.search(rf"Bases: <code[^>]*><span[^>]*>(?:test\.)?{base}", out), out
+    with subtests.test("no warnings"):
+        assert not (ws := cast("StringIO", app._warning).getvalue()), ws  # noqa: SLF001
+    with subtests.test("text-override"):
+        assert re.search(
+            r'<(code|span)?[^>]*><span class="pre">test\.</span></(code|span)>'
+            f'<(code|span)?[^>]*><span class="pre">{sub}</span></(code|span)>',
+            out,
+        ), out
+    with subtests.test("link-override"):
+        assert f'<a class="headerlink" href="#test.{sub}"' in out, out
+    with subtests.test("bases"):
+        assert re.search(rf"Bases: <code[^>]*><span[^>]*>(?:test\.)?{base}", out), out
 
 
 def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> None:
@@ -404,17 +437,16 @@ def test_fwd_ref(app: Sphinx, make_module: Callable[[str, str], ModuleType]) -> 
 """,
     )
     app.setup_extension("sphinx.ext.autosummary")
-
     app.build()
 
     out = Path(app.outdir, "index.html").read_text()
     buf = cast("StringIO", app._warning)  # noqa: SLF001
-    warnings = [
+    warnings_ = [
         w
         for w in buf.getvalue().splitlines()
         if "Cannot treat a function defined as a local function" not in w
     ]
-    assert not warnings, warnings
+    assert not warnings_, warnings_
     # TODO(flying-sheep): actually reproduce
     # https://github.com/theislab/scanpydoc/issues/14
     assert "fwd_mod.A" in out, out
