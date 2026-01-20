@@ -92,13 +92,14 @@ source = 'vcs'
 version-file = 'src/scanpydoc/_version.py'
 
 [tool.hatch.envs.default]
+installer = 'uv'
 dependencies = ['types-docutils']
 [tool.hatch.envs.docs]
-python = '3.13'
 features = ['doc']
 [tool.hatch.envs.docs.scripts]
-build = 'sphinx-build -M html docs docs/_build'
-clean = 'git clean -fdX docs'
+build = 'sphinx-build -M html docs docs/_build -W {args}'
+clean = 'git clean -fdX {args:docs}'
+open = 'python3 -m webbrowser -t docs/_build/html/index.html'
 
 [tool.hatch.envs.hatch-test]
 features = ['test', 'typehints', 'myst']
