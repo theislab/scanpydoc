@@ -20,7 +20,7 @@ from . import metadata, _setup_sig
 
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
     from collections.abc import Iterable
 
     from sphinx.application import Sphinx
@@ -38,8 +38,8 @@ class DLTypedField(PyTypedField):
     it will be used instead of the default :class:`~sphinx.domains.python.PyTypedField`.
     """
 
-    #: Override the list type
-    list_type: type[nodes.definition_list] = nodes.definition_list  # type: ignore[assignment]
+    list_type: ClassVar = nodes.definition_list  # type: ignore[misc,assignment]
+    """Override the list type."""
 
     def make_field(  # type: ignore[override]
         self,

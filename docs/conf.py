@@ -28,6 +28,7 @@ extensions = [
 intersphinx_mapping = dict(
     python=("https://docs.python.org/3", None),
     jinja=("https://jinja.palletsprojects.com/en/2.10.x/", None),
+    docutils=("https://sphinx-docutils.readthedocs.io/en/latest/", None),
     sphinx=("https://www.sphinx-doc.org/en/master/", None),
     sphinx_book_theme=("https://sphinx-book-theme.readthedocs.io/en/stable/", None),
     # examples
@@ -73,6 +74,11 @@ html_theme_options = dict(
 )
 
 rtd_links_prefix = PurePosixPath("src")
+
+suppress_warnings = [
+    # when documenting DLTypedField, s-a-t tries to get its .list_type’s typehints
+    "sphinx_autodoc_typehints.guarded_import",
+]
 
 
 def setup(app: Sphinx) -> None:
