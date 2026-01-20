@@ -61,14 +61,15 @@ jobs:
         if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v5
         with:
-          token: c66a2830-d3c7-4ae7-a230-21aef89dcf65
+          use_oidc: true
           flags: ${{ matrix.env.name }}
           fail_ci_if_error: true
       - name: Upload test results
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@v5
         with:
-          token: c66a2830-d3c7-4ae7-a230-21aef89dcf65
+          report_type: test_results
+          use_oidc: true
           flags: ${{ matrix.env.name }}
           fail_ci_if_error: true
 
