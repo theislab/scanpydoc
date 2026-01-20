@@ -39,6 +39,10 @@ if TYPE_CHECKING:
 
     from scanpydoc.testing import MakeApp
 
+    class _AppParams(NamedTuple):
+        args: tuple[Any, ...]
+        kwargs: dict[str, Any]
+
     class ProcessDoc(Protocol):  # noqa: D101
         def __call__(  # noqa: D102
             self, fn: Callable[..., Any], *, run_napoleon: bool = False
@@ -76,8 +80,12 @@ def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
 
 
 @pytest.fixture
-def app(make_app_setup: MakeApp) -> Sphinx:
+def app(make_app_setup: MakeApp, app_params: _AppParams) -> Sphinx:
+    def builder(buildername: str = "html", **_: object) -> str:
+        return buildername  # make sure there are no conflicts
+
     return make_app_setup(
+        builder(*app_params.args, **app_params.kwargs),
         master_doc="index",
         extensions=[
             "sphinx.ext.autodoc",
@@ -348,6 +356,10 @@ def test_typing_classes(app: Sphinx, annotation: type) -> None:
     assert output is None or output.startswith(f":py:data:`typing.{name}")
 
 
+@pytest.mark.xfail(
+    Version(version("sphinx")) >= Version("9"),
+    reason="Sphinx 9+ uses different autodoc implementation.",
+)
 @pytest.mark.parametrize(
     ("direc", "base", "sub"),
     [
@@ -363,9 +375,10 @@ def test_autodoc(
     base: str,
     sub: str,
 ) -> None:
+    """Test that autodoc respects qualname_overrides after patching it."""
     Path(app.srcdir, "index.rst").write_text(
         f"""\
-.. {direc}:: testmod.{sub}
+.. {direc}:: test.{sub}
    :show-inheritance:
 """,
     )

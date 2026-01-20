@@ -53,8 +53,6 @@ from pathlib import Path
 from collections import ChainMap
 from dataclasses import dataclass
 
-from sphinx.ext.autodoc import ClassDocumenter
-
 from scanpydoc import metadata, _setup_sig
 from scanpydoc.elegant_typehints._role_mapping import RoleMapping
 
@@ -164,15 +162,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.config["typehints_formatter"] = PickleableCallable(typehints_formatter)
 
-    from ._autodoc_patch import dir_head_adder
+    from . import _return_tuple, _autodoc_patch
 
-    ClassDocumenter.add_directive_header = dir_head_adder(  # type: ignore[method-assign,assignment]
-        qualname_overrides,
-        ClassDocumenter.add_directive_header,
-    )
-
-    from . import _return_tuple
-
+    _autodoc_patch.setup(app)
     _return_tuple.setup(app)
 
     return metadata
