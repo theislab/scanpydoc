@@ -378,7 +378,7 @@ def test_autodoc(
     """Test that autodoc respects qualname_overrides after patching it."""
     Path(app.srcdir, "index.rst").write_text(
         f"""\
-.. {direc}:: test.{sub}
+.. {direc}:: testmod.{sub}
    :show-inheritance:
 """,
     )
