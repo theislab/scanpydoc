@@ -59,6 +59,7 @@ jobs:
           hatch run ${{ matrix.env.name }}:run-cov -v --color=yes -n auto --junitxml=test-data/test-results.xml
           hatch run ${{ matrix.env.name }}:cov-combine
           hatch run ${{ matrix.env.name }}:coverage xml
+          hatch run ${{ matrix.env.name }}:cov-report
       - name: upload coverage
         if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v5
