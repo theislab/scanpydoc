@@ -148,6 +148,12 @@ def test_typealiastype(app: Sphinx) -> None:
     assert typehints_formatter(Foo, app.config) == ":py:class:`int`"
 
 
+def test_doc_ref(app: Sphinx) -> None:
+    qualname_overrides[None, "foo.Bar"] = ("doc", "foo/bar")
+    Bar = type("Bar", (), dict(__module__="foo"))  # noqa: N806
+    assert typehints_formatter(Bar, app.config) == ":doc:`Bar <foo/bar>`"
+
+
 def _escape_sat(rst: str) -> str:
     rst = (
         rst.replace("\\", r"\\")
