@@ -10,6 +10,7 @@ This extension modifies the created type annotations in four ways:
        qualname_overrides = {
            "pandas.core.frame.DataFrame": "pandas.DataFrame",  # fix qualname
            "numpy.int64": ("py:data", "numpy.int64"),  # fix role
+           "pandas.api.typing.aliases.AnyArrayLike": ("doc", "pandas:reference/aliases"),
            ...,
        }
 
@@ -44,7 +45,7 @@ This extension modifies the created type annotations in four ways:
 .. _sphinx issue 4826: https://github.com/sphinx-doc/sphinx/issues/4826
 .. _sphinx-autodoc-typehints issue 38: https://github.com/tox-dev/sphinx-autodoc-typehints/issues/38
 
-"""  # noqa: D300
+"""  # noqa: D300, E501
 
 from __future__ import annotations
 

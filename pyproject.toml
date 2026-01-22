@@ -105,9 +105,7 @@ open = 'python3 -m webbrowser -t docs/_build/html/index.html'
 extra-dependencies = ['ipykernel', 'pytest-cov'] # VS Code integration
 features = ['test', 'typehints', 'myst']
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ['3.12', '3.14']
-[[tool.hatch.envs.hatch-test.matrix]]
-python = ['3.14']
+python = ['3.14', '3.12']
 
 [tool.pytest]
 addopts = [
