@@ -42,6 +42,10 @@ class TestCls:
     test_anno: int
 
 
+# make sure annotations are picked up from supertypes
+class TestClsChild(TestCls): ...
+
+
 def test_func() -> None:  # pragma: no cover
     pass
 

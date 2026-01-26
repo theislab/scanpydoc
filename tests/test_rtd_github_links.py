@@ -223,6 +223,13 @@ def test_get_github_url_error() -> None:
             id="anno",
         ),
         pytest.param(
+            "scanpydoc.rtd_github_links._testdata.TestClsChild.test_anno",
+            None,
+            _testdata,
+            "scanpydoc/rtd_github_links/_testdata.py",
+            id="anno-super",
+        ),
+        pytest.param(
             "scanpydoc.rtd_github_links._testdata.TestGenericBuiltin",
             _testdata.TestGenericBuiltin,
             _testdata,
