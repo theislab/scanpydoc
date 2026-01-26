@@ -121,7 +121,15 @@ def _get_annotations(obj: _SourceObjectType) -> dict[str, Any]:
     from inspect import get_annotations
 
     try:
-        return get_annotations(obj)  # type: ignore[no-any-return,arg-type,unused-ignore]
+        if isinstance(obj, type):
+            return {  # closest annotation wins
+                k: v
+                for base in reversed(obj.mro())
+                for k, v in get_annotations(base).items()
+            }
+        return get_annotations(  # pragma: no cover
+            obj  # type: ignore[no-any-return,arg-type,unused-ignore]
+        )
     except TypeError:  # pragma: no cover
         return {}
 
