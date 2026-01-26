@@ -12,6 +12,7 @@ from importlib.metadata import version
 
 import pytest
 from packaging.version import Version
+from sphinx.ext.intersphinx import InventoryAdapter
 
 
 if TYPE_CHECKING or Version(version("sphinx")) >= Version("8.2"):
@@ -32,7 +33,10 @@ from scanpydoc.elegant_typehints._formatting import typehints_formatter
 if TYPE_CHECKING:
     from io import StringIO
     from types import ModuleType
-    from typing import Protocol
+    from typing import (
+        Literal,
+        Protocol,
+    )
     from collections.abc import Generator
 
     from sphinx.application import Sphinx
@@ -65,6 +69,8 @@ def testmod(make_module: Callable[[str, str], ModuleType]) -> ModuleType:
         """\
         from __future__ import annotations
         from typing import Generic, TypeVar
+
+        type SomeAlias = int
 
         class Class: pass
         class SubCl(Class): pass
@@ -143,9 +149,40 @@ def test_default(app: Sphinx, annotation: object) -> None:
     assert typehints_formatter(annotation, app.config) is None
 
 
-def test_typealiastype(app: Sphinx) -> None:
+@pytest.mark.parametrize("env", ["no_app", "app", "intersphinx"])
+def test_typealiastype_expand(
+    *, app: Sphinx, env: Literal["no_app", "app", "intersphinx"]
+) -> None:
+    app_arg = None if env == "no_app" else app
+    if env == "intersphinx":
+        app.setup_extension("sphinx.ext.intersphinx")
     type Foo = int  # pyright: ignore[reportGeneralTypeIssues]
-    assert typehints_formatter(Foo, app.config) == ":py:class:`int`"
+    assert typehints_formatter(Foo, app.config, app=app_arg) == ":py:class:`int`"
+
+
+@pytest.mark.parametrize("override", [False, True], ids=["no_override", "override"])
+def test_typealiastype_link(
+    *, app: Sphinx, testmod: ModuleType, override: bool
+) -> None:
+    app.setup_extension("sphinx.ext.intersphinx")
+    if override:
+        docname = "foo.Bar"
+        qualname_overrides[None, "testmod.SomeAlias"] = ("py:type", docname)
+    else:
+        docname = "testmod.SomeAlias"
+
+    InventoryAdapter(app.env).main_inventory["py:type"] = {
+        docname: _InventoryItem(
+            project_name="TestProj",
+            project_version="1",
+            uri="https://x.com",
+            display_name=docname.split(".")[-1],
+        ),
+    }
+    assert (
+        typehints_formatter(testmod.SomeAlias, app.config, app=app)
+        == f":py:type:`{docname}`"
+    )
 
 
 def test_doc_ref(app: Sphinx) -> None:
@@ -294,7 +331,6 @@ def test_resolve(app: Sphinx, qualname: str, docname: str) -> None:
     """Test that qualname_overrides affects _last_resolve as expected."""
     from docutils.nodes import TextElement, reference
     from sphinx.addnodes import pending_xref
-    from sphinx.ext.intersphinx import InventoryAdapter
 
     app.setup_extension("sphinx.ext.intersphinx")
 

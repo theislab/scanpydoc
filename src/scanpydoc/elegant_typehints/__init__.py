@@ -49,10 +49,12 @@ This extension modifies the created type annotations in four ways:
 
 from __future__ import annotations
 
+from types import MappingProxyType
 from typing import TYPE_CHECKING, cast
 from pathlib import Path
+from functools import partial
 from collections import ChainMap
-from dataclasses import dataclass
+from dataclasses import field, dataclass
 
 from scanpydoc import metadata, _setup_sig
 from scanpydoc.elegant_typehints._role_mapping import RoleMapping
@@ -66,7 +68,7 @@ from .example import (
 
 if TYPE_CHECKING:
     from typing import Any
-    from collections.abc import Callable
+    from collections.abc import Mapping, Callable, Sequence
 
     from sphinx.config import Config
     from docutils.nodes import TextElement, reference
@@ -118,8 +120,13 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
 @dataclass
 class PickleableCallable:
     func: Callable[..., Any]
+    args: Sequence[Any] = field(default=())
+    kwargs: Mapping[str, Any] = field(default=MappingProxyType({}))
 
-    __call__ = property(lambda self: self.func)
+    __call__ = property(lambda self: partial(self.func, **self.kwargs))
+
+    def __getstate__(self) -> dict[str, Any]:
+        return dict(func=self.func)
 
 
 # https://www.sphinx-doc.org/en/master/extdev/event_callbacks.html#event-missing-reference
@@ -161,7 +168,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     from ._formatting import typehints_formatter
 
-    app.config["typehints_formatter"] = PickleableCallable(typehints_formatter)
+    app.config["typehints_formatter"] = PickleableCallable(
+        typehints_formatter, kwargs=dict(app=app)
+    )
 
     from . import _return_tuple, _autodoc_patch
 
