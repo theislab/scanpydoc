@@ -72,10 +72,11 @@ def _link_or_expand_alias(
     if override := elegant_typehints.qualname_overrides.get((role, qualname)):
         role = override[0] or "py:type"
         qualname = override[1]
-    domain, typ = role.split(":", 1)
+        return f":{role}:`{qualname}`"
 
     from . import _last_resolve
 
+    domain, typ = role.split(":", 1)
     xref = pending_xref(refdomain=domain, reftype=typ, reftarget=qualname)
     contnode = nodes.TextElement()
     if _last_resolve(
