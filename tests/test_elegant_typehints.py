@@ -340,7 +340,7 @@ def test_resolve(app: Sphinx, qualname: str, docname: str) -> None:
             project_name="TestProj",
             project_version="1",
             uri="https://x.com",
-            display_name=docname.split(".")[-1],
+            display_name=docname.rsplit(".", maxsplit=1)[-1],
         ),
     }
     # Node contains name from code
