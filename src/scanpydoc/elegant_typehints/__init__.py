@@ -120,8 +120,8 @@ def _init_vars(_app: Sphinx, config: Config) -> None:
 @dataclass
 class PickleableCallable:
     func: Callable[..., Any]
-    args: Sequence[Any] = field(default=())
-    kwargs: Mapping[str, Any] = field(default=MappingProxyType({}))
+    args: Sequence[Any] = field(default=(), compare=False)
+    kwargs: Mapping[str, Any] = field(default=MappingProxyType({}), compare=False)
 
     __call__ = property(lambda self: partial(self.func, **self.kwargs))
 
