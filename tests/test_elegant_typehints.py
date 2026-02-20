@@ -3,40 +3,32 @@
 from __future__ import annotations
 
 import re
+import pickle
 import inspect
-from typing import TYPE_CHECKING, Any, AnyStr, NoReturn, NamedTuple, cast, get_origin
+from typing import TYPE_CHECKING, Any, AnyStr, NoReturn, cast, get_origin
 from pathlib import Path
 from operator import attrgetter
+from itertools import combinations
 from collections.abc import Mapping, Callable
 from importlib.metadata import version
 
 import pytest
 from packaging.version import Version
+from sphinx.util.inventory import _InventoryItem
 from sphinx.ext.intersphinx import InventoryAdapter
 
-
-if TYPE_CHECKING or Version(version("sphinx")) >= Version("8.2"):
-    from sphinx.util.inventory import _InventoryItem
-else:
-
-    class _InventoryItem(NamedTuple):
-        project_name: str
-        project_version: str
-        uri: str
-        display_name: str
-
-
-from scanpydoc.elegant_typehints import _last_resolve, qualname_overrides
+from scanpydoc.elegant_typehints import (
+    PickleableCallable,
+    _last_resolve,
+    qualname_overrides,
+)
 from scanpydoc.elegant_typehints._formatting import typehints_formatter
 
 
 if TYPE_CHECKING:
     from io import StringIO
     from types import ModuleType
-    from typing import (
-        Literal,
-        Protocol,
-    )
+    from typing import Literal, Protocol, NamedTuple
     from collections.abc import Generator
 
     from sphinx.application import Sphinx
@@ -612,6 +604,39 @@ def test_return_nodoc(process_doc: ProcessDoc) -> None:
     assert len(res) == 3  # noqa: PLR2004
     assert res[0:2] == [inspect.getdoc(fn), ""]
     assert res[2].startswith(":rtype: :sphinx_autodoc_typehints_type:")
+
+
+def fn(*args: object, **kwargs: object) -> None: ...  # pragma: no cover
+
+
+@pytest.mark.parametrize(
+    ("a0", "k0", "a1", "k1"),
+    [
+        pytest.param((), {}, (), {}, id="empty"),
+        pytest.param((1,), {}, (2,), {}, id="args"),
+        pytest.param((), dict(a=1), (), dict(b=2), id="kwargs"),
+    ],
+)
+def test_cmp_callback(
+    tmp_path: Path,
+    subtests: pytest.Subtests,
+    a0: tuple[object, ...],
+    k0: dict[str, object],
+    a1: tuple[object, ...],
+    k1: dict[str, object],
+) -> None:
+
+    cb_before = PickleableCallable(fn, args=a0, kwargs=k0)
+    (p := (tmp_path / "fn.pkl")).write_bytes(pickle.dumps(cb_before))
+    cb_after = pickle.loads(p.read_bytes())  # noqa: S301
+
+    cb_new = PickleableCallable(fn, args=a1, kwargs=k1)
+
+    for (n0, cb0), (n1, cb1) in combinations(
+        dict(before=cb_before, after=cb_after, new=cb_new).items(), 2
+    ):
+        with subtests.test(f"{n0} == {n1}"):
+            assert cb0 == cb1
 
 
 def test_load_without_sat(make_app_setup: MakeApp) -> None:
