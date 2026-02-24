@@ -87,7 +87,7 @@ def test_infer_vars(config: Config, opt_name: str, opt: dict[str, str]) -> None:
     config.add(opt_name, {}, rebuild="", types=[dict])
     config[opt_name] = opt
     gbu, rlp = _infer_vars(config)
-    assert gbu == "https://github.com/scverse/scanpydoc/tree/test-branch"
+    assert gbu == "https://github.com/scverse/scanpydoc/blob/test-branch"
     assert rlp
 
 

@@ -106,11 +106,11 @@ def _init_vars(_app: Sphinx, config: Config) -> None:  # pragma: no cover
 def _infer_vars(config: Config) -> tuple[str, PurePosixPath]:
     _check_html_config(config)
     try:
-        github_base_url = "https://github.com/{github_user}/{github_repo}/tree/{github_version}".format_map(
+        github_base_url = "https://github.com/{github_user}/{github_repo}/blob/{github_version}".format_map(
             config.html_context,
         )
     except (AttributeError, KeyError):
-        github_base_url = "{repository_url}/tree/{repository_branch}".format_map(
+        github_base_url = "{repository_url}/blob/{repository_branch}".format_map(
             config.html_theme_options,
         )
     rtd_links_prefix = PurePosixPath(config.rtd_links_prefix)
