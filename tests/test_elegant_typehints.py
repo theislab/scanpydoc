@@ -41,7 +41,11 @@ if TYPE_CHECKING:
 
     class ProcessDoc(Protocol):  # noqa: D101
         def __call__(  # noqa: D102
-            self, fn: Callable[..., Any], *, run_napoleon: bool = False
+            self,
+            fn: Callable[..., Any],
+            *,
+            run_napoleon: bool = False,
+            skip_empty: bool = False,
         ) -> list[str]: ...
 
 
@@ -110,7 +114,9 @@ def process_doc(app: Sphinx) -> ProcessDoc:
         "scanpydoc.elegant_typehints._return_tuple.process_docstring",
     ]
 
-    def process(fn: Callable[..., Any], *, run_napoleon: bool = False) -> list[str]:
+    def process(
+        fn: Callable[..., Any], *, run_napoleon: bool = False, skip_empty: bool = False
+    ) -> list[str]:
         app.env.prepare_settings(getattr(fn, "__name__", str(fn)))
         lines = (inspect.getdoc(fn) or "").split("\n")
         if isinstance(fn, property):
@@ -126,6 +132,8 @@ def process_doc(app: Sphinx) -> ProcessDoc:
             ):
                 continue
             listener.handler(app, "function", name, fn, None, lines)
+        if skip_empty:
+            lines = [l for l in lines if l.strip()]
         return lines
 
     return process
@@ -213,7 +221,7 @@ def test_kinds(
         """:param s: Test"""
         del s
 
-    assert process_doc(kind(fn_test)) == [
+    assert process_doc(kind(fn_test), skip_empty=True) == [
         f":type s: {_escape_sat(':py:class:`str`')}",
         ":param s: Test",
         *([NONE_RTYPE] if add_rtype else []),
@@ -252,7 +260,7 @@ def test_defaults_simple(process_doc: ProcessDoc) -> None:
         """  # noqa: D205
         del s, n, i_
 
-    assert process_doc(fn_test) == [
+    assert process_doc(fn_test, skip_empty=True) == [
         f":type s: {_escape_sat(':py:class:`str`')} (default: ``'foo'``)",
         ":param s: Test S",
         f":type n: {_escape_sat(':py:obj:`None`')} (default: ``None``)",
@@ -271,7 +279,7 @@ def test_defaults_complex(process_doc: ProcessDoc) -> None:
     expected = (
         r":py:class:`~collections.abc.Mapping`\ \[:py:class:`str`, :py:class:`int`]"
     )
-    assert process_doc(fn_test) == [
+    assert process_doc(fn_test, skip_empty=True) == [
         f":type m: {_escape_sat(expected)} (default: ``{{}}``)",
         ":param m: Test M",
         NONE_RTYPE,
@@ -308,7 +316,7 @@ def test_qualname_overrides(
     fn_test.__annotations__["m"] = get(testmod)
     assert fn_test.__annotations__["m"].__module__ == "testmod"
 
-    assert process_doc(fn_test) == [
+    assert process_doc(fn_test, skip_empty=True) == [
         f":type m: {_escape_sat(expected)}",
         ":param m: Test M",
         NONE_RTYPE,
