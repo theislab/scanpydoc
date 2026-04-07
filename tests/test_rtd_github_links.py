@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from _pytest.monkeypatch import MonkeyPatch
 
     from scanpydoc.testing import MakeApp
+    from scanpydoc.rtd_github_links import _SourceObjectType
     from scanpydoc.rtd_github_links._linkcode import Domain, DomainInfo
 
 
@@ -260,7 +261,7 @@ def test_get_github_url_error() -> None:
     ],
 )
 def test_get_obj_module_path(
-    obj_path: str, obj: object, mod: ModuleType, path_expected: PurePosixPath
+    obj_path: str, obj: _SourceObjectType, mod: ModuleType, path_expected: PurePosixPath
 ) -> None:
     obj_rcv, mod_rcv = _get_obj_module(obj_path)
     assert obj_rcv is obj
