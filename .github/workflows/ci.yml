@@ -23,9 +23,9 @@ jobs:
     outputs:
       envs: ${{ steps.get-envs.outputs.envs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { filter: "blob:none", fetch-depth: 0 }
-      - uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v8.2.0
         with: { enable-cache: false }
       - id: get-envs
         run: |
@@ -45,9 +45,9 @@ jobs:
       matrix:
         env: ${{ fromJSON(needs.get-environments.outputs.envs) }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { fetch-depth: 0, filter: "blob:none" }
-      - uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v8.2.0
         with:
           python-version: ${{ matrix.env.python-version }}
       - name: Install dependencies
@@ -62,14 +62,14 @@ jobs:
           hatch run ${{ matrix.env.name }}:cov-report
       - name: upload coverage
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           use_oidc: true
           flags: ${{ matrix.env.name }}
           fail_ci_if_error: true
       - name: Upload test results
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           report_type: test_results
           use_oidc: true
