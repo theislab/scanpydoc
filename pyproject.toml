@@ -46,6 +46,7 @@ scanpydoc = 'scanpydoc.theme'
 select = ['ALL']
 allowed-confusables = ['’', '×', 'l']
 ignore = [
+    'CPY001', # No need for copyright notice with GPL
     'E741',   # Ambiguous variable name
     'C408',   # `dict` calls are useful
     'D203',   # No blank lines before class body
@@ -68,6 +69,7 @@ ignore = [
     'S101', # Pytest tests use `assert`
     'RUF018', # Assignment expressions in assert are fine here
     'PLR0913', # Tests should be able to use as many fixtures as they want
+    'PLR0917', # ditto
 ]
 [tool.ruff.lint.flake8-type-checking]
 strict = true
