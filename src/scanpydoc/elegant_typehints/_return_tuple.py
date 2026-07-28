@@ -45,7 +45,7 @@ def get_tuple_annot(annotation: type | None) -> tuple[type, ...] | None:
     return get_args(annotation)
 
 
-def process_docstring(  # noqa: PLR0913
+def process_docstring(  # noqa: PLR0913, PLR0917
     app: Sphinx,
     what: str,
     name: str,  # noqa: ARG001
