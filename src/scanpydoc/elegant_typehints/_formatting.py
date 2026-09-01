@@ -1,11 +1,8 @@
 from __future__ import annotations
 
 from types import GenericAlias
-from typing import TYPE_CHECKING, TypeAliasType, cast, get_args, get_origin
+from typing import TYPE_CHECKING, cast, get_args, get_origin
 
-from docutils import nodes
-from sphinx.addnodes import pending_xref
-from sphinx.ext.intersphinx import resolve_reference_detect_inventory
 from sphinx_autodoc_typehints import format_annotation
 
 from scanpydoc import elegant_typehints
@@ -39,10 +36,7 @@ def typehints_formatter(
     -------
     reStructuredText describing the type
     """
-    if isinstance(annotation, TypeAliasType):
-        if ref := _link_or_expand_alias(annotation, app=app):
-            return ref
-        return format_annotation(annotation.__value__, config)
+    del app
 
     if isinstance(annotation, type) and annotation.__module__ == "builtins":
         return None
@@ -60,30 +54,6 @@ def typehints_formatter(
         return _fmt_type(annotation, args, config)
 
     return None  # pragma: no cover
-
-
-def _link_or_expand_alias(
-    annotation: TypeAliasType, *, app: Sphinx | None
-) -> str | None:
-    """Eagerly try to resolve the reference and return it if it does."""
-    if app is None or "sphinx.ext.intersphinx" not in app.extensions:
-        return None
-    role, qualname = "py:type", f"{annotation.__module__}.{annotation.__name__}"
-    if override := elegant_typehints.qualname_overrides.get((role, qualname)):
-        role = override[0] or "py:type"
-        qualname = override[1]
-        return f":{role}:`{qualname}`"
-
-    from . import _last_resolve
-
-    domain, typ = role.split(":", 1)
-    xref = pending_xref(refdomain=domain, reftype=typ, reftarget=qualname)
-    contnode = nodes.TextElement()
-    if _last_resolve(
-        app, app.env, xref, contnode
-    ) or resolve_reference_detect_inventory(app.env, xref, contnode):
-        return f":{role}:`{qualname}`"
-    return None
 
 
 def _fmt_type(cls: type, args: Sequence[Any] | None, config: Config) -> str | None:
