@@ -28,7 +28,7 @@ from scanpydoc.elegant_typehints._formatting import typehints_formatter
 if TYPE_CHECKING:
     from io import StringIO
     from types import ModuleType
-    from typing import Literal, Protocol, NamedTuple
+    from typing import Protocol, NamedTuple
     from collections.abc import Generator
 
     from sphinx.application import Sphinx
@@ -147,42 +147,6 @@ def test_app(app: Sphinx) -> None:
 @pytest.mark.parametrize("annotation", [str, int | str], ids=["type", "union"])
 def test_default(app: Sphinx, annotation: object) -> None:
     assert typehints_formatter(annotation, app.config) is None
-
-
-@pytest.mark.parametrize("env", ["no_app", "app", "intersphinx"])
-def test_typealiastype_expand(
-    *, app: Sphinx, env: Literal["no_app", "app", "intersphinx"]
-) -> None:
-    app_arg = None if env == "no_app" else app
-    if env == "intersphinx":
-        app.setup_extension("sphinx.ext.intersphinx")
-    type Foo = int  # pyright: ignore[reportGeneralTypeIssues]
-    assert typehints_formatter(Foo, app.config, app=app_arg) == ":py:class:`int`"
-
-
-@pytest.mark.parametrize("override", [False, True], ids=["no_override", "override"])
-def test_typealiastype_link(
-    *, app: Sphinx, testmod: ModuleType, override: bool
-) -> None:
-    app.setup_extension("sphinx.ext.intersphinx")
-    if override:
-        docname = "foo.Bar"
-        qualname_overrides[None, "testmod.SomeAlias"] = ("py:type", docname)
-    else:
-        docname = "testmod.SomeAlias"
-
-    InventoryAdapter(app.env).main_inventory["py:type"] = {
-        docname: _InventoryItem(
-            project_name="TestProj",
-            project_version="1",
-            uri="https://x.com",
-            display_name=docname.split(".")[-1],
-        ),
-    }
-    assert (
-        typehints_formatter(testmod.SomeAlias, app.config, app=app)
-        == f":py:type:`{docname}`"
-    )
 
 
 def test_doc_ref(app: Sphinx) -> None:

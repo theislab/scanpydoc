@@ -35,7 +35,7 @@ doc = [
     'scanpydoc[typehints,myst,theme]',
     'sphinx',
 ]
-typehints = ['sphinx-autodoc-typehints>=1.15.2']
+typehints = ['sphinx-autodoc-typehints>=3.8.0']
 theme = ['sphinx-book-theme>=1.1.0']
 myst = ['myst-parser']
 
