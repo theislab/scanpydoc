@@ -49,7 +49,15 @@ if TYPE_CHECKING:
         ) -> list[str]: ...
 
 
-NONE_RTYPE = ":rtype: :sphinx_autodoc_typehints_type:`\\:py\\:obj\\:\\`None\\``"
+NONE_TYPE = (
+    r":sphinx_autodoc_typehints_type:"
+    r"`\:sphinx\_autodoc\_typehints\_constant\:\`None\``"
+)
+NONE_RTYPE = f":sphinx_autodoc_typehints_rtype: {NONE_TYPE}"
+
+
+def _default(value: str) -> str:
+    return f"(default: :sphinx_autodoc_typehints_value:`{value}`)"
 
 
 @pytest.fixture(autouse=True)
@@ -109,8 +117,12 @@ def process_doc(app: Sphinx) -> ProcessDoc:
         key=attrgetter("priority"),
     )
     assert [f"{l.handler.__module__}.{l.handler.__qualname__}" for l in listeners] == [
+        (
+            "sphinx_autodoc_typehints._docstring.formats.napoleon.attributes"
+            ".note_attributes_before_napoleon"
+        ),
         "sphinx.ext.napoleon._process_docstring",
-        "sphinx_autodoc_typehints.process_docstring",
+        "sphinx_autodoc_typehints._docstring.handler.process_docstring",
         "scanpydoc.elegant_typehints._return_tuple.process_docstring",
     ]
 
@@ -225,11 +237,11 @@ def test_defaults_simple(process_doc: ProcessDoc) -> None:
         del s, n, i_
 
     assert process_doc(fn_test, skip_empty=True) == [
-        f":type s: {_escape_sat(':py:class:`str`')} (default: ``'foo'``)",
+        f":type s: {_escape_sat(':py:class:`str`')} {_default("'foo'")}",
         ":param s: Test S",
-        f":type n: {_escape_sat(':py:obj:`None`')} (default: ``None``)",
+        f":type n: {NONE_TYPE} {_default('None')}",
         ":param n: Test N",
-        rf":type i\_: {_escape_sat(':py:class:`int`')} (default: ``1``)",
+        rf":type i\_: {_escape_sat(':py:class:`int`')} {_default('1')}",
         r":param i\_: Test I",
         NONE_RTYPE,
     ]
@@ -244,7 +256,7 @@ def test_defaults_complex(process_doc: ProcessDoc) -> None:
         r":py:class:`~collections.abc.Mapping`\ \[:py:class:`str`, :py:class:`int`]"
     )
     assert process_doc(fn_test, skip_empty=True) == [
-        f":type m: {_escape_sat(expected)} (default: ``{{}}``)",
+        f":type m: {_escape_sat(expected)} {_default('{}')}",
         ":param m: Test M",
         NONE_RTYPE,
     ]
@@ -575,7 +587,9 @@ def test_return_nodoc(process_doc: ProcessDoc) -> None:
     res = process_doc(fn)
     assert len(res) == 3  # noqa: PLR2004
     assert res[0:2] == [inspect.getdoc(fn), ""]
-    assert res[2].startswith(":rtype: :sphinx_autodoc_typehints_type:")
+    assert res[2].startswith(
+        ":sphinx_autodoc_typehints_rtype: :sphinx_autodoc_typehints_type:"
+    )
 
 
 def fn(*args: object, **kwargs: object) -> None: ...  # pragma: no cover

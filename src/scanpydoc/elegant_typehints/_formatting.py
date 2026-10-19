@@ -3,7 +3,8 @@ from __future__ import annotations
 from types import GenericAlias
 from typing import TYPE_CHECKING, cast, get_args, get_origin
 
-from sphinx_autodoc_typehints import format_annotation
+# no public API since 3.17
+from sphinx_autodoc_typehints._render.annotation.walker import format_annotation
 
 from scanpydoc import elegant_typehints
 from scanpydoc._types import _GenericAlias

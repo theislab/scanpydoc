@@ -8,7 +8,7 @@ from typing import Tuple as t_Tuple  # noqa: UP035
 from logging import getLogger
 
 from sphinx.ext.napoleon import NumpyDocstring  # type: ignore[attr-defined]
-from sphinx_autodoc_typehints import format_annotation
+from sphinx_autodoc_typehints._render.annotation.walker import format_annotation
 
 
 if TYPE_CHECKING:
@@ -121,8 +121,8 @@ def _parse_returns_section(self: NumpyDocstring, section: str) -> list[str]:  # 
 def _delete_sphinx_autodoc_typehints_docstring_processor(app: Sphinx) -> None:
     for listener in app.events.listeners["autodoc-process-docstring"].copy():
         handler_name = getattr(listener.handler, "__name__", None)
-        # https://github.com/tox-dev/sphinx-autodoc-typehints/blob/a5c091f725da8374347802d54c16c3d38833d41c/src/sphinx_autodoc_typehints/patches.py#L69
-        if handler_name == "napoleon_numpy_docstring_return_type_processor":
+        # https://github.com/tox-dev/sphinx-autodoc-typehints/blob/3.17.0/src/sphinx_autodoc_typehints/_docstring/formats/napoleon/returns.py
+        if handler_name == "mark_numpy_returns":
             app.disconnect(listener.id)
 
 
