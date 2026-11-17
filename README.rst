@@ -1,6 +1,8 @@
 scanpydoc |pypi| |docs| |tests| |checks| |cov|
 ==============================================
 
+.. deprecation-start
+
 .. attention::
 
     This package is deprecated. Use scverse-doc_ instead:
@@ -25,6 +27,8 @@ scanpydoc |pypi| |docs| |tests| |checks| |cov|
          - ``scverse_doc.release_notes``
 
 .. _scverse-doc: https://github.com/scverse/scverse-doc
+
+.. deprecation-end
 
 A collection of Sphinx extensions similar to (but more flexible than) numpydoc.
 
