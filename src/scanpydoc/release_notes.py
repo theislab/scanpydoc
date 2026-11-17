@@ -42,7 +42,7 @@ from packaging.version import Version
 from sphinx.util.parsing import nested_parse_to_nodes
 from sphinx.util.docutils import SphinxDirective
 
-from . import metadata, _setup_sig
+from . import metadata, _setup_sig, _warn_deprecated
 
 
 if TYPE_CHECKING:
@@ -186,5 +186,6 @@ class ReleaseNotes(SphinxDirective):
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Add the ``release-notes`` directive."""
+    _warn_deprecated(__name__, "`scverse_doc.release_notes`")
     app.add_directive("release-notes", ReleaseNotes)
     return metadata

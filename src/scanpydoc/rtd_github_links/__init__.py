@@ -69,7 +69,7 @@ from dataclasses import fields, is_dataclass
 
 from jinja2.defaults import DEFAULT_FILTERS  # type: ignore[attr-defined]
 
-from scanpydoc import metadata, _setup_sig
+from scanpydoc import metadata, _setup_sig, _warn_deprecated
 from scanpydoc._types import _GenericAlias
 
 
@@ -259,6 +259,7 @@ def _check_html_config(config: Config) -> None:
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Register the :func:`github_url` :ref:`Jinja filter <jinja:filters>`."""
+    _warn_deprecated(__name__, "`scverse_doc.source` (with `source_repository = ...`)")
     app.add_config_value("rtd_links_prefix", PurePosixPath("."), "")
     app.connect("config-inited", _init_vars)
 

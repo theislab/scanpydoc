@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 from textwrap import dedent
@@ -125,8 +126,16 @@ def test_release_notes(tmp_path: Path, app: Sphinx, files: Tree) -> None:
     mkfiles(tmp_path, files)
     app.build()
     index_out = (tmp_path / "_build/pseudoxml/index.pseudoxml").read_text()
-    assert (
-        "\n".join(l[4:] for l in dedent(index_out).splitlines()[1:]) == expected.strip()
+    out = "\n".join(l[4:] for l in dedent(index_out).splitlines()[1:])
+    assert _sort_ids(out) == _sort_ids(expected.strip())
+
+
+def _sort_ids(pseudoxml: str) -> str:
+    """Normalize ID order, which differs between parsers (and their versions)."""
+    return re.sub(
+        r'ids="([^"]*)"',
+        lambda m: f'ids="{" ".join(sorted(m[1].split()))}"',
+        pseudoxml,
     )
 
 

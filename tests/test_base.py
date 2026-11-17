@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import pkgutil
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from functools import partial
 from importlib import import_module
+
+import pytest
 
 import scanpydoc
 
 
 if TYPE_CHECKING:
-    import pytest
+    from io import StringIO
+
     from sphinx.application import Sphinx
 
     from scanpydoc.testing import MakeApp
@@ -44,3 +47,27 @@ def test_all_get_installed(
     assert set(setups_called) == setups_seen
     for app2 in setups_called.values():
         assert app is app2
+
+
+@pytest.mark.parametrize(
+    ("ext", "replacement"),
+    [
+        pytest.param("scanpydoc", '["scverse_doc"]', id="all"),
+        pytest.param("scanpydoc.release_notes", "scverse_doc.release_notes", id="sub"),
+    ],
+)
+def test_deprecation_warning(
+    make_app_setup: MakeApp, ext: str, replacement: str
+) -> None:
+    app = make_app_setup()
+    app.config.suppress_warnings = []  # conftest suppresses scanpydoc.deprecated
+    app.setup_extension("sphinx.ext.autodoc")  # needed by elegant_typehints
+    app.setup_extension(ext)
+    msgs = [
+        line
+        for line in cast("StringIO", app._warning).getvalue().splitlines()  # noqa: SLF001
+        if "deprecated" in line
+    ]
+    assert len(msgs) == 1, msgs  # setting up all only warns once
+    assert f"`{ext}`" in msgs[0]
+    assert replacement in msgs[0]

@@ -8,8 +8,11 @@ import importlib.util
 from uuid import uuid4
 from typing import TYPE_CHECKING
 from textwrap import dedent
+from unittest.mock import patch
 
 import pytest
+
+import scanpydoc
 
 
 if TYPE_CHECKING:
@@ -49,15 +52,22 @@ def make_app_setup(
 
         confoverrides = app_params.kwargs.get("confoverrides", {}).copy()
         confoverrides.update(conf)
-        confoverrides.setdefault("suppress_warnings", []).append("app.add_node")
-
-        return make_app(
-            buildername=buildername,
-            srcdir=tmp_path,
-            confoverrides=confoverrides,
-            warningiserror=exception_on_warning,
-            exception_on_warning=exception_on_warning,
+        confoverrides.setdefault("suppress_warnings", []).extend(
+            [
+                "app.add_node",
+                "scanpydoc.deprecated",
+            ]
         )
+
+        # Sphinx raises for `exception_on_warning` before applying `suppress_warnings`
+        with patch.object(scanpydoc, "_setting_up_all", True):  # noqa: FBT003
+            return make_app(
+                buildername=buildername,
+                srcdir=tmp_path,
+                confoverrides=confoverrides,
+                warningiserror=exception_on_warning,
+                exception_on_warning=exception_on_warning,
+            )
 
     return make_app_setup
 
