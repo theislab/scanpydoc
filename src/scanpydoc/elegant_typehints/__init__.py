@@ -56,7 +56,7 @@ from functools import partial
 from collections import ChainMap
 from dataclasses import field, dataclass
 
-from scanpydoc import metadata, _setup_sig
+from scanpydoc import metadata, _setup_sig, _warn_deprecated
 from scanpydoc.elegant_typehints._role_mapping import RoleMapping
 
 from .example import (
@@ -156,6 +156,11 @@ def _last_resolve(
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Patches :mod:`sphinx_autodoc_typehints` for a more elegant display."""
+    _warn_deprecated(
+        __name__,
+        "`scverse_doc.xref_overrides` (`qualname_overrides` → `xref_overrides`) "
+        "and `scverse_doc.napoleon`",
+    )
     if "sphinx.ext.autodoc" not in app.extensions:
         msg = "`scanpydoc.elegant_typehints` requires `sphinx.ext.autodoc`."
         raise RuntimeError(msg)

@@ -1,6 +1,35 @@
 scanpydoc |pypi| |docs| |tests| |checks| |cov|
 ==============================================
 
+.. deprecation-start
+
+.. attention::
+
+    This package is deprecated. Use scverse-doc_ instead:
+
+    .. list-table::
+       :header-rows: 1
+
+       * - scanpydoc extension
+         - scverse-doc replacement
+       * - ``scanpydoc``
+         - ``extensions = ["scverse_doc"]``
+       * - ``scanpydoc.definition_list_typed_field``
+         - ``scverse_doc.typed_fields``
+       * - ``scanpydoc.elegant_typehints``
+         - ``scverse_doc.xref_overrides`` (``qualname_overrides`` → ``xref_overrides``)
+           and ``scverse_doc.napoleon``
+       * - ``scanpydoc.rtd_github_links``
+         - ``scverse_doc.source`` (with ``source_repository = ...``)
+       * - ``scanpydoc.theme``
+         - ``html_theme = "scverse"``
+       * - ``scanpydoc.release_notes``
+         - ``scverse_doc.release_notes``
+
+.. _scverse-doc: https://github.com/scverse/scverse-doc
+
+.. deprecation-end
+
 A collection of Sphinx extensions similar to (but more flexible than) numpydoc.
 
 Check the self-documenting documentation at https://icb-scanpydoc.readthedocs-hosted.com

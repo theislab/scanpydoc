@@ -1,6 +1,10 @@
 Scanpydoc
 =========
 
+.. include:: ../README.rst
+   :start-after: .. deprecation-start
+   :end-before: .. deprecation-end
+
 .. automodule:: scanpydoc
    :members:
 

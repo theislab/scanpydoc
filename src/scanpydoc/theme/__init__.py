@@ -73,7 +73,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from pathlib import Path
 
-from scanpydoc import _setup_sig
+from scanpydoc import _setup_sig, _warn_deprecated
 
 
 if TYPE_CHECKING:
@@ -86,6 +86,7 @@ HERE = Path(__file__).parent.resolve()
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, bool]:  # pragma: no cover
     """Set up theme (like an extension)."""
+    _warn_deprecated(__name__, '`html_theme = "scverse"`')
     app.add_html_theme("scanpydoc", str(HERE))
 
     # if we’re on ReadTheDocs, hide the pydata-sphinx-theme search popup

@@ -78,6 +78,7 @@ rtd_links_prefix = PurePosixPath("src")
 suppress_warnings = [
     # when documenting DLTypedField, s-a-t tries to get its .list_type’s typehints
     "sphinx_autodoc_typehints.guarded_import",
+    "scanpydoc.deprecated",
 ]
 
 

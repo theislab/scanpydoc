@@ -16,7 +16,7 @@ from sphinx.domains.python import (  # type: ignore[attr-defined,unused-ignore]
     PyTypedField,
 )
 
-from . import metadata, _setup_sig
+from . import metadata, _setup_sig, _warn_deprecated
 
 
 if TYPE_CHECKING:
@@ -98,6 +98,7 @@ class DLTypedField(PyTypedField):
 @_setup_sig
 def setup(app: Sphinx) -> dict[str, Any]:
     """Replace :class:`~sphinx.domains.python.PyTypedField` with ours."""
+    _warn_deprecated(__name__, "`scverse_doc.typed_fields`")
     if (
         "sphinx.ext.napoleon" in app.config.extensions
         and "sphinx.ext.napoleon" not in app.extensions
